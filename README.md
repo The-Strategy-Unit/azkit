@@ -1,6 +1,18 @@
 # `{azkit}` 🌊🔑📂📦![R](https://www.r-project.org/favicon-32x32.png)
 
+<!-- badges: start -->
+[![Project Status: WIP – Initial development is in progress, but there
+has not yet been a stable, usable release suitable for the
+public.](https://www.repostatus.org/badges/latest/wip.svg)][repostatus]
+<!-- badges: end -->
+
+[repostatus]: https://www.repostatus.org/#wip
+
 R package to handle Azure authentication and basic tasks with blob storage.
+
+The package is in development.
+Please leave an issue or raise a pull request if you have ideas for its
+improvement.
 
 ## Usage
 
