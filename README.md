@@ -1,31 +1,50 @@
 # `{azkit}` 🌊🔑📂📦![R](https://www.r-project.org/favicon-32x32.png)
 
 <!-- badges: start -->
+![GitHub License][gh_licence]
 [![Project Status: WIP – Initial development is in progress, but there
-has not yet been a stable, usable release suitable for the
-public.](https://www.repostatus.org/badges/latest/wip.svg)][repostatus]
+has not yet been a stable release][repostatus_svg]][repostatus_info]
+[![Lifecycle: experimental][lifecycle_svg]][lifecycle]
+![GitHub R package version][gh_ver]
+
+[gh_licence]: https://img.shields.io/github/license/The-Strategy-Unit/azkit
+[gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/azkit
+[repostatus_info]: https://www.repostatus.org/#project-statuses
+[repostatus_svg]: https://www.repostatus.org/badges/latest/wip.svg
+[lifecycle]: https://lifecycle.r-lib.org/articles/stages.html#experimental
+[lifecycle_svg]: https://img.shields.io/badge/lifecycle-experimental-orange.svg
 <!-- badges: end -->
 
-[repostatus]: https://www.repostatus.org/#wip
 
 R package to handle Azure authentication and basic tasks with blob storage.
+
+## Status
 
 The package is in development.
 Please leave an issue or raise a pull request if you have ideas for its
 improvement.
 
+## Installation
+
+You can install the development version of `{azkit}` with:
+
+``` r
+# install.packages("pak")
+pak::pak("The-Strategy-Unit/azkit")
+```
+
 ## Usage
 
-To be added.
+_To be added._
 
-## Secrets
+## Environment variables
 
 To access Azure Storage you need to add some variables to a
-[`.Renviron` file][posit] in your project.
+[`.Renviron` file][posit_env] in your project.
 
 ⚠️These values are sensitive and should not be exposed to anyone outside The
 Strategy Unit.
-Make sure you have '.Renviron' listed in [the `.gitignore` file][github] for
+Make sure you include `.Renviron` in [the `.gitignore` file][github] for
 your project.
 
 Your `.Renviron` file should contain the variables below.
@@ -40,11 +59,13 @@ These may vary depending on the specific container you’re connecting to.
 
 ## Getting help
 
-Please use the Issues feature here on GitHub to report any bugs or problems.
+Please use the [Issues][issues] feature on GitHub to report any bugs, ideas
+or problems, including with the package documentation.
 
-Alternatively, to raise any questions about the package contact
+Alternatively, to ask any questions about the package you may contact
 [Fran Barton](mailto:francis.barton@nhs.net).
 
-[posit]: https://docs.posit.co/ide/user/ide/guide/environments/r/managing-r.html#renviron
+[posit_env]: https://docs.posit.co/ide/user/ide/guide/environments/r/managing-r.html#renviron
 [github]: https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 [suds]: https://the-strategy-unit.github.io/data_science/about.html
+[issues]: https://github.com/The-Strategy-Unit/azkit/issues

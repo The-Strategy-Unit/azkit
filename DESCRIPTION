@@ -1,0 +1,24 @@
+Package: azkit
+Title: Azure storage authentication toolkit
+Version: 0.0.1
+Authors@R:
+    person(
+        "Fran", "Barton",
+        email = "francis.barton@nhs.net",
+        role = c("aut", "cre"),
+        comment = c(ORCID = "0000-0002-5650-1176")
+    )
+Description: Handles Azure storage authentication and basic tasks with blob
+    storage.
+License: MIT + file LICENSE
+Depends: R (>= 4.1)
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports: 
+    AzureAuth,
+    AzureRMR,
+    cli,
+    purrr
