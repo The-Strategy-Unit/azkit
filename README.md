@@ -6,6 +6,7 @@
 has not yet been a stable release][repostatus_svg]][repostatus_info]
 [![Lifecycle: experimental][lifecycle_svg]][lifecycle]
 ![GitHub R package version][gh_ver]
+[![R CMD check status][cmd_svg]][cmd_yaml]
 
 [gh_licence]: https://img.shields.io/github/license/The-Strategy-Unit/azkit
 [gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/azkit
@@ -13,6 +14,8 @@ has not yet been a stable release][repostatus_svg]][repostatus_info]
 [repostatus_svg]: https://www.repostatus.org/badges/latest/wip.svg
 [lifecycle]: https://lifecycle.r-lib.org/articles/stages.html#experimental
 [lifecycle_svg]: https://img.shields.io/badge/lifecycle-experimental-orange.svg
+[cmd_svg]: https://github.com/The-Strategy-Unit/azkit/actions/workflows/R-CMD-check.yaml/badge.svg)
+[cmd_yaml]: https://github.com/The-Strategy-Unit/azkit/actions/workflows/R-CMD-check.yaml
 <!-- badges: end -->
 
 

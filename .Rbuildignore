@@ -3,3 +3,4 @@
 ^LICENSE\.md$
 ^azkit\.code-workspace$
 ^CODEOWNERS$
+^\.github$
