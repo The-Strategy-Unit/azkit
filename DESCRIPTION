@@ -22,7 +22,7 @@ Imports:
     AzureStor,
     cli,
     purrr,
-    rlang
-Suggests:
-    testthat (>= 3.0.0),
+    rlang,
     withr
+Suggests:
+    testthat (>= 3.0.0)
