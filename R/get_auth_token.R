@@ -39,19 +39,19 @@
 #' @examples
 #' \dontrun{
 #' # Get a token for the default resource
-#' token <- get_azure_token()
+#' token <- get_auth_token()
 #'
 #' # Get a token for a specific resource and tenant
-#' token <- get_azure_token(
+#' token <- get_auth_token(
 #'  resource = "https://graph.microsoft.com",
 #'  tenant = "my-tenant-id"
 #' )
 #'
 #' # Get a token using a specific app ID
-#' token <- get_azure_token(client_id = "my-app-id")
+#' token <- get_auth_token(client_id = "my-app-id")
 #' }
 #' @export
-get_azure_token <- function(
+get_auth_token <- function(
   resource = "https://storage.azure.com",
   managed_resource = "https://management.azure.com",
   tenant = "organizations",
@@ -117,8 +117,9 @@ get_azure_token <- function(
   }
 }
 
-#' Sub-routine for `get_azure_token()`
-#' Mainly to tidy up the code a bit
+#' Sub-routine for `get_auth_token()`
+#'
+#' Pulled out mainly to tidy up the main function code a bit
 #' @returns A string (the client ID)
 get_client_id <- function() {
   pluck_client_id <- function() {
