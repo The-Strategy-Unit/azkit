@@ -14,12 +14,51 @@
 #'  can be turned off with `FALSE`. Can be set persistently with the option
 #'  "azkit.info". If `NULL` then it will default to the value of
 #'  `rlang::is_interactive()` (ie `TRUE` for interactive sessions).
+#' @param ... optional arguments to be passed through to `arrow::read_parquet()`
 #' @returns A tibble
 #' @export
-read_azure_parquet <- function(container, file, path = "/", info = NULL) {
+read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
   stopifnot("no container found" = inherits(container, "blob_container"))
   download_azure_blob(container, path, file, "parquet", info) |>
-    arrow::read_parquet()
+    arrow::read_parquet(...)
+}
+
+
+#' Read an rds file from Azure storage
+#'
+#' @inheritParams read_azure_parquet
+#' @returns Data object that was stored in the rds file
+#' @export
+read_azure_rds <- function(container, file, path = "/", info = NULL) {
+  stopifnot("no container found" = inherits(container, "blob_container"))
+  download_azure_blob(container, path, file, "rds", info) |>
+    readr::read_rds()
+}
+
+
+#' Read a csv file from Azure storage
+#'
+#' @inheritParams read_azure_parquet
+#' @param ... optional arguments to be passed through to `readr::read_csv()`
+#' @returns A tibble
+#' @export
+read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
+  stopifnot("no container found" = inherits(container, "blob_container"))
+  download_azure_blob(container, path, file, "csv", info) |>
+    readr::read_csv(...)
+}
+
+
+#' Read a json file from Azure storage
+#'
+#' @inheritParams read_azure_parquet
+#' @param ... optional arguments to be passed through to `jsonlite::fromJSON()`
+#' @returns A list
+#' @export
+read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
+  stopifnot("no container found" = inherits(container, "blob_container"))
+  download_azure_blob(container, path, file, "json", info) |>
+    jsonlite::fromJSON(...)
 }
 
 
