@@ -7,9 +7,16 @@
 get_container <- function(container_name, ...) {
   endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
   token <- get_auth_token(...)
-  err_msg <- "{.fn check_val}: {.var AZ_STORAGE_EP} env var is not set"
-  endpoint_uri |>
-    check_val(nzchar, err_msg) |>
-    AzureStor::storage_endpoint(token = token) |>
-    AzureStor::storage_container(container_name)
+  endpoint <- get_default_endpoint(token)
+#' Return an Azure "blob_endpoint"
+#'
+#' @param token An Azure authentication token
+#' @returns An Azure blob endpoint (object of class "blob_endpoint")
+#' @keywords internal
+get_default_endpoint <- function(token) {
+  cst_msg <- cst_error_msg("{.envvar AZ_STORAGE_EP} is not set")
+  Sys.getenv("AZ_STORAGE_EP", NA) |>
+    check_scalar_type("string", cst_msg) |>
+    AzureStor::blob_endpoint(token = token)
+}
 }
