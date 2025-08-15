@@ -4,13 +4,19 @@
 \alias{get_container}
 \title{Get Azure storage container}
 \usage{
-get_container(container_name, ...)
+get_container(container_name = NULL, ...)
 }
 \arguments{
-\item{container_name}{string: name of the container}
+\item{container_name}{Name of the container as a string. NULL by default,
+which means the function will look instead for a container name stored in
+the environment variable "AZ_STORAGE_CONTAINER"}
 
-\item{...}{arguments to be passed through to \code{get_azure_token()}}
+\item{...}{arguments to be passed through to \code{get_auth_token()}}
+}
+\value{
+An Azure blob container (list object of class "blob_container")
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+Use \code{list_container_names()} to see a list of available containers
 }
