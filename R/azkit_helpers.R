@@ -40,6 +40,11 @@ check_vec <- function(
     invisible(NULL)
   }
 }
+
+#' @keywords internal
+cv_error_msg <- \(text) paste0("{.fn check_vec}: ", text)
+
+
 #' An alternative to stopifnot/assert_that etc
 #' This function makes it easy to use the `is_scalar_*` functions from `{rlang}`
 #'  to check the type of `x`, _and_ that `length(x) == 1`, and supports the
@@ -80,3 +85,6 @@ check_scalar_type <- function(
     invisible(NULL)
   }
 }
+
+#' @keywords internal
+cst_error_msg <- \(text) paste0("{.fn check_scalar_type}: ", text)
