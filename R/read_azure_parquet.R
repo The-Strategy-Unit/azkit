@@ -1,3 +1,28 @@
+#' Read a parquet file from Azure storage
+#'
+#' @param container An Azure container object, as returned by `get_container()`
+#' @param file The name of the file to be read, as a string. NB this can be a
+#'  partial match, and for example the file extension does not need to be
+#'  included (though it can be). The function will error if multiple files are
+#'  matched.
+#' @param path The path to the directory where `file` is located, as a string.
+#'  This must be the full path to the file location, as the function will not
+#'  search into subdirectories recursively. Set to `"\\"` (the root of the
+#'  container) by default.
+#' @param info Boolean. Whether to print user feedback about the file that is
+#'  being read. Useful for checking the function is doing what is expected, but
+#'  can be turned off with `FALSE`. Can be set persistently with the option
+#'  "azkit.info". If `NULL` then it will default to the value of
+#'  `rlang::is_interactive()` (ie `TRUE` for interactive sessions).
+#' @returns A tibble
+#' @export
+read_azure_parquet <- function(container, file, path = "/", info = NULL) {
+  stopifnot("no container found" = inherits(container, "blob_container"))
+  download_azure_blob(container, path, file, "parquet", info) |>
+    arrow::read_parquet()
+}
+
+
 #' Common routine for all `read_azure_*()` functions
 #' Downloads the blob with `dest = NULL`, which keeps the data in memory
 #'
