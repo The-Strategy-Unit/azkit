@@ -1,9 +1,10 @@
-#' An alternative to stopifnot/assert_that
+#' An alternative to stopifnot/assert_that etc
+#'
 #' This function makes it easy to use the `{purrr}` functions `every()`,
-#' `some()` and `none()` to handle scalar values and vectors alike, and supports
+#' `some()` and `none()` to handle vector inputs of length >= 1, and supports
 #' the seamless use of `glue` strings in the custom error message.
 #' @keywords internal
-check_val <- function(
+check_vec <- function(
   x,
   predicate,
   message,
