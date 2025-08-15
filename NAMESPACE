@@ -2,3 +2,5 @@
 
 export(get_auth_token)
 export(get_container)
+export(list_container_names)
+export(read_azure_parquet)

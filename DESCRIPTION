@@ -17,10 +17,13 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: R (>= 4.1)
 Imports:
+    arrow,
     AzureAuth,
     AzureRMR,
     AzureStor,
     cli,
+    dplyr,
+    glue,
     purrr,
     rlang,
     withr
