@@ -40,3 +40,43 @@ check_vec <- function(
     invisible(NULL)
   }
 }
+#' An alternative to stopifnot/assert_that etc
+#' This function makes it easy to use the `is_scalar_*` functions from `{rlang}`
+#'  to check the type of `x`, _and_ that `length(x) == 1`, and supports the
+#'  seamless use of `glue` strings in the custom error message.
+#' Possible values for the `type` parameter are: "character", "logical", "list",
+#'  "integer", "double", "string", "bool", "bytes", "raw", "vector", "complex".
+#  Supplying "string" or "bool" will additionally check that `x` is not missing.
+#' @seealso [check_vec()]
+#' @inheritParams check_vec
+#' @param type A string defining the R object type that `x` is checked to be
+#' @keywords internal
+check_scalar_type <- function(
+  x,
+  type,
+  message,
+  pf = parent.frame()
+) {
+  opts <- c(
+    "character",
+    "logical",
+    "integer",
+    "double",
+    "string",
+    "bool",
+    "list",
+    "bytes",
+    "raw",
+    "vector",
+    "complex"
+  )
+  t <- rlang::arg_match(type, opts)
+  t <- if (t %in% c("string", "bool")) t else paste0("scalar_", t)
+  test_call <- rlang::call2(paste0("is_", t), x = x, .ns = "rlang")
+  if (eval(test_call)) {
+    x
+  } else {
+    cli::cli_abort(c(x = message), call = rlang::caller_call(), .envir = pf)
+    invisible(NULL)
+  }
+}
