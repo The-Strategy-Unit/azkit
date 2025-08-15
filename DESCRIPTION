@@ -24,7 +24,9 @@ Imports:
     cli,
     dplyr,
     glue,
+    jsonlite,
     purrr,
+    readr,
     rlang,
     withr
 Suggests:

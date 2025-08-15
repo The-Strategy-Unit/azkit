@@ -3,4 +3,7 @@
 export(get_auth_token)
 export(get_container)
 export(list_container_names)
+export(read_azure_csv)
+export(read_azure_json)
 export(read_azure_parquet)
+export(read_azure_rds)
