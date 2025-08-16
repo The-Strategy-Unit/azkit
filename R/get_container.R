@@ -10,32 +10,16 @@
 #' @returns An Azure blob container (list object of class "blob_container")
 #' @export
 get_container <- function(container_name = NULL, ...) {
-  container_envvar_name <- "AZ_STORAGE_CONTAINER"
-  cst_msg1 <- cst_error_msg("{.var container_name} must be a string")
-  cst_msg2 <- cst_error_msg("{.envvar {container_envvar_name}} is not set")
-  c_name <- (container_name %||% Sys.getenv(container_envvar_name, NA)) |>
-    check_scalar_type("character", cst_msg1) |>
-    check_scalar_type("string", cst_msg2)
+  cst_msg <- cst_error_msg("{.var container_name} must be a string")
+  container_name <- (container_name %||% check_envvar("AZ_CONTAINER")) |>
+    check_scalar_type("character", cst_msg)
   token <- get_auth_token(...)
   endpoint <- get_default_endpoint(token)
   container_names <- list_container_names(token)
-  not_found_msg <- cv_error_msg("Container {.val {c_name}} not found")
-  c_name |>
+  not_found_msg <- cv_error_msg("Container {.val {container_name}} not found")
+  container_name |>
     check_vec(\(x) x %in% container_names, not_found_msg) |>
     AzureStor::blob_container(endpoint = endpoint)
-}
-
-
-#' Return an Azure "blob_endpoint"
-#'
-#' @param token An Azure authentication token
-#' @returns An Azure blob endpoint (object of class "blob_endpoint")
-#' @keywords internal
-get_default_endpoint <- function(token) {
-  cst_msg <- cst_error_msg("{.envvar AZ_STORAGE_EP} is not set")
-  Sys.getenv("AZ_STORAGE_EP", NA) |>
-    check_scalar_type("string", cst_msg) |>
-    AzureStor::blob_endpoint(token = token)
 }
 
 
@@ -49,4 +33,29 @@ list_container_names <- function(token = NULL, ...) {
   token <- token %||% get_auth_token(...)
   endpoint <- get_default_endpoint(token)
   names(AzureStor::list_blob_containers(endpoint))
+}
+
+
+#' Check that an environment variable exists
+#'
+#' The function prints a helpful error if the variable is not found, else
+#' it returns the value of `Sys.getenv(x)`
+#'
+#' @param x the name of the environment variable to be found and checked
+#' @returns the value of the environment variable `x`
+#' @export
+check_envvar <- function(x) {
+  cst_msg <- cst_error_msg("{.envvar {x}} is not set")
+  check_scalar_type(Sys.getenv(x, NA_character_), "string", cst_msg)
+}
+
+
+#' Return an Azure "blob_endpoint"
+#'
+#' @param token An Azure authentication token
+#' @returns An Azure blob endpoint (object of class "blob_endpoint")
+#' @keywords internal
+get_default_endpoint <- function(token) {
+  check_envvar("AZ_STORAGE_EP") |>
+    AzureStor::blob_endpoint(token = token)
 }
