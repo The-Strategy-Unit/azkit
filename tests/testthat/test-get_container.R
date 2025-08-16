@@ -1,6 +1,8 @@
 test_that("simple failing test for missing env var", {
-  withr::with_envvar(c(AZ_STORAGE_EP = ""), get_container("random")) |>
-    expect_error("`AZ_STORAGE_EP` is not set", class = "rlang_error")
+  if (require(withr)) {
+    withr::with_envvar(c(AZ_STORAGE_EP = ""), get_container("random")) |>
+      expect_error("`AZ_STORAGE_EP` is not set", class = "rlang_error")
+  }
 })
 
 test_that("basic success", {
