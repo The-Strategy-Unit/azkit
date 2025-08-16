@@ -9,7 +9,7 @@ get_container(container_name = NULL, ...)
 \arguments{
 \item{container_name}{Name of the container as a string. NULL by default,
 which means the function will look instead for a container name stored in
-the environment variable "AZ_STORAGE_CONTAINER"}
+the environment variable "AZ_CONTAINER"}
 
 \item{...}{arguments to be passed through to \code{get_auth_token()}}
 }

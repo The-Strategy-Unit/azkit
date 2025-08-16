@@ -64,6 +64,7 @@ read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
 
 
 #' Common routine for all `read_azure_*()` functions
+#'
 #' Downloads the blob with `dest = NULL`, which keeps the data in memory
 #'
 #' @inheritParams read_azure_parquet
