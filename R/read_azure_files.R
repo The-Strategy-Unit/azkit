@@ -52,13 +52,14 @@ read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
 #' Read a json file from Azure storage
 #'
 #' @inheritParams read_azure_parquet
-#' @param ... optional arguments to be passed through to `jsonlite::fromJSON()`
+#' @param ... optional arguments to be passed through to
+#'  `yyjsonr::read_json_raw()`
 #' @returns A list
 #' @export
 read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
   stopifnot("no container found" = inherits(container, "blob_container"))
   download_azure_blob(container, path, file, "json", info) |>
-    jsonlite::fromJSON(...)
+    yyjsonr::read_json_raw(...)
 }
 
 

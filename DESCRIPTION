@@ -24,10 +24,10 @@ Imports:
     cli,
     dplyr,
     glue,
-    jsonlite,
     purrr,
     readr,
     rlang,
-    withr
+    yyjsonr
 Suggests:
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
