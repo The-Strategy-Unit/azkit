@@ -5,12 +5,12 @@
 #'
 #' @param container_name Name of the container as a string. NULL by default,
 #'  which means the function will look instead for a container name stored in
-#'  the environment variable "AZ_STORAGE_CONTAINER"
+#'  the environment variable "AZ_CONTAINER"
 #' @param ... arguments to be passed through to `get_auth_token()`
 #' @returns An Azure blob container (list object of class "blob_container")
 #' @export
 get_container <- function(container_name = NULL, ...) {
-  container_envvar_name <- "AZ_STORAGE_CONTAINER"
+  container_envvar_name <- "AZ_CONTAINER"
   cst_msg1 <- cst_error_msg("{.var container_name} must be a string")
   cst_msg2 <- cst_error_msg("{.envvar {container_envvar_name}} is not set")
   c_name <- (container_name %||% Sys.getenv(container_envvar_name, NA)) |>
