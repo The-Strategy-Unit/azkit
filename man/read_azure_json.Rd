@@ -25,7 +25,8 @@ can be turned off with \code{FALSE}. Can be set persistently with the option
 "azkit.info". If \code{NULL} then it will default to the value of
 \code{rlang::is_interactive()} (ie \code{TRUE} for interactive sessions).}
 
-\item{...}{optional arguments to be passed through to \code{jsonlite::fromJSON()}}
+\item{...}{optional arguments to be passed through to
+\code{yyjsonr::read_json_raw()}}
 }
 \value{
 A list
