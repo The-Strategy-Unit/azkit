@@ -41,7 +41,7 @@ list_container_names <- function(token = NULL, ...) {
 #' The function prints a helpful error if the variable is not found, else
 #' it returns the value of `Sys.getenv(x)`
 #'
-#' @param x the name of the environment variable to be found and checked
+#' @param x the *name* of the environment variable to be found and checked
 #' @returns the value of the environment variable `x`
 #' @export
 check_envvar <- function(x) {
