@@ -20,8 +20,8 @@
 #'  predicate. "none" can be used to generate an inverse predicate, or the
 #'  situation where success means that none of the elements of x satisfies the
 #'  predicate. "some" is unlikely to be useful often, but it is available.
-#' @param pf Necessary for variables in the caller environment to be used in
-#'  the custom error message.
+#' @param pf Set as `parent.frame()` so variables in the caller environment can
+#'  be used in the custom error message.
 #' @seealso [check_scalar_type()]
 #' @keywords internal
 check_vec <- function(
@@ -88,3 +88,17 @@ check_scalar_type <- function(
 
 #' @keywords internal
 cst_error_msg <- \(text) paste0("{.fn check_scalar_type}: ", text)
+
+
+#' grepl a glued regex
+#'
+#' Use \{glue\} expressions in grepl (and put the arguments the right way round)
+#' https://glue.tidyverse.org/articles/wrappers.html
+#'
+#' @param x A character vector to check
+#' @param rx A string that after processing by glue_data() will be used as a
+#'  regex pattern in `grepl()`
+#' @param ... Arguments passed onto `grepl()`
+#' @param g The parent frame of gregg, which must be passed through to `glue()`
+#' @keywords internal
+gregg <- \(x, rx, ..., g = parent.frame()) grepl(glue::glue_data(g, rx), x, ...)
