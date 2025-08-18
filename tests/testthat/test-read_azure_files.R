@@ -7,11 +7,11 @@ test_that("basic success", {
     expect_s3_class(token, "AzureToken")
 
     # explore behaviour with blob_endpoint
-    expect_no_error(AzureStor::blob_endpoint(endpoint_uri, token = token))
-    ep <- AzureStor::blob_endpoint(endpoint_uri, token = token)
+    ep <- AzureStor::blob_endpoint(endpoint_uri, token = token) |>
+      expect_no_error()
     expect_s3_class(ep, "blob_endpoint")
-    expect_no_error(AzureStor::blob_container(ep, "inputs-data"))
-    inputs_data <- AzureStor::blob_container(ep, "inputs-data")
+    inputs_data <- AzureStor::blob_container(ep, "inputs-data") |>
+      expect_no_error()
     expect_s3_class(inputs_data, "blob_container")
     files <- AzureStor::list_blobs(inputs_data, "dev", recursive = FALSE) |>
       dplyr::filter(grepl("\\.parquet$", .data[["name"]])) |>
@@ -31,7 +31,7 @@ test_that("whole function works", {
   endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
   # only run the test if this variable is set (i.e. locally, but not on GitHub)
   if (nzchar(endpoint_uri)) {
-    expect_no_error(inputs_container <- get_container("inputs-data"))
+    inputs_container <- expect_no_error(get_container("inputs-data"))
     expect_no_error(read_azure_parquet(inputs_container, "wli", path = "dev"))
     out1 <- read_azure_parquet(inputs_container, "wli", path = "dev")
     expect_s3_class(out1, "tbl_df")
