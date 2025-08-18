@@ -21,8 +21,7 @@ test_that("basic success", {
     expect_no_error(AzureStor::blob_endpoint(endpoint_uri, token = token))
     ep <- AzureStor::blob_endpoint(endpoint_uri, token = token)
     expect_s3_class(ep, "blob_endpoint")
-    expect_no_error(AzureStor::blob_container(ep, "supporting-data"))
-    cont <- AzureStor::blob_container(ep, "supporting-data")
+    cont <- expect_no_error(AzureStor::blob_container(ep, "supporting-data"))
     expect_s3_class(cont, "blob_container")
 
     expect_error(AzureStor::list_adls_files(cont))
@@ -31,8 +30,8 @@ test_that("basic success", {
     # compare behaviour with adls_endpoint instead (it's the same)
     ep <- AzureStor::adls_endpoint(endpoint_uri, token = token)
     expect_s3_class(ep, "adls_endpoint")
-    expect_no_error(AzureStor::adls_filesystem(ep, "results"))
-    fs <- AzureStor::adls_filesystem(ep, "results")
+    fs <- AzureStor::adls_filesystem(ep, "results") |>
+      expect_no_error()
     expect_s3_class(fs, "adls_filesystem")
     path <- "/archive/dev/synthetic"
     # Expected this to succeed with adls_endpoint but it doesn't
