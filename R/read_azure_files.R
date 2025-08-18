@@ -86,8 +86,8 @@ download_azure_blob <- function(container, path, file, file_ext, info) {
     dplyr::pull("name")
   stop_msg1 <- glue::glue("no matching {file_ext} file found")
   stop_msg2 <- glue::glue("multiple matching {file_ext} files found")
-  stopifnot(stop_msg1 = length(filepath) > 0)
-  stopifnot(stop_msg2 = length(filepath) == 1)
+  stopifnot(names(length(filepath) > 0) <- stop_msg1)
+  stopifnot(names(length(filepath) == 1) <- stop_msg2)
   info_option <- getOption("azkit.info")
   stopifnot(rlang::is_scalar_logical(info_option) || is.null(info_option))
   if (info %||% info_option %||% rlang::is_interactive()) {
