@@ -5,7 +5,7 @@
 #'
 #' @param container_name Name of the container as a string. NULL by default,
 #'  which means the function will look instead for a container name stored in
-#'  the environment variable "AZ_STORAGE_CONTAINER"
+#'  the environment variable "AZ_CONTAINER"
 #' @param ... arguments to be passed through to `get_auth_token()`
 #' @returns An Azure blob container (list object of class "blob_container")
 #' @export

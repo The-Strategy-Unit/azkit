@@ -23,8 +23,8 @@ environment of the caller function (not in the environment of
 \code{check_vec()}). This makes it easier to include informative values in the
 message.}
 
-\item{pf}{Necessary for variables in the caller environment to be used in
-the custom error message.}
+\item{pf}{Set as \code{parent.frame()} so variables in the caller environment can
+be used in the custom error message.}
 }
 \description{
 An alternative to stopifnot/assert_that etc

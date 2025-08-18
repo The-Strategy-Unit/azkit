@@ -31,8 +31,8 @@ predicate. "none" can be used to generate an inverse predicate, or the
 situation where success means that none of the elements of x satisfies the
 predicate. "some" is unlikely to be useful often, but it is available.}
 
-\item{pf}{Necessary for variables in the caller environment to be used in
-the custom error message.}
+\item{pf}{Set as \code{parent.frame()} so variables in the caller environment can
+be used in the custom error message.}
 }
 \description{
 This function makes it easy to use the \code{{purrr}} functions \code{every()},
