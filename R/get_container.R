@@ -10,12 +10,9 @@
 #' @returns An Azure blob container (list object of class "blob_container")
 #' @export
 get_container <- function(container_name = NULL, ...) {
-  container_envvar_name <- "AZ_CONTAINER"
-  cst_msg1 <- cst_error_msg("{.var container_name} must be a string")
-  cst_msg2 <- cst_error_msg("{.envvar {container_envvar_name}} is not set")
-  c_name <- (container_name %||% Sys.getenv(container_envvar_name, NA)) |>
-    check_scalar_type("character", cst_msg1) |>
-    check_scalar_type("string", cst_msg2)
+  cst_msg <- cst_error_msg("{.var container_name} must be a string")
+  container_name <- (container_name %||% check_envvar("AZ_CONTAINER")) |>
+    check_scalar_type("character", cst_msg)
   token <- get_auth_token(...)
   endpoint <- get_default_endpoint(token)
   container_names <- list_container_names(token)
