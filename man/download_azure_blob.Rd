@@ -2,8 +2,7 @@
 % Please edit documentation in R/read_azure_files.R
 \name{download_azure_blob}
 \alias{download_azure_blob}
-\title{Common routine for all \verb{read_azure_*()} functions
-Downloads the blob with \code{dest = NULL}, which keeps the data in memory}
+\title{Common routine for all \verb{read_azure_*()} functions}
 \usage{
 download_azure_blob(container, path, file, file_ext, info)
 }
@@ -29,7 +28,6 @@ can be turned off with \code{FALSE}. Can be set persistently with the option
 \code{rlang::is_interactive()} (ie \code{TRUE} for interactive sessions).}
 }
 \description{
-Common routine for all \verb{read_azure_*()} functions
 Downloads the blob with \code{dest = NULL}, which keeps the data in memory
 }
 \keyword{internal}
