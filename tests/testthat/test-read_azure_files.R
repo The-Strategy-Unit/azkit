@@ -27,7 +27,7 @@ test_that("basic success", {
   }
 })
 
-test_that("whole function works", {
+test_that("whole read_parquet function works", {
   endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
   # only run the test if this variable is set (i.e. locally, but not on GitHub)
   if (nzchar(endpoint_uri)) {
@@ -227,10 +227,26 @@ test_that("... parameters are passed through", {
       readr::read_csv(col_types = col_types) |>
       expect_no_error()
     csv_out2 <- support_container |>
-      read_azure_csv("mitigator-lookup.csv", col_types = col_types) |>
+      AzureStor::storage_read_csv(
+        "mitigator-lookup.csv",
+        col_types = col_types
+      ) |>
       expect_no_error()
     expect_identical(csv_out1, csv_out2)
     expect_length(csv_out1, 3) # ncol
+  }
+})
+
+test_that("read functions all work a bit at least", {
+  endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
+  # only run the test if this variable is set (i.e. locally, but not on GitHub)
+  if (nzchar(endpoint_uri)) {
+    res <- get_container(Sys.getenv("AZ_RESULTS_CONTAINER"))
+    expect_no_error(read_azure_parquet(res, Sys.getenv("TEST_PARQUET_FILE")))
+    supp <- get_container(Sys.getenv("AZ_SUPPORT_CONTAINER"))
+    expect_no_error(read_azure_json(supp, Sys.getenv("TEST_JSON_FILE")))
+    expect_no_error(read_azure_rds(supp, Sys.getenv("TEST_RDS_FILE")))
+    expect_no_error(read_azure_csv(supp, Sys.getenv("TEST_CSV_FILE")))
   }
 })
 
