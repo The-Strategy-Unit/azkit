@@ -16,10 +16,8 @@ test_that("basic success", {
     expect_s3_class(token, "AzureToken")
 
     # explore behaviour with blob_endpoint
-    # these tests are no good because they pass even if `endpoint_uri` is
-    # not a real endpoint URI
-    expect_no_error(AzureStor::blob_endpoint(endpoint_uri, token = token))
-    ep <- AzureStor::blob_endpoint(endpoint_uri, token = token)
+    ep <- AzureStor::blob_endpoint(endpoint_uri, token = token) |>
+      expect_no_error()
     expect_s3_class(ep, "blob_endpoint")
     cont <- expect_no_error(AzureStor::blob_container(ep, "supporting-data"))
     expect_s3_class(cont, "blob_container")
