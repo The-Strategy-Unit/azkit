@@ -7,7 +7,7 @@
 check_envvar(x)
 }
 \arguments{
-\item{x}{the name of the environment variable to be found and checked}
+\item{x}{the \emph{name} of the environment variable to be found and checked}
 }
 \value{
 the value of the environment variable \code{x}
