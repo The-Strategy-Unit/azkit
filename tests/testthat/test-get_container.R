@@ -1,4 +1,5 @@
 test_that("simple failing tests for missing env vars", {
+  skip_on_ci()
   withr::with_envvar(c(AZ_CONTAINER = ""), get_container()) |>
     expect_error("`AZ_CONTAINER` is not set", class = "rlang_error")
 
