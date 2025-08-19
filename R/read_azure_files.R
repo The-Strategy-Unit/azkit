@@ -30,40 +30,24 @@ read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
 #' @returns Data object that was stored in the rds file
 #' @export
 read_azure_rds <- function(container, file, path = "/", info = NULL) {
-  stopifnot("no container found" = inherits(container, "blob_container"))
-  download_azure_blob(container, path, file, "rds", info) |>
-    readr::read_rds()
+  check_blob_exists(container, file, "rds", info, path) |>
+    AzureStor::storage_load_rds(container, file = _)
 }
 
 
 #' Read a csv file from Azure storage
 #'
 #' @inheritParams read_azure_parquet
-#' @param ... optional arguments to be passed through to `readr::read_csv()`
+#' @param ... optional arguments to be passed through to `readr::read_delim()`
 #' @returns A tibble
 #' @export
 read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
-  stopifnot("no container found" = inherits(container, "blob_container"))
-  download_azure_blob(container, path, file, "csv", info) |>
-    readr::read_csv(...)
+  check_blob_exists(container, file, "csv", info, path) |>
+    AzureStor::storage_read_csv(container, file = _, ...)
 }
 
 
-#' Read a json file from Azure storage
-#'
-#' @inheritParams read_azure_parquet
-#' @param ... optional arguments to be passed through to
-#'  `yyjsonr::read_json_raw()`
-#' @returns A list
-#' @export
-read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
-  stopifnot("no container found" = inherits(container, "blob_container"))
-  download_azure_blob(container, path, file, "json", info) |>
-    yyjsonr::read_json_raw(...)
-}
-
-
-#' Common routine for all `read_azure_*()` functions
+#' Common routine for `read_azure_parquet()` and `read_azure_json()`
 #'
 #' Downloads the blob with `dest = NULL`, which keeps the data in memory
 #'
