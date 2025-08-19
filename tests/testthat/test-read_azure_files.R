@@ -51,7 +51,7 @@ test_that("read_azure_json basically works", {
   if (nzchar(endpoint_uri)) {
     expect_no_error(support_container <- get_container("supporting-data"))
     raw_out <- support_container |>
-      download_azure_blob("/", "providers", "json", FALSE)
+      download_azure_blob("providers", "json", FALSE)
     expect_type(raw_out, "raw")
     # {yyjsonr} provides a function to read raw JSON (fast) - unlike {jsonlite}
     expect_no_error(yyjsonr::read_json_raw(raw_out))
@@ -200,13 +200,13 @@ test_that("read_azure_csv basically works", {
     expect_no_error(support_container <- get_container("supporting-data"))
     support_container |>
       # should error as this stub will match more than 1 file
-      download_azure_blob("/", "mitigator-lookup", "csv", FALSE) |>
+      download_azure_blob("mitigator-lookup", "csv", FALSE) |>
       expect_error()
     support_container |>
-      download_azure_blob("/", "mitigator-lookup.csv", "csv", FALSE) |>
+      download_azure_blob("mitigator-lookup.csv", "csv", FALSE) |>
       expect_no_error()
     raw_out <- support_container |>
-      download_azure_blob("/", "mitigator-lookup.csv", "csv", FALSE)
+      download_azure_blob("mitigator-lookup.csv", "csv", FALSE)
     expect_type(raw_out, "raw")
     expect_no_error(readr::read_csv(raw_out))
     dat <- readr::read_csv(raw_out)
@@ -223,7 +223,7 @@ test_that("... parameters are passed through", {
     expect_no_error(support_container <- get_container("supporting-data"))
     col_types <- "ccc------"
     csv_out1 <- support_container |>
-      download_azure_blob("/", "mitigator-lookup.csv", "csv", FALSE) |>
+      download_azure_blob("mitigator-lookup.csv", "csv", FALSE) |>
       readr::read_csv(col_types = col_types) |>
       expect_no_error()
     csv_out2 <- support_container |>
