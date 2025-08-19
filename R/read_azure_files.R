@@ -7,7 +7,7 @@
 #'  matched.
 #' @param path The path to the directory where `file` is located, as a string.
 #'  This must be the full path to the file location, as the function will not
-#'  search into subdirectories recursively. Set to `"\\"` (the root of the
+#'  search into subdirectories recursively. Set to `"/"` (the root of the
 #'  container) by default.
 #' @param info Boolean. Whether to print user feedback about the file that is
 #'  being read. Useful for checking the function is doing what is expected, but
@@ -16,10 +16,31 @@
 #'  `rlang::is_interactive()` (ie `TRUE` for interactive sessions).
 #' @param ... optional arguments to be passed through to `arrow::read_parquet()`
 #' @returns A tibble
+#' @examples \dontrun{
+#'   # if a full filepath is available then path can be ignored
+#'   read_azure_parquet(cont, "data/folder/path/1.parquet")
+#'   # you can provide a filename without the '.parquet' extension
+#'   # if you wish to use partial file name matching then it is probably easier
+#'   # to provide a 'path'
+#'   read_azure_parquet(cont, "case_details", "storage/parquet/2025/06/29")
+#' }
 #' @export
 read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
   download_azure_blob(container, file, "parquet", info, path) |>
     arrow::read_parquet(...)
+}
+
+
+#' Read a json file from Azure storage
+#'
+#' @inheritParams read_azure_parquet
+#' @param ... optional arguments to be passed through to
+#'  `yyjsonr::read_json_raw()`
+#' @returns A list
+#' @export
+read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
+  download_azure_blob(container, file, "json", info, path) |>
+    yyjsonr::read_json_raw(...)
 }
 
 

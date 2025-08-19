@@ -16,7 +16,7 @@ matched.}
 
 \item{path}{The path to the directory where \code{file} is located, as a string.
 This must be the full path to the file location, as the function will not
-search into subdirectories recursively. Set to \code{"\\\\"} (the root of the
+search into subdirectories recursively. Set to \code{"/"} (the root of the
 container) by default.}
 
 \item{info}{Boolean. Whether to print user feedback about the file that is

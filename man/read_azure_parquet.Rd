@@ -16,7 +16,7 @@ matched.}
 
 \item{path}{The path to the directory where \code{file} is located, as a string.
 This must be the full path to the file location, as the function will not
-search into subdirectories recursively. Set to \code{"\\\\"} (the root of the
+search into subdirectories recursively. Set to \code{"/"} (the root of the
 container) by default.}
 
 \item{info}{Boolean. Whether to print user feedback about the file that is
@@ -32,4 +32,14 @@ A tibble
 }
 \description{
 Read a parquet file from Azure storage
+}
+\examples{
+\dontrun{
+  # if a full filepath is available then path can be ignored
+  read_azure_parquet(cont, "data/folder/path/1.parquet")
+  # you can provide a filename without the '.parquet' extension
+  # if you wish to use partial file name matching then it is probably easier
+  # to provide a 'path'
+  read_azure_parquet(cont, "case_details", "storage/parquet/2025/06/29")
+}
 }
