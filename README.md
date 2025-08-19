@@ -84,6 +84,15 @@ To specify a subfolder, supply this to the `path` argument.
 The functions will _not_ search recursively into further subfolders, so the path
 needs to be full and accurate.
 
+Or you may have "long" filenames that include the full notional path to the
+file, in which case you can ignore the "path" argument.
+Long filenames are returned by `azkit::list_files()`, for example.
+
+```r
+azkit::list_files(data_container, "data/latest", "parquet") |>
+  purrr::map(\(x) azkit::read_azure_parquet(data_container, x, info = FALSE))
+```
+
 If there is more than 1 file matching the string supplied to `file` argument,
 the functions will throw an error.
 Specifying the exact filename will avoid this of course - but shorter `file`
@@ -93,7 +102,8 @@ Currently these functions only read in a single file at a time.
 
 Setting the `info` argument to `TRUE` will enable the functions to give some
 confirmatory feedback on what file is being read in.
-You can also pass through arguments to for example `readr::read_csv()`:
+You can also pass through arguments that will be applied to, for example,
+`readr::read_delim()`, such as `col_types`, as the function reads in a CSV file:
 
 ```r
 csv_data <- data_container |>
@@ -141,6 +151,12 @@ or problems, including with the package documentation.
 
 Alternatively, to ask any questions about the package you may contact
 [Fran Barton](mailto:francis.barton@nhs.net).
+
+## Development
+
+If you wish to clone this package for development, including running the
+included tests, you will want some further environment variables for your local
+`.Renviron`. Contact Fran if you need help with this.
 
 [posit_env]: https://docs.posit.co/ide/user/ide/guide/environments/r/managing-r.html#renviron
 [github]: https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
