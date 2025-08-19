@@ -2,30 +2,30 @@
 % Please edit documentation in R/read_azure_files.R
 \name{download_azure_blob}
 \alias{download_azure_blob}
-\title{Common routine for all \verb{read_azure_*()} functions}
+\title{Common routine for \code{read_azure_parquet()} and \code{read_azure_json()}}
 \usage{
-download_azure_blob(container, path, file, file_ext, info)
+download_azure_blob(container, file, file_ext, info, path = "")
 }
 \arguments{
 \item{container}{An Azure container object, as returned by \code{get_container()}}
-
-\item{path}{The path to the directory where \code{file} is located, as a string.
-This must be the full path to the file location, as the function will not
-search into subdirectories recursively. Set to \code{"\\\\"} (the root of the
-container) by default.}
 
 \item{file}{The name of the file to be read, as a string. NB this can be a
 partial match, and for example the file extension does not need to be
 included (though it can be). The function will error if multiple files are
 matched.}
 
-\item{file_ext}{The standard file extension for the file type, e.g. "rds"}
+\item{file_ext}{The standard file extension for the file type, e.g. "json"}
 
 \item{info}{Boolean. Whether to print user feedback about the file that is
 being read. Useful for checking the function is doing what is expected, but
 can be turned off with \code{FALSE}. Can be set persistently with the option
 "azkit.info". If \code{NULL} then it will default to the value of
 \code{rlang::is_interactive()} (ie \code{TRUE} for interactive sessions).}
+
+\item{path}{The path to the directory where \code{file} is located, as a string.
+This must be the full path to the file location, as the function will not
+search into subdirectories recursively. Set to \code{"/"} (the root of the
+container) by default.}
 }
 \description{
 Downloads the blob with \code{dest = NULL}, which keeps the data in memory

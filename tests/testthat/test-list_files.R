@@ -77,9 +77,9 @@ test_that("we can evolve list_files()", {
 
 
 test_that("edited path starts with '/' unless it's the root folder", {
-  edit_path <- \(path) sub("^/$", "", sub("^([^/])(.*)", "/\\1\\2", path))
-  expect_equal(edit_path("/"), "")
-  expect_equal(edit_path(""), "")
-  expect_equal(edit_path("/QA"), "/QA")
-  expect_equal(edit_path("QA"), "/QA")
+  fix_path <- \(path) sub("^/+$", "", sub("^([^/])(.*)", "/\\1\\2", path))
+  expect_equal(fix_path("/"), "")
+  expect_equal(fix_path(""), "")
+  expect_equal(fix_path("/QA"), "/QA")
+  expect_equal(fix_path("QA"), "/QA")
 })
