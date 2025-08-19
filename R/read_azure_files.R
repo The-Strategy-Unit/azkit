@@ -18,8 +18,7 @@
 #' @returns A tibble
 #' @export
 read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
-  stopifnot("no container found" = inherits(container, "blob_container"))
-  download_azure_blob(container, path, file, "parquet", info) |>
+  download_azure_blob(container, file, "parquet", info, path) |>
     arrow::read_parquet(...)
 }
 
