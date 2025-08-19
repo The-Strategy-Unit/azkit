@@ -68,30 +68,43 @@ read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
 #' Downloads the blob with `dest = NULL`, which keeps the data in memory
 #'
 #' @inheritParams read_azure_parquet
-#' @param file_ext The standard file extension for the file type, e.g. "rds"
+#' @param file_ext The standard file extension for the file type, e.g. "json"
 #' @keywords internal
-download_azure_blob <- function(container, path, file, file_ext, info) {
+download_azure_blob <- function(container, file, file_ext, info, path = "") {
+  check_blob_exists(container, file, file_ext, info, path) |>
+    AzureStor::download_blob(container, src = _, dest = NULL)
+}
+
+#' Ensures that the filepath for the file to read exists
+#'
+#' @inheritParams download_azure_blob
+#' @keywords internal
+check_blob_exists <- function(container, file, file_ext, info, path = "") {
+  stopifnot("no container found" = inherits(container, "blob_container"))
   stopifnot("path not found" = AzureStor::blob_dir_exists(container, path))
-  filepath <-
-    AzureStor::list_blobs(container, path, recursive = FALSE) |>
+  filepath <- sub("^/+", "", paste0(path, "/", file))
+  path <- sub("^\\.$", "/", dirname(filepath))
+  filepath_out <- AzureStor::list_blobs(container, path, recursive = FALSE) |>
     dplyr::filter(
       !dplyr::if_any("isdir") &
+        # Don't include `filepath` in the first regex here, because we want to
+        # filter to `file_ext` explicitly, as well as also allow for `filepath`
+        # to include its file extension if that suits the user's approach.
         dplyr::if_any("name", \(x) {
-          # Don't include `file` in the regex here, because we want to filter to
-          # `file_ext` explicitly, as well as also allow for `file` to include
-          # its file extension if that suits the user's approach.
-          grepl(glue::glue("\\.{file_ext}$"), x) & grepl(file, x)
+          gregg(x, "\\.{file_ext}$") & gregg(x, "^{filepath}")
         })
     ) |>
     dplyr::pull("name")
   stop_msg1 <- glue::glue("no matching {file_ext} file found")
   stop_msg2 <- glue::glue("multiple matching {file_ext} files found")
-  stopifnot(rlang::set_names(length(filepath) > 0, stop_msg1))
-  stopifnot(rlang::set_names(length(filepath) == 1, stop_msg2))
+  check_vec(filepath_out, rlang::is_character, stop_msg1) # check length > 0
+  check_scalar_type(filepath_out, "character", stop_msg2) # check length == 1
+
   info_option <- getOption("azkit.info")
+  stopifnot(rlang::is_scalar_logical(info) || is.null(info))
   stopifnot(rlang::is_scalar_logical(info_option) || is.null(info_option))
   if (info %||% info_option %||% rlang::is_interactive()) {
-    cli::cli_alert_info("File {.val {filepath}} will be read in")
+    cli::cli_alert_info("File {.val {filepath_out}} will be read in")
   }
-  AzureStor::download_blob(container, filepath, dest = NULL)
+  filepath_out
 }
