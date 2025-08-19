@@ -46,7 +46,7 @@ list_files <- function(container, path = "", ext = "", recursive = TRUE) {
   if (nrow(tbl) == 0) {
     if (rlang::is_interactive()) {
       ext <- if (nzchar(ext)) paste0(" ", ext)
-      fix_path <- \(path) sub("^/$", "", sub("^([^/])(.*)", "/\\1\\2", path))
+      fix_path <- \(path) sub("^/+$", "", sub("^([^/])(.*)", "/\\1\\2", path))
       "No{ext} files found in {.val [{container[['name']]}]{fix_path(path)}}" |>
         cli::cli_alert_info()
     }
