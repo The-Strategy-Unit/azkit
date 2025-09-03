@@ -26,7 +26,9 @@
 #' }
 #' @export
 read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
-  download_azure_blob(container, file, "parquet", info, path) |>
+  check_blob_exists(container, file, "parquet", info, path) |>
+    # using `dest = NULL` means read the data as a raw vector
+    AzureStor::download_blob(container, src = _, dest = NULL) |>
     arrow::read_parquet(...)
 }
 
@@ -39,7 +41,9 @@ read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
 #' @returns A list
 #' @export
 read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
-  download_azure_blob(container, file, "json", info, path) |>
+  check_blob_exists(container, file, "json", info, path) |>
+    # using `dest = NULL` means read the data as a raw vector
+    AzureStor::download_blob(container, src = _, dest = NULL) |>
     yyjsonr::read_json_raw(...)
 }
 
@@ -67,21 +71,10 @@ read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
 }
 
 
-#' Common routine for `read_azure_parquet()` and `read_azure_json()`
-#'
-#' Downloads the blob with `dest = NULL`, which keeps the data in memory
+#' Ensures that the filepath for the file to read exists
 #'
 #' @inheritParams read_azure_parquet
 #' @param file_ext The standard file extension for the file type, e.g. "json"
-#' @keywords internal
-download_azure_blob <- function(container, file, file_ext, info, path = "") {
-  check_blob_exists(container, file, file_ext, info, path) |>
-    AzureStor::download_blob(container, src = _, dest = NULL)
-}
-
-#' Ensures that the filepath for the file to read exists
-#'
-#' @inheritParams download_azure_blob
 #' @keywords internal
 check_blob_exists <- function(container, file, file_ext, info, path = "") {
   stopifnot("no container found" = inherits(container, "blob_container"))
