@@ -78,10 +78,17 @@ read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
 #' @keywords internal
 check_blob_exists <- function(container, file, file_ext, info, path = "") {
   stopifnot("no container found" = inherits(container, "blob_container"))
+  path <- if (path %in% c("", "/")) "" else path
   stopifnot("path not found" = AzureStor::blob_dir_exists(container, path))
-  filepath <- sub("^/+", "", paste0(path, "/", file))
-  path <- sub("^\\.$", "/", dirname(filepath))
-  filepath_out <- AzureStor::list_blobs(container, path, recursive = FALSE) |>
+  dir_name <- if (dirname(file) == ".") "" else dirname(file)
+  # Potentially the user could provide a partial file path in `path` and the
+  # remainder as part of `file`. This handles that eventuality, though
+  # this usage pattern should be rare.
+  dpath <- glue::glue("{path}/{dir_name}")
+  file_stub <- sub(glue::glue("\\.{file_ext}$"), "", basename(file))
+  # remove duplicate slashes and any initial slashes
+  file_path <- sub("^/", "", sub("/+", "/", glue::glue("{dpath}/{file_stub}")))
+  filepath_out <- AzureStor::list_blobs(container, dpath, recursive = FALSE) |>
     dplyr::filter(
       !dplyr::if_any("isdir") &
         # Don't include `filepath` in the first regex here, because we want to

@@ -27,6 +27,61 @@ test_that("basic success", {
   }
 })
 
+
+test_that("understand some new errors in check_blob_exists", {
+  endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
+  # only run the test if this variable is set (i.e. locally, but not on GitHub)
+  if (nzchar(endpoint_uri)) {
+    inp <- expect_no_error(get_container("inputs-data"))
+    path <- "dev"
+    file <- "wli"
+    file_ext <- "parquet"
+    path <- if (path %in% c("", "/")) "" else path
+    expect_equal(path, "dev")
+    dir_name <- if (dirname(file) == ".") "" else dirname(file)
+    expect_equal(dir_name, "")
+    p2 <- glue::glue("{path}/{dir_name}")
+    expect_equal(p2, "dev/")
+    file_name <- basename(file)
+    expect_equal(file_name, "wli")
+    file_path <- sub("^/", "", sub("/+", "/", glue::glue("{p2}/{file_name}")))
+    expect_equal(file_path, "dev/wli")
+    dir_list <- AzureStor::list_blobs(inp, p2, recursive = FALSE)
+    file_name_out <- dir_list |>
+      dplyr::filter(
+        !dplyr::if_any("isdir") &
+          dplyr::if_any("name", \(x) gregg(x, "^{file_path}(\\.{file_ext})?$"))
+      ) |>
+      dplyr::pull("name")
+    expect_equal(file_name_out, "dev/wli.parquet")
+    expect_no_error(check_blob_exists(inp, file, file_ext, FALSE, path))
+
+    # check still works if full filepath is passed to file arg
+    path <- ""
+    file <- "dev/wli.parquet"
+    path <- if (path %in% c("", "/")) "" else path
+    expect_equal(path, "")
+    dir_name <- if (dirname(file) == ".") "" else dirname(file)
+    expect_equal(dir_name, "dev")
+    p2 <- glue::glue("{path}/{dir_name}")
+    expect_equal(p2, "/dev")
+    file_name <- basename(file)
+    expect_equal(file_name, "wli.parquet")
+    file_path <- sub("^/", "", sub("/+", "/", glue::glue("{p2}/{file_name}")))
+    expect_equal(file_path, "dev/wli.parquet")
+    dir_list <- AzureStor::list_blobs(inp, p2, recursive = FALSE)
+    file_name_out <- dir_list |>
+      dplyr::filter(
+        !dplyr::if_any("isdir") &
+          dplyr::if_any("name", \(x) gregg(x, "^{file_path}(\\.{file_ext})?$"))
+      ) |>
+      dplyr::pull("name")
+    expect_equal(file_name_out, file)
+    expect_no_error(check_blob_exists(inp, file, file_ext, FALSE, path))
+  }
+})
+
+
 test_that("whole read_parquet function works", {
   endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
   # only run the test if this variable is set (i.e. locally, but not on GitHub)
@@ -41,6 +96,28 @@ test_that("whole read_parquet function works", {
     # this should error as there are >1 files matching "repat"
     read_azure_parquet(inputs_container, "repat", path = "dev") |>
       expect_error()
+
+    res <- get_container(Sys.getenv("AZ_RESULTS_CONTAINER"))
+    pqt_file <- Sys.getenv("TEST_PARQUET_FILE")
+    path <- "/"
+    file_ext <- "parquet"
+    # leftover checks from when failing, before changes made:
+    # expect_error(read_azure_parquet(res, pqt_file))
+    # expect_error(download_azure_blob(res, pqt_file, "parquet", TRUE, path))
+    # expect_error(check_blob_exists(res, pqt_file, "parquet", TRUE, path))
+
+    # experiment with changes to code:
+    path <- if (path %in% c("", "/")) "" else path
+    expect_equal(path, "")
+    dir_name <- if (dirname(pqt_file) == ".") "" else dirname(pqt_file)
+    p2 <- glue::glue("{path}/{dir_name}")
+    file_name <- sub(glue::glue("\\.{file_ext}$"), "", basename(pqt_file))
+    file_path <- sub("^/", "", sub("/+", "/", glue::glue("{p2}/{file_name}")))
+    expect_equal(paste0(file_path, ".", file_ext), pqt_file)
+    # now function should run without error
+    expect_no_error(check_blob_exists(res, pqt_file, "parquet", FALSE, "/"))
+    # we want this to error if the file_ext doesn't match the file
+    expect_error(check_blob_exists(res, pqt_file, "rds", FALSE, "/"))
   }
 })
 
