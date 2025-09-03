@@ -36,6 +36,17 @@ list_container_names <- function(token = NULL, ...) {
 }
 
 
+#' Return an Azure "blob_endpoint"
+#'
+#' @param token An Azure authentication token
+#' @returns An Azure blob endpoint (object of class "blob_endpoint")
+#' @keywords internal
+get_default_endpoint <- function(token) {
+  check_envvar("AZ_STORAGE_EP") |>
+    AzureStor::blob_endpoint(token = token)
+}
+
+
 #' Check that an environment variable exists
 #'
 #' The function prints a helpful error if the variable is not found, else
@@ -47,15 +58,4 @@ list_container_names <- function(token = NULL, ...) {
 check_envvar <- function(x) {
   cst_msg <- cst_error_msg("{.envvar {x}} is not set")
   check_scalar_type(Sys.getenv(x, NA_character_), "string", cst_msg)
-}
-
-
-#' Return an Azure "blob_endpoint"
-#'
-#' @param token An Azure authentication token
-#' @returns An Azure blob endpoint (object of class "blob_endpoint")
-#' @keywords internal
-get_default_endpoint <- function(token) {
-  check_envvar("AZ_STORAGE_EP") |>
-    AzureStor::blob_endpoint(token = token)
 }
