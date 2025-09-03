@@ -293,8 +293,8 @@ test_that("read_azure_csv basically works", {
     raw_out <- support_container |>
       download_azure_blob("mitigator-lookup.csv", "csv")
     expect_type(raw_out, "raw")
-    expect_no_error(readr::read_csv(raw_out))
-    dat <- readr::read_csv(raw_out)
+    expect_no_error(readr::read_csv(raw_out, show_col_types = FALSE))
+    dat <- readr::read_csv(raw_out, show_col_types = FALSE)
     expect_type(dat, "list")
     expect_s3_class(dat, "tbl_df")
   }
@@ -335,7 +335,8 @@ test_that("read functions all work a bit at least", {
     supp <- get_container(Sys.getenv("AZ_SUPPORT_CONTAINER"))
     expect_no_error(read_azure_json(supp, Sys.getenv("TEST_JSON_FILE")))
     expect_no_error(read_azure_rds(supp, Sys.getenv("TEST_RDS_FILE")))
-    expect_no_error(read_azure_csv(supp, Sys.getenv("TEST_CSV_FILE")))
+    read_azure_csv(supp, Sys.getenv("TEST_CSV_FILE"), show_col_types = FALSE) |>
+      expect_no_error()
   }
 })
 
