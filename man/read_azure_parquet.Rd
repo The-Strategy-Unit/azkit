@@ -9,10 +9,9 @@ read_azure_parquet(container, file, path = "/", info = NULL, ...)
 \arguments{
 \item{container}{An Azure container object, as returned by \code{get_container()}}
 
-\item{file}{The name of the file to be read, as a string. NB this can be a
-partial match, and for example the file extension does not need to be
-included (though it can be). The function will error if multiple files are
-matched.}
+\item{file}{The name of the file to be read, as a string. NB The file
+extension does not need to be included (though it can be). The function
+will error if multiple files are somehow matched.}
 
 \item{path}{The path to the directory where \code{file} is located, as a string.
 This must be the full path to the file location, as the function will not

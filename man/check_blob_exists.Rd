@@ -9,10 +9,9 @@ check_blob_exists(container, file, file_ext, info, path = "")
 \arguments{
 \item{container}{An Azure container object, as returned by \code{get_container()}}
 
-\item{file}{The name of the file to be read, as a string. NB this can be a
-partial match, and for example the file extension does not need to be
-included (though it can be). The function will error if multiple files are
-matched.}
+\item{file}{The name of the file to be read, as a string. NB The file
+extension does not need to be included (though it can be). The function
+will error if multiple files are somehow matched.}
 
 \item{file_ext}{The standard file extension for the file type, e.g. "json"}
 

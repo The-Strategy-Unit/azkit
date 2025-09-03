@@ -1,10 +1,9 @@
 #' Read a parquet file from Azure storage
 #'
 #' @param container An Azure container object, as returned by `get_container()`
-#' @param file The name of the file to be read, as a string. NB this can be a
-#'  partial match, and for example the file extension does not need to be
-#'  included (though it can be). The function will error if multiple files are
-#'  matched.
+#' @param file The name of the file to be read, as a string. NB The file
+#'  extension does not need to be included (though it can be). The function
+#'  will error if multiple files are somehow matched.
 #' @param path The path to the directory where `file` is located, as a string.
 #'  This must be the full path to the file location, as the function will not
 #'  search into subdirectories recursively. Set to `"/"` (the root of the
@@ -91,12 +90,8 @@ check_blob_exists <- function(container, file, file_ext, info, path = "") {
   filepath_out <- AzureStor::list_blobs(container, dpath, recursive = FALSE) |>
     dplyr::filter(
       !dplyr::if_any("isdir") &
-        # Don't include `filepath` in the first regex here, because we want to
-        # filter to `file_ext` explicitly, as well as also allow for `filepath`
-        # to include its file extension if that suits the user's approach.
-        dplyr::if_any("name", \(x) {
-          gregg(x, "\\.{file_ext}$") & gregg(x, "^{filepath}")
-        })
+        # if `file_ext` not included in `file` we still try to match it here
+        dplyr::if_any("name", \(x) gregg(x, "^{file_path}\\.{file_ext}$"))
     ) |>
     dplyr::pull("name")
   stop_msg1 <- glue::glue("no matching {file_ext} file found")
