@@ -1,19 +1,16 @@
 #' Get Azure authentication token
 #'
-#' @description
-#' #' `r lifecycle::badge("experimental")`
 #' This function retrieves an Azure token for a specified resource.
 #'
-#' @details
 #' If the environment variables `AZ_TENANT_ID`, `AZ_CLIENT_ID` and
-#' `AZ_APP_SECRET` are all set, it will try to use these to return a token.
+#'  `AZ_APP_SECRET` are all set, it will try to use these to return a token.
 #'
 #' Otherwise it will try to get a managed token from a managed resource such as
-#' Azure VM or Azure App Service.
+#'  Azure VM or Azure App Service.
 #'
 #' If neither of these approaches has returned a token, it will try to retrieve
-#' a user token using the provided parameters, requiring the user to have
-#' authenticated using their device.
+#'  a user token using the provided parameters, requiring the user to have
+#'  authenticated using their device.
 #'
 #' @param resource A string specifying the URL of the Azure resource for which
 #'  the token is requested. Defaults to `"https://storage.azure.com"`.
@@ -21,19 +18,19 @@
 #'  resource for which the token is requested. Defaults to
 #'  `"https://management.azure.com"`.
 #' @param tenant A string specifying the Azure tenant. Defaults to
-#'  `"organizations"`. See `?AzureAuth::get_azure_token` for other values.
+#'  `"organizations"`. See [AzureAuth::get_azure_token] for other values.
 #' @param client_id A string specifying the application ID (client ID). If
 #'  `NULL`, (the default) the function attempts to obtain the client ID from the
 #'  Azure Resource Manager token, or prompts the user to log in to obtain it.
 #' @param auth_method A string specifying the authentication method. Defaults to
-#'  `"authorization_code"`. See `?AzureAuth::get_azure_token` for other values.
+#'  `"authorization_code"`. See ?[AzureAuth::get_azure_token] for other values.
 #' @param force_refresh Boolean: whether to use a stored token if available
 #'  (`FALSE`, the default), or try to obtain a new one from Azure (`TRUE`).
 #'  This may be useful if you wish to generate a new token with the same
 #'  `resource` value as an existing token, but a different `tenant` or
 #'  `auth_method`.
 #' @param ... Optional arguments (`token_args` or `use_cache`) to be passed on
-#'  to `AzureAuth::get_managed_token()`.
+#'  to [AzureAuth::get_managed_token].
 #'
 #' @returns An Azure token object
 #' @examples

@@ -7,7 +7,7 @@
 read_azure_parquet(container, file, path = "/", info = NULL, ...)
 }
 \arguments{
-\item{container}{An Azure container object, as returned by 'get_container'}
+\item{container}{An Azure container object, as returned by \code{\link[=get_container]{get_container()}}}
 
 \item{file}{The name of the file to be read, as a string. NB The file
 extension does not need to be included (though it can be). The function
@@ -22,9 +22,9 @@ container) by default.}
 being read. Useful for checking the function is doing what is expected, but
 can be turned off with \code{FALSE}. Can be set persistently with the option
 "azkit.info". If \code{NULL} then it will default to the value of
-'rlang::is_interactive' (ie \code{TRUE} for interactive sessions).}
+\code{\link[rlang:is_interactive]{rlang::is_interactive()}} (ie \code{TRUE} for interactive sessions).}
 
-\item{...}{optional arguments to be passed through to 'arrow::read_parquet'}
+\item{...}{optional arguments to be passed through to \code{\link[arrow:read_parquet]{arrow::read_parquet()}}}
 }
 \value{
 A tibble

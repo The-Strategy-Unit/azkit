@@ -1,11 +1,11 @@
 #' Get Azure storage container
 #'
-#' Use `list_container_names()` to see a list of available containers
+#' Use [list_container_names()] to see a list of available containers
 #'
-#' @param container_name Name of the container as a string. NULL by default,
+#' @param container_name Name of the container as a string. `NULL` by default,
 #'  which means the function will look instead for a container name stored in
 #'  the environment variable "AZ_CONTAINER"
-#' @param ... arguments to be passed through to `get_auth_token()`
+#' @param ... arguments to be passed through to [get_auth_token()]
 #' @returns An Azure blob container (list object of class "blob_container")
 #' @export
 get_container <- function(container_name = NULL, ...) {
@@ -49,7 +49,7 @@ get_default_endpoint <- function(token) {
 #' Check that an environment variable exists
 #'
 #' The function prints a helpful error if the variable is not found, else
-#' it returns the value of `Sys.getenv(x)`
+#'  it returns the value of `Sys.getenv(x)`
 #'
 #' @param x the *name* of the environment variable to be found and checked
 #' @returns the value of the environment variable `x`

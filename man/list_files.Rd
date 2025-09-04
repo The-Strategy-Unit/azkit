@@ -7,7 +7,7 @@
 list_files(container, path = "", ext = "", recursive = TRUE)
 }
 \arguments{
-\item{container}{An Azure container object, as returned by 'get_container'}
+\item{container}{An Azure container object, as returned by \code{\link[=get_container]{get_container()}}}
 
 \item{path}{(optional) subdirectory of the container to list files within.
 \code{""} (the root folder of the container) by default}
@@ -35,7 +35,7 @@ The function does not support filtering by file name, only by file extension.
 The returned file list (character vector) contains the full paths to the
 files, ready to be passed perhaps to a \verb{read_azure_*} function, or further
 filtered by you. If you just want the names of the files without the folder
-path, use \code{basename()} to extract these.
+path, use \code{\link[=basename]{basename()}} to extract these.
 }
 \examples{
 \dontrun{

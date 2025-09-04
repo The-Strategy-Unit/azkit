@@ -9,15 +9,18 @@ gregg(x, rx, ..., g = parent.frame())
 \arguments{
 \item{x}{A character vector to check}
 
-\item{rx}{A string that after processing by glue_data() will be used as a
-regex pattern in \code{grepl()}}
+\item{rx}{A string that after processing by \code{\link[=glue_data]{glue_data()}} will be used as a
+regex pattern in \code{\link[=grepl]{grepl()}}}
 
-\item{...}{Arguments passed onto \code{grepl()}}
+\item{...}{Arguments passed onto \code{\link[=grepl]{grepl()}}}
 
-\item{g}{The parent frame of gregg, which must be passed through to \code{glue()}}
+\item{g}{The parent frame of gregg, which must be passed through to glue_data}
 }
 \description{
 Use \{glue\} expressions in grepl (and put the arguments the right way round)
-https://glue.tidyverse.org/articles/wrappers.html
+(\link[=glue]{https://glue.tidyverse.org/articles/wrappers.html})
+}
+\details{
+
 }
 \keyword{internal}

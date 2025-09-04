@@ -10,7 +10,7 @@
 #' The returned file list (character vector) contains the full paths to the
 #' files, ready to be passed perhaps to a `read_azure_*` function, or further
 #' filtered by you. If you just want the names of the files without the folder
-#' path, use `basename()` to extract these.
+#' path, use [basename()] to extract these.
 #'
 #' @inheritParams read_azure_parquet
 #' @param path (optional) subdirectory of the container to list files within.

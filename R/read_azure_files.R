@@ -1,6 +1,6 @@
 #' Read a parquet file from Azure storage
 #'
-#' @param container An Azure container object, as returned by 'get_container'
+#' @param container An Azure container object, as returned by [get_container()]
 #' @param file The name of the file to be read, as a string. NB The file
 #'  extension does not need to be included (though it can be). The function
 #'  will error if multiple files are somehow matched.
@@ -12,8 +12,8 @@
 #'  being read. Useful for checking the function is doing what is expected, but
 #'  can be turned off with `FALSE`. Can be set persistently with the option
 #'  "azkit.info". If `NULL` then it will default to the value of
-#'  'rlang::is_interactive' (ie `TRUE` for interactive sessions).
-#' @param ... optional arguments to be passed through to 'arrow::read_parquet'
+#'  [rlang::is_interactive()] (ie `TRUE` for interactive sessions).
+#' @param ... optional arguments to be passed through to [arrow::read_parquet()]
 #' @returns A tibble
 #' @examples \dontrun{
 #'   # if a full filepath is available then path can be ignored
@@ -36,7 +36,7 @@ read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
 #'
 #' @inheritParams read_azure_parquet
 #' @param ... optional arguments to be passed through to
-#'  'yyjsonr::read_json_raw'
+#'  [yyjsonr::read_json_raw()]
 #' @returns A list
 #' @export
 read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
@@ -61,7 +61,7 @@ read_azure_rds <- function(container, file, path = "/", info = NULL) {
 #' Read a csv file from Azure storage
 #'
 #' @inheritParams read_azure_parquet
-#' @param ... optional arguments to be passed through to 'readr::read_delim'
+#' @param ... optional arguments to be passed through to [readr::read_delim()]
 #' @returns A tibble
 #' @export
 read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
@@ -109,4 +109,3 @@ check_blob_exists <- function(container, file, file_ext, info, path) {
   }
   filepath_out
 }
-
