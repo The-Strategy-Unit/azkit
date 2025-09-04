@@ -7,7 +7,7 @@
 list_files(container, path = "", ext = "", recursive = TRUE)
 }
 \arguments{
-\item{container}{An Azure container object, as returned by \code{get_container()}}
+\item{container}{An Azure container object, as returned by 'get_container'}
 
 \item{path}{(optional) subdirectory of the container to list files within.
 \code{""} (the root folder of the container) by default}

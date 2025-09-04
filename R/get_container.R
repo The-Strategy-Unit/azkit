@@ -1,6 +1,5 @@
 #' Get Azure storage container
 #'
-#' `r lifecycle::badge("experimental")`
 #' Use `list_container_names()` to see a list of available containers
 #'
 #' @param container_name Name of the container as a string. NULL by default,

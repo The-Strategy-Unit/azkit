@@ -17,6 +17,5 @@ the environment variable "AZ_CONTAINER"}
 An Azure blob container (list object of class "blob_container")
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Use \code{list_container_names()} to see a list of available containers
 }
