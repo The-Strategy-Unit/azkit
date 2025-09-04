@@ -90,7 +90,7 @@ check_blob_exists <- function(container, file, file_ext, info, path) {
     glue::glue("{basename(file)}.{file_ext}")
   }
   # remove duplicate slashes and any initial slashes
-  file_path <- sub("^/", "", sub("/+", "/", glue::glue("{dpath}/{file_name}")))
+  file_path <- sub("^/", "", gsub("/+", "/", glue::glue("{dpath}/{file_name}")))
 
   filepath_out <- AzureStor::list_blobs(container, dpath, recursive = FALSE) |>
     dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
@@ -109,3 +109,4 @@ check_blob_exists <- function(container, file, file_ext, info, path) {
   }
   filepath_out
 }
+
