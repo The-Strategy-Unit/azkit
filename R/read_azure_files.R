@@ -75,25 +75,27 @@ read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
 #' @inheritParams read_azure_parquet
 #' @param file_ext The standard file extension for the file type, e.g. "json"
 #' @keywords internal
-check_blob_exists <- function(container, file, file_ext, info, path = "") {
+check_blob_exists <- function(container, file, file_ext, info, path) {
   stopifnot("no container found" = inherits(container, "blob_container"))
   path <- if (path %in% c("", "/")) "" else path
   stopifnot("path not found" = AzureStor::blob_dir_exists(container, path))
   dir_name <- if (dirname(file) == ".") "" else dirname(file)
-  # Potentially the user could provide a partial file path in `path` and the
-  # remainder as part of `file`. This handles that eventuality, though
-  # this usage pattern should be rare.
+  # Potentially the user could provide a partial file path in `path` and a
+  # further sub-directory as part of `file`. This handles that eventuality,
+  # though this usage pattern should be quite rare!
   dpath <- glue::glue("{path}/{dir_name}")
-  file_stub <- sub(glue::glue("\\.{file_ext}$"), "", basename(file))
+  file_name <- if (gregg(basename(file), "\\.{file_ext}$")) {
+    basename(file)
+  } else {
+    glue::glue("{basename(file)}.{file_ext}")
+  }
   # remove duplicate slashes and any initial slashes
-  file_path <- sub("^/", "", sub("/+", "/", glue::glue("{dpath}/{file_stub}")))
+  file_path <- sub("^/", "", sub("/+", "/", glue::glue("{dpath}/{file_name}")))
+
   filepath_out <- AzureStor::list_blobs(container, dpath, recursive = FALSE) |>
-    dplyr::filter(
-      !dplyr::if_any("isdir") &
-        # if `file_ext` not included in `file` we still try to match it here
-        dplyr::if_any("name", \(x) gregg(x, "^{file_path}\\.{file_ext}$"))
-    ) |>
+    dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
     dplyr::pull("name")
+
   stop_msg1 <- glue::glue("no matching {file_ext} file found")
   stop_msg2 <- glue::glue("multiple matching {file_ext} files found")
   check_vec(filepath_out, rlang::is_character, stop_msg1) # check length > 0
