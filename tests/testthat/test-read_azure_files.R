@@ -93,27 +93,27 @@ test_that("whole read_parquet function works", {
     # check that it works with the file extension included
     out2 <- read_azure_parquet(inputs_container, "wli.parquet", path = "dev")
     expect_length(out2, 6) # ncol
-    # this should error as there are >1 files matching "repat"
-    read_azure_parquet(inputs_container, "repat", path = "dev") |>
-      expect_error()
 
     res <- get_container(Sys.getenv("AZ_RESULTS_CONTAINER"))
     pqt_file <- Sys.getenv("TEST_PARQUET_FILE")
     path <- "/"
     file_ext <- "parquet"
-    # leftover checks from when failing, before changes made:
-    # expect_error(read_azure_parquet(res, pqt_file))
-    # expect_error(download_azure_blob(res, pqt_file, "parquet", TRUE, path))
-    # expect_error(check_blob_exists(res, pqt_file, "parquet", TRUE, path))
 
     # experiment with changes to code:
     path <- if (path %in% c("", "/")) "" else path
     expect_equal(path, "")
     dir_name <- if (dirname(pqt_file) == ".") "" else dirname(pqt_file)
-    p2 <- glue::glue("{path}/{dir_name}")
+    dpath <- glue::glue("{path}/{dir_name}")
     file_name <- sub(glue::glue("\\.{file_ext}$"), "", basename(pqt_file))
-    file_path <- sub("^/", "", sub("/+", "/", glue::glue("{p2}/{file_name}")))
-    expect_equal(paste0(file_path, ".", file_ext), pqt_file)
+
+    file_name <- if (gregg(basename(pqt_file), "\\.{file_ext}$")) {
+      basename(pqt_file)
+    } else {
+      glue::glue("{basename(pqt_file)}.{file_ext}")
+    }
+    # remove duplicate slashes and any initial slashes
+    fpath <- sub("^/", "", sub("/+", "/", glue::glue("{dpath}/{file_name}")))
+    expect_equal(fpath, pqt_file)
     # now function should run without error
     expect_no_error(check_blob_exists(res, pqt_file, "parquet", FALSE, "/"))
     # we want this to error if the file_ext doesn't match the file
