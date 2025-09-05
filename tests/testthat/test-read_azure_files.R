@@ -35,26 +35,23 @@ test_that("understand some new errors in check_blob_exists", {
     inp <- expect_no_error(get_container("inputs-data"))
     path <- "dev"
     file <- "wli"
-    file_ext <- "parquet"
+    ext <- "parquet"
     path <- if (path %in% c("", "/")) "" else path
     expect_equal(path, "dev")
     dir_name <- if (dirname(file) == ".") "" else dirname(file)
     expect_equal(dir_name, "")
-    p2 <- glue::glue("{path}/{dir_name}")
-    expect_equal(p2, "dev/")
-    file_name <- basename(file)
-    expect_equal(file_name, "wli")
-    file_path <- sub("^/", "", sub("/+", "/", glue::glue("{p2}/{file_name}")))
-    expect_equal(file_path, "dev/wli")
+    p2 <- file.path(path, dir_name)
+    expect_equal(p2, "dev")
+    file_name <- paste0(basename(file), ".", ext)
+    expect_equal(file_name, "wli.parquet")
+    file_path <- sub("^/", "", sub("/+", "/", file.path(p2, file_name)))
+    expect_equal(file_path, "dev/wli.parquet")
     dir_list <- AzureStor::list_blobs(inp, p2, recursive = FALSE)
     file_name_out <- dir_list |>
-      dplyr::filter(
-        !dplyr::if_any("isdir") &
-          dplyr::if_any("name", \(x) gregg(x, "^{file_path}(\\.{file_ext})?$"))
-      ) |>
+      dplyr::filter(dplyr::if_any("name", \(x) x == file_path)) |>
       dplyr::pull("name")
     expect_equal(file_name_out, "dev/wli.parquet")
-    expect_no_error(check_blob_exists(inp, file, file_ext, FALSE, path))
+    expect_no_error(check_blob_exists(inp, file, ext, FALSE, path))
 
     # check still works if full filepath is passed to file arg
     path <- ""
@@ -71,13 +68,10 @@ test_that("understand some new errors in check_blob_exists", {
     expect_equal(file_path, "dev/wli.parquet")
     dir_list <- AzureStor::list_blobs(inp, p2, recursive = FALSE)
     file_name_out <- dir_list |>
-      dplyr::filter(
-        !dplyr::if_any("isdir") &
-          dplyr::if_any("name", \(x) gregg(x, "^{file_path}(\\.{file_ext})?$"))
-      ) |>
+      dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
       dplyr::pull("name")
     expect_equal(file_name_out, file)
-    expect_no_error(check_blob_exists(inp, file, file_ext, FALSE, path))
+    expect_no_error(check_blob_exists(inp, file, ext, FALSE, path))
   }
 })
 

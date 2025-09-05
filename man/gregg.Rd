@@ -9,8 +9,8 @@ gregg(x, rx, ..., g = parent.frame())
 \arguments{
 \item{x}{A character vector to check}
 
-\item{rx}{A string that after processing by \code{\link[=glue_data]{glue_data()}} will be used as a
-regex pattern in \code{\link[=grepl]{grepl()}}}
+\item{rx}{A string that after processing by \code{\link[glue:glue]{glue::glue_data()}} will be used
+as a regex pattern in \code{\link[=grepl]{grepl()}}}
 
 \item{...}{Arguments passed onto \code{\link[=grepl]{grepl()}}}
 
@@ -18,9 +18,6 @@ regex pattern in \code{\link[=grepl]{grepl()}}}
 }
 \description{
 Use \{glue\} expressions in grepl (and put the arguments the right way round)
-(\link[=glue]{https://glue.tidyverse.org/articles/wrappers.html})
-}
-\details{
-
+(https://glue.tidyverse.org/articles/wrappers.html)
 }
 \keyword{internal}

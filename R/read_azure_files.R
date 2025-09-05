@@ -85,7 +85,7 @@ check_blob_exists <- function(container, file, ext, info, path) {
   # Potentially the user could provide a partial file path in `path` and a
   # further sub-directory as part of `file`. This handles that eventuality,
   # though this usage pattern should be quite rare!
-  dpath <- file.path(dpath, dir_name)
+  dpath <- file.path(path, dir_name)
   fname <- basename(file)
   fname <- ifelse(gregg(fname, "\\.{ext}$"), fname, glue::glue("{fname}.{ext}"))
   # remove duplicate slashes and any initial slashes

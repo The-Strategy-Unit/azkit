@@ -92,13 +92,11 @@ cst_error_msg <- \(text) paste0("{.fn check_scalar_type}: ", text)
 #' grepl a glued regex
 #'
 #' Use \{glue\} expressions in grepl (and put the arguments the right way round)
-#' ([https://glue.tidyverse.org/articles/wrappers.html][glue])
-#'
-#' [glue]: https://glue.tidyverse.org/articles/wrappers.html
+#' (https://glue.tidyverse.org/articles/wrappers.html)
 #'
 #' @param x A character vector to check
-#' @param rx A string that after processing by [glue_data()] will be used as a
-#'  regex pattern in [grepl()]
+#' @param rx A string that after processing by [glue::glue_data()] will be used
+#'  as a regex pattern in [grepl()]
 #' @param ... Arguments passed onto [grepl()]
 #' @param g The parent frame of gregg, which must be passed through to glue_data
 #' @keywords internal
