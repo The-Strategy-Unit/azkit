@@ -14,6 +14,8 @@ extension does not need to be included (though it can be). The function
 will error if multiple files are somehow matched.}
 
 \item{path}{The path to the directory where \code{file} is located, as a string.
+Only needed if \code{file} does not already contain its full path. If file is
+just a file name with no path, then provide the path to the directory here.
 This must be the full path to the file location, as the function will not
 search into subdirectories recursively. Set to \code{"/"} (the root of the
 container) by default.}
@@ -37,7 +39,7 @@ Read a parquet file from Azure storage
   # if a full filepath is available then path can be ignored
   read_azure_parquet(cont, "data/folder/path/1.parquet")
   # you can provide a filename without the '.parquet' extension
-  # if you wish to use partial file name matching then it is probably easier
+  # if you wish to use this partial file name matching it is probably easier
   # to provide a 'path'
   read_azure_parquet(cont, "case_details", "storage/parquet/2025/06/29")
 }

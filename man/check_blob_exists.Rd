@@ -4,7 +4,7 @@
 \alias{check_blob_exists}
 \title{Ensures that the filepath for the file to read exists}
 \usage{
-check_blob_exists(container, file, file_ext, info, path)
+check_blob_exists(container, file, ext, info, path)
 }
 \arguments{
 \item{container}{An Azure container object, as returned by \code{\link[=get_container]{get_container()}}}
@@ -13,7 +13,7 @@ check_blob_exists(container, file, file_ext, info, path)
 extension does not need to be included (though it can be). The function
 will error if multiple files are somehow matched.}
 
-\item{file_ext}{The standard file extension for the file type, e.g. "json"}
+\item{ext}{The standard file extension for the file type, e.g. "json"}
 
 \item{info}{Boolean. Whether to print user feedback about the file that is
 being read. Useful for checking the function is doing what is expected, but
@@ -22,6 +22,8 @@ can be turned off with \code{FALSE}. Can be set persistently with the option
 \code{\link[rlang:is_interactive]{rlang::is_interactive()}} (ie \code{TRUE} for interactive sessions).}
 
 \item{path}{The path to the directory where \code{file} is located, as a string.
+Only needed if \code{file} does not already contain its full path. If file is
+just a file name with no path, then provide the path to the directory here.
 This must be the full path to the file location, as the function will not
 search into subdirectories recursively. Set to \code{"/"} (the root of the
 container) by default.}

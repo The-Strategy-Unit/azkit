@@ -5,6 +5,8 @@
 #'  extension does not need to be included (though it can be). The function
 #'  will error if multiple files are somehow matched.
 #' @param path The path to the directory where `file` is located, as a string.
+#'  Only needed if `file` does not already contain its full path. If file is
+#'  just a file name with no path, then provide the path to the directory here.
 #'  This must be the full path to the file location, as the function will not
 #'  search into subdirectories recursively. Set to `"/"` (the root of the
 #'  container) by default.
@@ -19,7 +21,7 @@
 #'   # if a full filepath is available then path can be ignored
 #'   read_azure_parquet(cont, "data/folder/path/1.parquet")
 #'   # you can provide a filename without the '.parquet' extension
-#'   # if you wish to use partial file name matching then it is probably easier
+#'   # if you wish to use this partial file name matching it is probably easier
 #'   # to provide a 'path'
 #'   read_azure_parquet(cont, "case_details", "storage/parquet/2025/06/29")
 #' }
@@ -73,9 +75,9 @@ read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
 #' Ensures that the filepath for the file to read exists
 #'
 #' @inheritParams read_azure_parquet
-#' @param file_ext The standard file extension for the file type, e.g. "json"
+#' @param ext The standard file extension for the file type, e.g. "json"
 #' @keywords internal
-check_blob_exists <- function(container, file, file_ext, info, path) {
+check_blob_exists <- function(container, file, ext, info, path) {
   stopifnot("no container found" = inherits(container, "blob_container"))
   path <- if (path %in% c("", "/")) "" else path
   stopifnot("path not found" = AzureStor::blob_dir_exists(container, path))
@@ -83,23 +85,20 @@ check_blob_exists <- function(container, file, file_ext, info, path) {
   # Potentially the user could provide a partial file path in `path` and a
   # further sub-directory as part of `file`. This handles that eventuality,
   # though this usage pattern should be quite rare!
-  dpath <- glue::glue("{path}/{dir_name}")
-  file_name <- if (gregg(basename(file), "\\.{file_ext}$")) {
-    basename(file)
-  } else {
-    glue::glue("{basename(file)}.{file_ext}")
-  }
+  dpath <- file.path(dpath, dir_name)
+  fname <- basename(file)
+  fname <- ifelse(gregg(fname, "\\.{ext}$"), fname, glue::glue("{fname}.{ext}"))
   # remove duplicate slashes and any initial slashes
-  file_path <- sub("^/", "", gsub("/+", "/", glue::glue("{dpath}/{file_name}")))
+  file_path <- sub("^/", "", gsub("/+", "/", file.path(dpath, fname)))
 
   filepath_out <- AzureStor::list_blobs(container, dpath, recursive = FALSE) |>
     dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
     dplyr::pull("name")
 
-  stop_msg1 <- glue::glue("no matching {file_ext} file found")
-  stop_msg2 <- glue::glue("multiple matching {file_ext} files found")
-  check_vec(filepath_out, rlang::is_character, stop_msg1) # check length > 0
-  check_scalar_type(filepath_out, "character", stop_msg2) # check length == 1
+  msg1 <- cv_error_msg("no matching {ext} file found")
+  msg2 <- cst_error_msg("multiple matching {ext} files found")
+  check_vec(filepath_out, rlang::is_character, msg1) # check length > 0
+  check_scalar_type(filepath_out, "character", msg2) # check length == 1
 
   info_option <- getOption("azkit.info")
   stopifnot(rlang::is_scalar_logical(info) || is.null(info))

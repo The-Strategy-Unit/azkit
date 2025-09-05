@@ -14,6 +14,8 @@ extension does not need to be included (though it can be). The function
 will error if multiple files are somehow matched.}
 
 \item{path}{The path to the directory where \code{file} is located, as a string.
+Only needed if \code{file} does not already contain its full path. If file is
+just a file name with no path, then provide the path to the directory here.
 This must be the full path to the file location, as the function will not
 search into subdirectories recursively. Set to \code{"/"} (the root of the
 container) by default.}
