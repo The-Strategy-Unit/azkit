@@ -12,3 +12,4 @@ A string (the client ID)
 \description{
 Pulled out mainly to tidy up the main function code a bit
 }
+\keyword{internal}
