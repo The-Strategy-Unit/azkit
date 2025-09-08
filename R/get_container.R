@@ -34,7 +34,7 @@ list_container_names <- function(token = NULL, ...) {
   lcn <- "list_container_names"
   container_list <- AzureStor::list_blob_containers(endpoint) |>
     tryCatch(\(e) cli::cli_abort("Error in {.fn {lcn}}: {e}"))
-  stopifnot(paste0(lcn, ": no containers found") = length(container_list) >= 1L)
+  stopifnot("no containers found" = length(container_list) >= 1L)
   names(container_list)
 }
 
@@ -62,3 +62,4 @@ check_envvar <- function(x) {
   cst_msg <- cst_error_msg("{.envvar {x}} is not set")
   check_scalar_type(Sys.getenv(x, NA_character_), "string", cst_msg)
 }
+
