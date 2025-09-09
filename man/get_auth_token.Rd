@@ -6,7 +6,6 @@
 \usage{
 get_auth_token(
   resource = "https://storage.azure.com",
-  managed_resource = "https://management.azure.com",
   tenant = "organizations",
   client_id = NULL,
   auth_method = "authorization_code",
@@ -17,10 +16,6 @@ get_auth_token(
 \arguments{
 \item{resource}{A string specifying the URL of the Azure resource for which
 the token is requested. Defaults to \code{"https://storage.azure.com"}.}
-
-\item{managed_resource}{A string specifying the URL of the managed Azure
-resource for which the token is requested. Defaults to
-\code{"https://management.azure.com"}.}
 
 \item{tenant}{A string specifying the Azure tenant. Defaults to
 \code{"organizations"}. See \code{?AzureAuth::get_azure_token} for other values.}

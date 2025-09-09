@@ -17,9 +17,6 @@
 #'
 #' @param resource A string specifying the URL of the Azure resource for which
 #'  the token is requested. Defaults to `"https://storage.azure.com"`.
-#' @param managed_resource A string specifying the URL of the managed Azure
-#'  resource for which the token is requested. Defaults to
-#'  `"https://management.azure.com"`.
 #' @param tenant A string specifying the Azure tenant. Defaults to
 #'  `"organizations"`. See `?AzureAuth::get_azure_token` for other values.
 #' @param client_id A string specifying the application ID (client ID). If
@@ -53,7 +50,6 @@
 #' @export
 get_auth_token <- function(
   resource = "https://storage.azure.com",
-  managed_resource = "https://management.azure.com",
   tenant = "organizations",
   client_id = NULL,
   auth_method = "authorization_code",
@@ -77,7 +73,7 @@ get_auth_token <- function(
     )
   } else {
     # 2. try to get a managed token (for example on Azure VM, App Service)
-    token <- possibly_get_mtk(managed_resource, ...)
+    token <- possibly_get_mtk(resource, ...)
   }
 
   # 3. if neither of those has worked, try to get an already stored user token
@@ -120,6 +116,7 @@ get_auth_token <- function(
 #' Sub-routine for `get_auth_token()`
 #'
 #' Pulled out mainly to tidy up the main function code a bit
+#' @keywords internal
 #' @returns A string (the client ID)
 get_client_id <- function() {
   pluck_client_id <- function() {
