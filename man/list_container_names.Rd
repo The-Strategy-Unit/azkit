@@ -9,7 +9,7 @@ list_container_names(token = NULL, ...)
 \arguments{
 \item{token}{An Azure authentication token}
 
-\item{...}{arguments to be passed through to \code{get_auth_token()}}
+\item{...}{arguments to be passed through to \code{\link[=get_auth_token]{get_auth_token()}}}
 }
 \value{
 A character vector of all container names found

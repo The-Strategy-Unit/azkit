@@ -7,14 +7,15 @@
 read_azure_rds(container, file, path = "/", info = NULL)
 }
 \arguments{
-\item{container}{An Azure container object, as returned by \code{get_container()}}
+\item{container}{An Azure container object, as returned by \code{\link[=get_container]{get_container()}}}
 
-\item{file}{The name of the file to be read, as a string. NB this can be a
-partial match, and for example the file extension does not need to be
-included (though it can be). The function will error if multiple files are
-matched.}
+\item{file}{The name of the file to be read, as a string. NB The file
+extension does not need to be included (though it can be). The function
+will error if multiple files are somehow matched.}
 
 \item{path}{The path to the directory where \code{file} is located, as a string.
+Only needed if \code{file} does not already contain its full path. If file is
+just a file name with no path, then provide the path to the directory here.
 This must be the full path to the file location, as the function will not
 search into subdirectories recursively. Set to \code{"/"} (the root of the
 container) by default.}
@@ -23,7 +24,7 @@ container) by default.}
 being read. Useful for checking the function is doing what is expected, but
 can be turned off with \code{FALSE}. Can be set persistently with the option
 "azkit.info". If \code{NULL} then it will default to the value of
-\code{rlang::is_interactive()} (ie \code{TRUE} for interactive sessions).}
+\code{\link[rlang:is_interactive]{rlang::is_interactive()}} (ie \code{TRUE} for interactive sessions).}
 }
 \value{
 Data object that was stored in the rds file

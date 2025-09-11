@@ -27,6 +27,55 @@ test_that("basic success", {
   }
 })
 
+
+test_that("understand some new errors in check_blob_exists", {
+  endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
+  # only run the test if this variable is set (i.e. locally, but not on GitHub)
+  if (nzchar(endpoint_uri)) {
+    inp <- expect_no_error(get_container("inputs-data"))
+    path <- "dev"
+    file <- "wli"
+    ext <- "parquet"
+    path <- if (path %in% c("", "/")) "" else path
+    expect_equal(path, "dev")
+    dir_name <- if (dirname(file) == ".") "" else dirname(file)
+    expect_equal(dir_name, "")
+    p2 <- file.path(path, dir_name)
+    expect_equal(p2, "dev")
+    file_name <- paste0(basename(file), ".", ext)
+    expect_equal(file_name, "wli.parquet")
+    file_path <- sub("^/", "", sub("/+", "/", file.path(p2, file_name)))
+    expect_equal(file_path, "dev/wli.parquet")
+    dir_list <- AzureStor::list_blobs(inp, p2, recursive = FALSE)
+    file_name_out <- dir_list |>
+      dplyr::filter(dplyr::if_any("name", \(x) x == file_path)) |>
+      dplyr::pull("name")
+    expect_equal(file_name_out, "dev/wli.parquet")
+    expect_no_error(check_blob_exists(inp, file, ext, FALSE, path))
+
+    # check still works if full filepath is passed to file arg
+    path <- ""
+    file <- "dev/wli.parquet"
+    path <- if (path %in% c("", "/")) "" else path
+    expect_equal(path, "")
+    dir_name <- if (dirname(file) == ".") "" else dirname(file)
+    expect_equal(dir_name, "dev")
+    p2 <- glue::glue("{path}/{dir_name}")
+    expect_equal(p2, "/dev")
+    file_name <- basename(file)
+    expect_equal(file_name, "wli.parquet")
+    file_path <- sub("^/", "", sub("/+", "/", glue::glue("{p2}/{file_name}")))
+    expect_equal(file_path, "dev/wli.parquet")
+    dir_list <- AzureStor::list_blobs(inp, p2, recursive = FALSE)
+    file_name_out <- dir_list |>
+      dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
+      dplyr::pull("name")
+    expect_equal(file_name_out, file)
+    expect_no_error(check_blob_exists(inp, file, ext, FALSE, path))
+  }
+})
+
+
 test_that("whole read_parquet function works", {
   endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
   # only run the test if this variable is set (i.e. locally, but not on GitHub)
@@ -38,9 +87,31 @@ test_that("whole read_parquet function works", {
     # check that it works with the file extension included
     out2 <- read_azure_parquet(inputs_container, "wli.parquet", path = "dev")
     expect_length(out2, 6) # ncol
-    # this should error as there are >1 files matching "repat"
-    read_azure_parquet(inputs_container, "repat", path = "dev") |>
-      expect_error()
+
+    res <- get_container(Sys.getenv("AZ_RESULTS_CONTAINER"))
+    pqt_file <- Sys.getenv("TEST_PARQUET_FILE")
+    path <- "/"
+    file_ext <- "parquet"
+
+    # experiment with changes to code:
+    path <- if (path %in% c("", "/")) "" else path
+    expect_equal(path, "")
+    dir_name <- if (dirname(pqt_file) == ".") "" else dirname(pqt_file)
+    dpath <- glue::glue("{path}/{dir_name}")
+    file_name <- sub(glue::glue("\\.{file_ext}$"), "", basename(pqt_file))
+
+    file_name <- if (gregg(basename(pqt_file), "\\.{file_ext}$")) {
+      basename(pqt_file)
+    } else {
+      glue::glue("{basename(pqt_file)}.{file_ext}")
+    }
+    # remove duplicate slashes and any initial slashes
+    fpath <- sub("^/", "", sub("/+", "/", glue::glue("{dpath}/{file_name}")))
+    expect_equal(fpath, pqt_file)
+    # now function should run without error
+    expect_no_error(check_blob_exists(res, pqt_file, "parquet", FALSE, "/"))
+    # we want this to error if the file_ext doesn't match the file
+    expect_error(check_blob_exists(res, pqt_file, "rds", FALSE, "/"))
   }
 })
 
@@ -49,9 +120,13 @@ test_that("read_azure_json basically works", {
   endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
   # only run the test if this variable is set (i.e. locally, but not on GitHub)
   if (nzchar(endpoint_uri)) {
+    download_azure_blob <- function(container, file, file_ext, path = "") {
+      check_blob_exists(container, file, file_ext, FALSE, path) |>
+        AzureStor::download_blob(container, src = _, dest = NULL)
+    }
     expect_no_error(support_container <- get_container("supporting-data"))
     raw_out <- support_container |>
-      download_azure_blob("providers", "json", FALSE)
+      download_azure_blob("providers", "json")
     expect_type(raw_out, "raw")
     # {yyjsonr} provides a function to read raw JSON (fast) - unlike {jsonlite}
     expect_no_error(yyjsonr::read_json_raw(raw_out))
@@ -197,19 +272,23 @@ test_that("read_azure_csv basically works", {
   endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
   # only run the test if this variable is set (i.e. locally, but not on GitHub)
   if (nzchar(endpoint_uri)) {
+    download_azure_blob <- function(container, file, file_ext, path = "") {
+      check_blob_exists(container, file, file_ext, FALSE, path) |>
+        AzureStor::download_blob(container, src = _, dest = NULL)
+    }
     expect_no_error(support_container <- get_container("supporting-data"))
     support_container |>
-      # should error as this stub will match more than 1 file
-      download_azure_blob("mitigator-lookup", "csv", FALSE) |>
-      expect_error()
+      # should construct the file name OK
+      download_azure_blob("mitigator-lookup", "csv") |>
+      expect_no_error()
     support_container |>
-      download_azure_blob("mitigator-lookup.csv", "csv", FALSE) |>
+      download_azure_blob("mitigator-lookup.csv", "csv") |>
       expect_no_error()
     raw_out <- support_container |>
-      download_azure_blob("mitigator-lookup.csv", "csv", FALSE)
+      download_azure_blob("mitigator-lookup.csv", "csv")
     expect_type(raw_out, "raw")
-    expect_no_error(readr::read_csv(raw_out))
-    dat <- readr::read_csv(raw_out)
+    expect_no_error(readr::read_csv(raw_out, show_col_types = FALSE))
+    dat <- readr::read_csv(raw_out, show_col_types = FALSE)
     expect_type(dat, "list")
     expect_s3_class(dat, "tbl_df")
   }
@@ -220,10 +299,14 @@ test_that("... parameters are passed through", {
   endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
   # only run the test if this variable is set (i.e. locally, but not on GitHub)
   if (nzchar(endpoint_uri)) {
+    download_azure_blob <- function(container, file, file_ext, path = "") {
+      check_blob_exists(container, file, file_ext, FALSE, path) |>
+        AzureStor::download_blob(container, src = _, dest = NULL)
+    }
     expect_no_error(support_container <- get_container("supporting-data"))
     col_types <- "ccc------"
     csv_out1 <- support_container |>
-      download_azure_blob("mitigator-lookup.csv", "csv", FALSE) |>
+      download_azure_blob("mitigator-lookup.csv", "csv") |>
       readr::read_csv(col_types = col_types) |>
       expect_no_error()
     csv_out2 <- support_container |>
@@ -246,7 +329,8 @@ test_that("read functions all work a bit at least", {
     supp <- get_container(Sys.getenv("AZ_SUPPORT_CONTAINER"))
     expect_no_error(read_azure_json(supp, Sys.getenv("TEST_JSON_FILE")))
     expect_no_error(read_azure_rds(supp, Sys.getenv("TEST_RDS_FILE")))
-    expect_no_error(read_azure_csv(supp, Sys.getenv("TEST_CSV_FILE")))
+    read_azure_csv(supp, Sys.getenv("TEST_CSV_FILE"), show_col_types = FALSE) |>
+      expect_no_error()
   }
 })
 

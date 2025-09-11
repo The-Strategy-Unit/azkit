@@ -18,14 +18,14 @@ get_auth_token(
 the token is requested. Defaults to \code{"https://storage.azure.com"}.}
 
 \item{tenant}{A string specifying the Azure tenant. Defaults to
-\code{"organizations"}. See \code{?AzureAuth::get_azure_token} for other values.}
+\code{"organizations"}. See \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
 
 \item{client_id}{A string specifying the application ID (client ID). If
 \code{NULL}, (the default) the function attempts to obtain the client ID from the
 Azure Resource Manager token, or prompts the user to log in to obtain it.}
 
 \item{auth_method}{A string specifying the authentication method. Defaults to
-\code{"authorization_code"}. See \code{?AzureAuth::get_azure_token} for other values.}
+\code{"authorization_code"}. See ?\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
 
 \item{force_refresh}{Boolean: whether to use a stored token if available
 (\code{FALSE}, the default), or try to obtain a new one from Azure (\code{TRUE}).
@@ -34,13 +34,12 @@ This may be useful if you wish to generate a new token with the same
 \code{auth_method}.}
 
 \item{...}{Optional arguments (\code{token_args} or \code{use_cache}) to be passed on
-to \code{AzureAuth::get_managed_token()}.}
+to \link[AzureAuth:get_azure_token]{AzureAuth::get_managed_token}.}
 }
 \value{
 An Azure token object
 }
 \description{
-#' \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 This function retrieves an Azure token for a specified resource.
 }
 \details{

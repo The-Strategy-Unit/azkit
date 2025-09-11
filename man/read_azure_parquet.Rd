@@ -7,14 +7,15 @@
 read_azure_parquet(container, file, path = "/", info = NULL, ...)
 }
 \arguments{
-\item{container}{An Azure container object, as returned by \code{get_container()}}
+\item{container}{An Azure container object, as returned by \code{\link[=get_container]{get_container()}}}
 
-\item{file}{The name of the file to be read, as a string. NB this can be a
-partial match, and for example the file extension does not need to be
-included (though it can be). The function will error if multiple files are
-matched.}
+\item{file}{The name of the file to be read, as a string. NB The file
+extension does not need to be included (though it can be). The function
+will error if multiple files are somehow matched.}
 
 \item{path}{The path to the directory where \code{file} is located, as a string.
+Only needed if \code{file} does not already contain its full path. If file is
+just a file name with no path, then provide the path to the directory here.
 This must be the full path to the file location, as the function will not
 search into subdirectories recursively. Set to \code{"/"} (the root of the
 container) by default.}
@@ -23,9 +24,9 @@ container) by default.}
 being read. Useful for checking the function is doing what is expected, but
 can be turned off with \code{FALSE}. Can be set persistently with the option
 "azkit.info". If \code{NULL} then it will default to the value of
-\code{rlang::is_interactive()} (ie \code{TRUE} for interactive sessions).}
+\code{\link[rlang:is_interactive]{rlang::is_interactive()}} (ie \code{TRUE} for interactive sessions).}
 
-\item{...}{optional arguments to be passed through to \code{arrow::read_parquet()}}
+\item{...}{optional arguments to be passed through to \code{\link[arrow:read_parquet]{arrow::read_parquet()}}}
 }
 \value{
 A tibble
@@ -38,7 +39,7 @@ Read a parquet file from Azure storage
   # if a full filepath is available then path can be ignored
   read_azure_parquet(cont, "data/folder/path/1.parquet")
   # you can provide a filename without the '.parquet' extension
-  # if you wish to use partial file name matching then it is probably easier
+  # if you wish to use this partial file name matching it is probably easier
   # to provide a 'path'
   read_azure_parquet(cont, "case_details", "storage/parquet/2025/06/29")
 }
