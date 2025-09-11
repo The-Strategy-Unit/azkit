@@ -1,7 +1,37 @@
 test_that("check_vec uses {cli} formatting and glue variables", {
   var <- "test"
   expect_identical(check_vec(letters, nzchar), letters)
-  expect_error(check_vec(letters, nzchar, "{.var {var}}", "none"), "`test`")
+  check_vec(letters, nzchar, "{.var {var}}", "none") |>
+    expect_error(class = "rlang_error")
+  check_vec(letters, nzchar, "{.var {var}}", "none") |>
+    expect_error("`test`", class = "rlang_error")
+})
+
+
+test_that("I understand how rlang::abort works", {
+  # Previously I was generating errors with `cli::cli_abort()` but maybe it
+  # makes more sense to use `rlang::abort()` if it handles glue vars in its
+  # messages OK
+  var <- "test"
+  message <- "{.var {var}} error"
+  # will only succeed if devtools::load_all() has been run:
+  # expect_error(rlang::abort(message), "`test` error")
+  expect_error(rlang::abort(message), class = "rlang_error")
+  rlang::local_use_cli(inline = TRUE)
+  expect_error(rlang::abort(message), "`test` error", class = "rlang_error")
+
+  check_var <- function(var, message) {
+    if (var != "test") {
+      rlang::abort(message, class = "azkit")
+    } else {
+      var
+    }
+  }
+  expect_equal(check_var("test", "Error with {.var {var}}"), var)
+  check_var("tst", "Error with {.var {var}}") |>
+    expect_error("Error with `tst`", class = "rlang_error")
+  check_var("tst", "Error with {.var {var}}") |>
+    expect_error("Error with `tst`", class = "azkit")
 })
 
 

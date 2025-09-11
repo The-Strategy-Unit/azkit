@@ -33,7 +33,7 @@ list_container_names <- function(token = NULL, ...) {
   endpoint <- get_default_endpoint(token)
   lcn <- "list_container_names"
   container_list <- AzureStor::list_blob_containers(endpoint) |>
-    tryCatch(\(e) cli::cli_abort("Error in {.fn {lcn}}: {e}"))
+    rlang::try_fetch(error = \(e) cli::cli_abort("Error in {.fn {lcn}}: {e}"))
   stopifnot("no containers found" = length(container_list) >= 1L)
   names(container_list)
 }
@@ -56,10 +56,9 @@ get_default_endpoint <- function(token) {
 #'  it returns the value of `Sys.getenv(x)`
 #'
 #' @param x the *name* of the environment variable to be found and checked
-#' @returns the value of the environment variable `x`
+#' @returns the value of the environment variable named in `x`
 #' @export
 check_envvar <- function(x) {
   cst_msg <- cst_error_msg("{.envvar {x}} is not set")
   check_scalar_type(Sys.getenv(x, NA_character_), "string", cst_msg)
 }
-

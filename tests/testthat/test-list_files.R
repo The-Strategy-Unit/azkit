@@ -1,22 +1,19 @@
 test_that("function behaves as expected", {
-  endpoint_uri <- Sys.getenv("AZ_STORAGE_EP")
-  # only run the test if this variable is set (ie locally, but not on GitHub)
-  if (nzchar(endpoint_uri)) {
-    cont <- expect_no_error(get_container("supporting-data"))
-    res <- expect_no_error(AzureStor::list_blobs(cont))
-    expect_equal(nrow(res), 15L)
-    res2 <- dplyr::filter(res, !dplyr::if_any("isdir"))
-    expect_equal(nrow(res2), 14L)
-    file_ext <- NULL
-    file_ext <- file_ext %||% ".*"
-    res3 <- res2 |>
-      dplyr::filter(dplyr::if_any("name", \(x) gregg(x, "\\.{file_ext}$")))
-    expect_equal(nrow(res2), nrow(res3)) # because nothing filtered out yet
-    file_ext <- "json"
-    res4 <- res2 |>
-      dplyr::filter(dplyr::if_any("name", \(x) gregg(x, "\\.{file_ext}$")))
-    expect_equal(nrow(res4), 6L)
-  }
+  skip_on_ci()
+  cont <- expect_no_error(get_container("supporting-data"))
+  res <- expect_no_error(AzureStor::list_blobs(cont))
+  expect_equal(nrow(res), 15L)
+  res2 <- dplyr::filter(res, !dplyr::if_any("isdir"))
+  expect_equal(nrow(res2), 14L)
+  file_ext <- NULL
+  file_ext <- file_ext %||% ".*"
+  res3 <- res2 |>
+    dplyr::filter(dplyr::if_any("name", \(x) gregg(x, "\\.{file_ext}$")))
+  expect_equal(nrow(res2), nrow(res3)) # because nothing filtered out yet
+  file_ext <- "json"
+  res4 <- res2 |>
+    dplyr::filter(dplyr::if_any("name", \(x) gregg(x, "\\.{file_ext}$")))
+  expect_equal(nrow(res4), 6L)
 })
 
 test_that("we can evolve list_files()", {

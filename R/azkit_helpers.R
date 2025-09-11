@@ -35,8 +35,7 @@ check_vec <- function(
   if (eval(test_call)) {
     x
   } else {
-    cli::cli_abort(c(x = message), call = rlang::caller_call(), .envir = pf)
-    invisible(NULL)
+    cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
   }
 }
 
@@ -80,8 +79,7 @@ check_scalar_type <- function(
   if (eval(test_call)) {
     x
   } else {
-    cli::cli_abort(c(x = message), call = rlang::caller_call(), .envir = pf)
-    invisible(NULL)
+    cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
   }
 }
 
@@ -101,3 +99,17 @@ cst_error_msg <- \(text) paste0("{.fn check_scalar_type}: ", text)
 #' @param g The parent frame of gregg, which must be passed through to glue_data
 #' @keywords internal
 gregg <- \(x, rx, ..., g = parent.frame()) grepl(glue::glue_data(g, rx), x, ...)
+
+
+#' Check that a container looks like a real container
+#' @inheritParams read_azure_parquet
+#' @keywords internal
+check_container_class <- function(container) {
+  if (!inherits(container, "blob_container")) {
+    ccc <- "check_container_class"
+    cc <- rlang::caller_call()
+    cli::cli_abort("{.fn {ccc}}: This is not a valid blob container", call = cc)
+  } else {
+    container
+  }
+}
