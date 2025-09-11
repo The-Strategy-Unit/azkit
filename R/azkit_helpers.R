@@ -35,8 +35,7 @@ check_vec <- function(
   if (eval(test_call)) {
     x
   } else {
-    cli::cli_abort(c(x = message), call = rlang::caller_call(), .envir = pf)
-    invisible(NULL)
+    cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
   }
 }
 
@@ -80,8 +79,7 @@ check_scalar_type <- function(
   if (eval(test_call)) {
     x
   } else {
-    cli::cli_abort(c(x = message), call = rlang::caller_call(), .envir = pf)
-    invisible(NULL)
+    cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
   }
 }
 

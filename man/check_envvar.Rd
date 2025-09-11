@@ -10,7 +10,7 @@ check_envvar(x)
 \item{x}{the \emph{name} of the environment variable to be found and checked}
 }
 \value{
-the value of the environment variable \code{x}
+the value of the environment variable named in \code{x}
 }
 \description{
 The function prints a helpful error if the variable is not found, else
