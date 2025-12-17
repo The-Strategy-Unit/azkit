@@ -103,13 +103,13 @@ gregg <- \(x, rx, ..., g = parent.frame()) grepl(glue::glue_data(g, rx), x, ...)
 
 #' Check that a container looks like a real container
 #' @inheritParams read_azure_parquet
-#' @keywords internal
+#' @export
 check_container_class <- function(container) {
-  if (!inherits(container, "blob_container")) {
+  if (inherits(container, "blob_container")) {
+    container
+  } else {
     ccc <- "check_container_class"
     cc <- rlang::caller_call()
     cli::cli_abort("{.fn {ccc}}: This is not a valid blob container", call = cc)
-  } else {
-    container
   }
 }

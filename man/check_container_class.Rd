@@ -12,4 +12,3 @@ check_container_class(container)
 \description{
 Check that a container looks like a real container
 }
-\keyword{internal}
