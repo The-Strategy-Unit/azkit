@@ -18,7 +18,7 @@ has not yet been a stable release][repostatus_svg]][repostatus_info]
 [cmd_yaml]: https://github.com/The-Strategy-Unit/azkit/actions/workflows/R-CMD-check.yaml
 <!-- badges: end -->
 
-
+<img src="man/figures/logo.png" align="right" height="138" alt="azkit badge" />
 R package to handle Azure authentication and basic tasks with blob storage.
 
 ## Status
