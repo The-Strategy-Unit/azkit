@@ -90,6 +90,30 @@ read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
 }
 
 
+#' Read any file from Azure storage
+#'
+#' @inheritParams read_azure_parquet
+#' @param ext If a custom extension needs to be supplied, you can specify it
+#'  here. If `NULL`, the default, the extension of `file` will be used
+#' @param ... optional arguments to be passed through to
+#'  [AzureStor::download_blob]
+#' @returns A raw data stream
+#' @export
+read_azure_file <- function(
+  container,
+  file,
+  path = "/",
+  info = NULL,
+  ext = NULL,
+  ...
+) {
+  ext <- ext %||% tools::file_ext(file)
+  check_blob_exists(container, file, ext, info, path) |>
+    # using `dest = NULL` means pass the data through as a raw vector
+    AzureStor::download_blob(container, src = _, dest = NULL, ...)
+}
+
+
 #' Ensures that the filepath for the file to read exists
 #'
 #' @inheritParams read_azure_parquet
