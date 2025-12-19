@@ -63,6 +63,6 @@ get_default_endpoint <- function(token) {
 #' @returns the value of the environment variable named in `x`
 #' @export
 check_envvar <- function(x) {
-  cst_msg <- cst_error_msg("{.envvar {x}} is not set")
+  cst_msg <- cst_error_msg("The environment variable {.envvar {x}} is not set")
   check_scalar_type(Sys.getenv(x, NA_character_), "string", cst_msg)
 }
