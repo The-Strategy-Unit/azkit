@@ -137,10 +137,12 @@ check_blob_exists <- function(container, file, ext, info, path) {
     dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
     dplyr::pull("name")
 
-  msg1 <- cv_error_msg("no matching {ext} file found")
-  msg2 <- cst_error_msg("multiple matching {ext} files found")
-  check_vec(filepath_out, rlang::is_character, msg1) # check length > 0
-  check_scalar_type(filepath_out, "character", msg2) # check length == 1
+  if (length(filepath_out) == 0) {
+    cli::cli_abort("no matching {ext} file found")
+  }
+  if (length(filepath_out) > 1) {
+    cli::cli_abort("multiple matching {ext} files found")
+  }
 
   info_option <- getOption("azkit.info")
   stopifnot(rlang::is_scalar_logical(info) || is.null(info))
