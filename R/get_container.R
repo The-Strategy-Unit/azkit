@@ -31,7 +31,7 @@ get_container <- function(container_name = NULL, ...) {
 list_container_names <- function(token = NULL, ...) {
   token <- token %||% get_auth_token(...)
   endpoint <- get_default_endpoint(token)
-  lcn <- "list_container_names"
+  lcn <- "list_container_names" # nolint
   container_list <- AzureStor::list_blob_containers(endpoint) |>
     rlang::try_fetch(error = \(e) cli::cli_abort("Error in {.fn {lcn}}: {e}"))
   stopifnot("no containers found" = length(container_list) >= 1L)
