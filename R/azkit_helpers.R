@@ -87,6 +87,32 @@ check_scalar_type <- function(
 cst_error_msg <- \(text) paste0("{.fn check_scalar_type}: ", text)
 
 
+#' Check if a supplied non-NULL value is a string with >0 characters
+#'
+#' Will error if x is equal to `""`, or if it is otherwise missing or invalid.
+#' With the exception that if x is NULL, then NULL will be passed through.
+#' @inheritParams check_vec
+#' @param message A custom error message, as a string. Will be shown to the
+#'  user if the check does not pass. Can include `glue` variables and `{cli}`
+#'  semantic markup. Variable values will be searched for in the environment of
+#'  the caller function (not in the environment of `check_nzchar()`). This
+#'  makes it easier to include informative values in the message.
+#' @keywords internal
+check_nzchar <- function(x, message, pf = parent.frame()) {
+  if (is.null(x)) {
+    NULL
+  }
+  cnz <- "check_nzchar"
+  check_scalar_type(x, "string", "{.fn {cnz}}: {.var x} is not a string")
+  if (nzchar(x)) {
+    x
+  } else {
+    message <- paste0("{.fn {cnz}}: ", message)
+    cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
+  }
+}
+
+
 #' grepl a glued regex
 #'
 #' Use \{glue\} expressions in grepl (and put the arguments the right way round)
