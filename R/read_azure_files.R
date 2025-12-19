@@ -49,6 +49,24 @@ read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
 }
 
 
+#' Read a json.gz file from Azure storage
+#'
+#' @inheritParams read_azure_parquet
+#' @param ... optional arguments to be passed through to
+#'   [yyjsonr::read_json_file]
+#' @returns A list
+#' @export
+read_azure_jsongz <- function(container, file, path = "/", info = NULL, ...) {
+  full_path <- check_blob_exists(container, file, "json.gz", info, path)
+  dl <- withr::local_tempfile(
+    pattern = tools::file_path_sans_ext(basename(full_path), TRUE),
+    fileext = "json.gz"
+  )
+  AzureStor::download_blob(container, src = full_path, dest = dl)
+  yyjsonr::read_json_file(dl, ...)
+}
+
+
 #' Read an rds file from Azure storage
 #'
 #' @inheritParams read_azure_parquet
