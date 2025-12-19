@@ -2,12 +2,7 @@
 % Please edit documentation in R/azkit_helpers.R
 \name{check_scalar_type}
 \alias{check_scalar_type}
-\title{An alternative to stopifnot/assert_that etc
-This function makes it easy to use the \verb{is_scalar_*} functions from \code{{rlang}}
-to check the type of \code{x}, \emph{and} that \code{length(x) == 1}, and supports the
-seamless use of \code{glue} strings in the custom error message.
-Possible values for the \code{type} parameter are: "character", "logical", "list",
-"integer", "double", "string", "bool", "bytes", "raw", "vector", "complex".}
+\title{An alternative to stopifnot/assert_that etc}
 \usage{
 check_scalar_type(x, type, message, pf = parent.frame())
 }
@@ -22,11 +17,10 @@ and \code{{cli}} semantic markup. Variable values will be searched for in the
 environment of the caller function (not in the environment of \code{check_vec()}
 ). This makes it easier to include informative values in the message.}
 
-\item{pf}{Set as \code{\link[=parent.frame]{parent.frame()}} so variables in the caller environment can
+\item{pf}{Set as \link{parent.frame} so variables in the caller environment can
 be used in the custom error message.}
 }
 \description{
-An alternative to stopifnot/assert_that etc
 This function makes it easy to use the \verb{is_scalar_*} functions from \code{{rlang}}
 to check the type of \code{x}, \emph{and} that \code{length(x) == 1}, and supports the
 seamless use of \code{glue} strings in the custom error message.

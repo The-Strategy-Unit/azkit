@@ -4,7 +4,7 @@
 #' `some()` and `none()` to handle vector inputs of length >= 1, and supports
 #' the seamless use of `glue` strings in the custom error message.
 #' Not suitable for checking if `length(x) == 1` as it will check vectors
-#' element-wise, so will potentially return TRUE even if `length(x) > 1`
+#' element-wise, so will potentially return `TRUE` even if `length(x) > 1`
 #'
 #' @param x The object to be checked
 #' @param predicate The predicate function used to check elements of `x`
@@ -19,7 +19,7 @@
 #'  predicate. "none" can be used to generate an inverse predicate, or the
 #'  situation where success means that none of the elements of x satisfies the
 #'  predicate. "some" is unlikely to be useful often, but it is available.
-#' @param pf Set as [parent.frame()] so variables in the caller environment can
+#' @param pf Set as [parent.frame] so variables in the caller environment can
 #'  be used in the custom error message.
 #' @seealso [check_scalar_type()]
 #' @keywords internal
@@ -44,6 +44,7 @@ cv_error_msg <- \(text) paste0("{.fn check_vec}: ", text)
 
 
 #' An alternative to stopifnot/assert_that etc
+#'
 #' This function makes it easy to use the `is_scalar_*` functions from `{rlang}`
 #'  to check the type of `x`, _and_ that `length(x) == 1`, and supports the
 #'  seamless use of `glue` strings in the custom error message.
