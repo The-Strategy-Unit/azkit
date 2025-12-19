@@ -7,7 +7,7 @@
 check_blob_exists(container, file, ext, info, path)
 }
 \arguments{
-\item{container}{An Azure container object, as returned by \code{\link[=get_container]{get_container()}}}
+\item{container}{An Azure container object, as returned by \link{get_container}}
 
 \item{file}{The name of the file to be read, as a string. NB The file
 extension does not need to be included (though it can be). The function
@@ -19,7 +19,7 @@ will error if multiple files are somehow matched.}
 being read. Useful for checking the function is doing what is expected, but
 can be turned off with \code{FALSE}. Can be set persistently with the option
 "azkit.info". If \code{NULL} then it will default to the value of
-\code{\link[rlang:is_interactive]{rlang::is_interactive()}} (ie \code{TRUE} for interactive sessions).}
+\link[rlang:is_interactive]{rlang::is_interactive} (ie \code{TRUE} for interactive sessions).}
 
 \item{path}{The path to the directory where \code{file} is located, as a string.
 Only needed if \code{file} does not already contain its full path. If file is

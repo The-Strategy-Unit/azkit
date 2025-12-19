@@ -7,7 +7,7 @@
 check_container_class(container)
 }
 \arguments{
-\item{container}{An Azure container object, as returned by \code{\link[=get_container]{get_container()}}}
+\item{container}{An Azure container object, as returned by \link{get_container}}
 }
 \description{
 Check that a container looks like a real container

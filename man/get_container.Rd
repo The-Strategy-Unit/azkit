@@ -17,5 +17,5 @@ the environment variable "AZ_CONTAINER"}
 An Azure blob container (list object of class "blob_container")
 }
 \description{
-Use \code{\link[=list_container_names]{list_container_names()}} to see a list of available containers
+Use \link{list_container_names} to see a list of available containers
 }
