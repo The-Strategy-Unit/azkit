@@ -102,7 +102,7 @@ check_nzchar <- function(x, message, pf = parent.frame()) {
   if (is.null(x)) {
     NULL
   }
-  cnz <- "check_nzchar"
+  cnz <- "check_nzchar" # nolint
   check_scalar_type(x, "string", "{.fn {cnz}}: {.var x} is not a string")
   if (nzchar(x)) {
     x
