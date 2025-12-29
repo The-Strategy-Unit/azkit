@@ -10,7 +10,9 @@
 #'
 #' If neither of these approaches has returned a token, it will try to retrieve
 #'  a user token using the provided parameters, requiring the user to have
-#'  authenticated using their device.
+#'  authenticated using their device. If `force_refresh` is set to `TRUE`, a
+#'  fresh web authentication process should be launched. Otherwise it will
+#'  attempt to use a cached token matching the given `resource` and `tenant`.
 #'
 #' @param resource A string specifying the URL of the Azure resource for which
 #'  the token is requested. Defaults to `"https://storage.azure.com"`.
@@ -27,7 +29,7 @@
 #'  `resource` value as an existing token, but a different `tenant` or
 #'  `auth_method`.
 #' @param ... Optional arguments (`token_args` or `use_cache`) to be passed on
-#'  to [AzureAuth::get_managed_token].
+#'  to [AzureAuth::get_managed_token] or [AzureAuth::get_azure_token].
 #'
 #' @returns An Azure token object
 #' @examples
@@ -47,7 +49,7 @@
 #' @export
 get_auth_token <- function(
   resource = "https://storage.azure.com",
-  tenant = "organizations",
+  tenant = "common",
   client_id = NULL,
   auth_method = "authorization_code",
   force_refresh = FALSE,
@@ -56,44 +58,67 @@ get_auth_token <- function(
   possibly_get_token <- \(...) purrr::possibly(AzureAuth::get_azure_token)(...)
   possibly_get_mtk <- \(...) purrr::possibly(AzureAuth::get_managed_token)(...)
 
-  # 1. use environment variables if all three are set
+  dots <- rlang::list2(...)
+  # if the user specifies force_refresh = TRUE we turn off `use_cache`,
+  # otherwise we leave `use_cache` as it is (or as `NULL`, its default value)
+  use_cached <- if (force_refresh) FALSE else dots[["use_cache"]]
+  dots <- rlang::dots_list(!!!dots, use_cache = use_cached, .homonyms = "last")
+
+  # 1. Use environment variables if all three are set
   tenant_id_env <- Sys.getenv("AZ_TENANT_ID")
   client_id_env <- Sys.getenv("AZ_CLIENT_ID")
   client_secret <- Sys.getenv("AZ_APP_SECRET")
 
   if (all(nzchar(c(tenant_id_env, client_id_env, client_secret)))) {
-    token <- possibly_get_token(
-      resource = resource,
-      tenant = tenant_id_env,
-      app = client_id_env,
-      password = client_secret
+    token <- rlang::inject(
+      possibly_get_token(
+        resource = resource,
+        tenant = tenant_id_env,
+        app = client_id_env,
+        password = client_secret,
+        !!!dots
+      )
     )
   } else {
-    # 2. try to get a managed token (for example on Azure VM, App Service)
-    token <- possibly_get_mtk(resource, ...)
+    # 2. Try to get a managed token (for example on Azure VM, App Service)
+    token <- rlang::inject(possibly_get_mtk(resource, !!!dots))
   }
 
-  # 3. if neither of those has worked, try to get an already stored user token
-  if (is.null(token)) {
-    # list tokens already locally stored
+  # 3. If neither of those has worked, try to get an already stored user token
+  #    (unless `force_refresh` is on, in which case skip to option 4 anyway)
+  if (is.null(token) && !force_refresh) {
+    # list tokens already locally cached
     local_tokens <- AzureAuth::list_azure_tokens()
     if (length(local_tokens) > 0) {
       resources <- purrr::map(local_tokens, "resource")
-      # if there are token(s) matching the `resource` argument then return one
-      token_index <- match(resource, resources)[1]
+      scopes <- purrr::map(local_tokens, list("scope", 1))
+      resources <- purrr::map2(resources, scopes, `%||%`)
+      tenants <- purrr::map(local_tokens, "tenant")
+      resource_index <- gregg(resources, "^{resource}")
+      tenant_index <- tenant == tenants
+      # if there are token(s) matching `resource` and `tenant` then return one
+      token_index <- which(resource_index & tenant_index)[1]
       token <- if (!is.na(token_index)) local_tokens[[token_index]] else NULL
+    } else {
+      token <- NULL
     }
-    # 4. If we still don't have a valid token, or if `force_refresh` is on,
-    # then we try to get one via user reauthentication.
-    if (is.null(token) || force_refresh) {
-      client_id <- client_id %||% get_client_id()
-      token <- possibly_get_token(
+  }
+  # 4. If we still don't have a valid token, try to get a new one via user
+  #    reauthentication
+  if (is.null(token)) {
+    if (!force_refresh) {
+      cli::cli_alert_info("No matching cached token found: fetching new token")
+    }
+    client_id <- client_id %||% get_client_id()
+    token <- rlang::inject(
+      possibly_get_token(
         resource = resource,
         tenant = tenant,
         app = client_id,
-        auth_type = auth_method
+        auth_type = auth_method,
+        !!!dots
       )
-    }
+    )
   }
 
   # Give some helpful feedback if process above has not worked
@@ -106,6 +131,7 @@ get_auth_token <- function(
     )
     invisible(NULL)
   } else {
+    # check_that(token, AzureAuth::is_azure_token, "Invalid token returned")
     token
   }
 }
