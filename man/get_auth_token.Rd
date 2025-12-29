@@ -6,7 +6,7 @@
 \usage{
 get_auth_token(
   resource = "https://storage.azure.com",
-  tenant = "organizations",
+  tenant = "common",
   client_id = NULL,
   auth_method = "authorization_code",
   force_refresh = FALSE,
@@ -34,7 +34,7 @@ This may be useful if you wish to generate a new token with the same
 \code{auth_method}.}
 
 \item{...}{Optional arguments (\code{token_args} or \code{use_cache}) to be passed on
-to \link[AzureAuth:get_azure_token]{AzureAuth::get_managed_token}.}
+to \link[AzureAuth:get_azure_token]{AzureAuth::get_managed_token} or \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}.}
 }
 \value{
 An Azure token object
@@ -51,7 +51,9 @@ Azure VM or Azure App Service.
 
 If neither of these approaches has returned a token, it will try to retrieve
 a user token using the provided parameters, requiring the user to have
-authenticated using their device.
+authenticated using their device. If \code{force_refresh} is set to \code{TRUE}, a
+fresh web authentication process should be launched. Otherwise it will
+attempt to use a cached token matching the given \code{resource} and \code{tenant}.
 }
 \examples{
 \dontrun{
