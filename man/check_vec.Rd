@@ -18,7 +18,7 @@ check_vec(
 \item{predicate}{The predicate function used to check elements of \code{x}}
 
 \item{message}{A custom error message, as a string. Will be shown to the
-user if the predicate check does not succeed. Can include \code{glue} variables
+user if the predicate check does not succeed. Can include \code{glue}d variables
 and \code{{cli}} semantic markup. Variable values will be searched for in the
 environment of the caller function (not in the environment of \code{check_vec()}
 ). This makes it easier to include informative values in the message.}

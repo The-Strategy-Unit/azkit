@@ -11,11 +11,13 @@ get_container(container_name = NULL, ...)
 which means the function will look instead for a container name stored in
 the environment variable "AZ_CONTAINER"}
 
-\item{...}{arguments to be passed through to \code{\link[=get_auth_token]{get_auth_token()}}}
+\item{...}{arguments to be passed through to \link{get_auth_token}}
 }
 \value{
 An Azure blob container (list object of class "blob_container")
 }
 \description{
-Use \code{\link[=list_container_names]{list_container_names()}} to see a list of available containers
+The environment variable "AZ_STORAGE_EP" must be set. This provides the URL
+for the default Azure storage endpoint.
+Use \link{list_container_names} to get a list of available container names.
 }
