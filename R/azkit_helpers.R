@@ -1,15 +1,40 @@
 #' An alternative to stopifnot/assert_that etc
 #'
+#' If the predicate function is true of `x` then `x` is returned. Otherwise,
+#'  an error is thrown with a custom `message`.
+#'
+#' @param x The object to be checked
+#' @param predicate The predicate function used to check `x`
+#' @param message A custom error message, as a string. Will be shown to the
+#'  user if the predicate check does not succeed. Can include `glue`d variables
+#'  and `{cli}` semantic markup.
+#' @param pf Set as [parent.frame()] so variables in the caller environment can
+#'  be used in the custom error message.
+#' @seealso [check_vec]
+#' @export
+check_that <- function(x, predicate, message, pf = parent.frame()) {
+  if (predicate(x)) {
+    x
+  } else {
+    cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
+  }
+}
+
+
+#' @keywords internal
+ct_error_msg <- \(text) paste0("{.fn check_that}: ", text)
+
+#' An alternative to stopifnot/assert_that etc
+#'
 #' This function makes it easy to use the `{purrr}` functions `every()`,
 #' `some()` and `none()` to handle vector inputs of length >= 1, and supports
 #' the seamless use of `glue` strings in the custom error message.
 #' Not suitable for checking if `length(x) == 1` as it will check vectors
 #' element-wise, so will potentially return TRUE even if `length(x) > 1`
 #'
-#' @param x The object to be checked
 #' @param predicate The predicate function used to check elements of `x`
 #' @param message A custom error message, as a string. Will be shown to the
-#'  user if the predicate check does not succeed. Can include `glue` variables
+#'  user if the predicate check does not succeed. Can include `glue`d variables
 #'  and `{cli}` semantic markup. Variable values will be searched for in the
 #'  environment of the caller function (not in the environment of `check_vec()`
 #'  ). This makes it easier to include informative values in the message.
@@ -19,8 +44,7 @@
 #'  predicate. "none" can be used to generate an inverse predicate, or the
 #'  situation where success means that none of the elements of x satisfies the
 #'  predicate. "some" is unlikely to be useful often, but it is available.
-#' @param pf Set as [parent.frame()] so variables in the caller environment can
-#'  be used in the custom error message.
+#' @inheritParams check_that
 #' @seealso [check_scalar_type()]
 #' @keywords internal
 check_vec <- function(
@@ -50,8 +74,8 @@ cv_error_msg <- \(text) paste0("{.fn check_vec}: ", text)
 #' Possible values for the `type` parameter are: "character", "logical", "list",
 #'  "integer", "double", "string", "bool", "bytes", "raw", "vector", "complex".
 #  Supplying "string" or "bool" will additionally check that `x` is not missing.
-#' @seealso [check_vec()]
-#' @inheritParams check_vec
+#' @seealso [check_that]
+#' @inheritParams check_that
 #' @param type A string defining the R object type that `x` is checked to be
 #' @keywords internal
 check_scalar_type <- function(
@@ -91,7 +115,7 @@ cst_error_msg <- \(text) paste0("{.fn check_scalar_type}: ", text)
 #'
 #' Will error if x is equal to `""`, or if it is otherwise missing or invalid.
 #' With the exception that if x is NULL, then NULL will be passed through.
-#' @inheritParams check_vec
+#' @inheritParams check_that
 #' @param message A custom error message, as a string. Will be shown to the
 #'  user if the check does not pass. Can include `glue` variables and `{cli}`
 #'  semantic markup. Variable values will be searched for in the environment of

@@ -2,6 +2,7 @@
 
 export(check_container_class)
 export(check_envvar)
+export(check_that)
 export(get_auth_token)
 export(get_container)
 export(list_container_names)

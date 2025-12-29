@@ -1,6 +1,6 @@
 #' Read a parquet file from Azure storage
 #'
-#' @param container An Azure container object, as returned by [get_container()]
+#' @param container An Azure container object, as returned by [get_container]
 #' @param file The name of the file to be read, as a string. NB The file
 #'  extension does not need to be included (though it can be). The function
 #'  will error if multiple files are somehow matched.
@@ -14,8 +14,8 @@
 #'  being read. Useful for checking the function is doing what is expected, but
 #'  can be turned off with `FALSE`. Can be set persistently with the option
 #'  "azkit.info". If `NULL` then it will default to the value of
-#'  [rlang::is_interactive()] (ie `TRUE` for interactive sessions).
-#' @param ... optional arguments to be passed through to [arrow::read_parquet()]
+#'  [rlang::is_interactive] (that is, `TRUE` for interactive sessions).
+#' @param ... optional arguments to be passed through to [arrow::read_parquet]
 #' @returns A tibble
 #' @examples \dontrun{
 #'   # if a full filepath is available then path can be ignored
@@ -95,9 +95,9 @@ check_blob_exists <- function(container, file, ext, info, path) {
     dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
     dplyr::pull("name")
 
-  msg1 <- cv_error_msg("no matching {ext} file found")
+  msg1 <- ct_error_msg("no matching {ext} file found")
   msg2 <- cst_error_msg("multiple matching {ext} files found")
-  check_vec(filepath_out, rlang::is_character, msg1) # check length > 0
+  check_that(filepath_out, \(x) length(x) > 0, msg1) # check length > 0
   check_scalar_type(filepath_out, "character", msg2) # check length == 1
 
   info_option <- getOption("azkit.info")

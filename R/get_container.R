@@ -19,9 +19,9 @@ get_container <- function(container_name = NULL, ...) {
   token <- get_auth_token(...)
   endpoint <- get_default_endpoint(token)
   container_names <- list_container_names(token)
-  not_found_msg <- cv_error_msg("Container {.val {cont_nm}} not found")
+  not_found_msg <- ct_error_msg("Container {.val {cont_nm}} not found")
   cont_nm |>
-    check_vec(\(x) x %in% container_names, not_found_msg) |>
+    check_that(\(x) x %in% container_names, not_found_msg) |>
     AzureStor::blob_container(endpoint = endpoint)
 }
 
