@@ -14,7 +14,7 @@
 #'  being read. Useful for checking the function is doing what is expected, but
 #'  can be turned off with `FALSE`. Can be set persistently with the option
 #'  "azkit.info". If `NULL` then it will default to the value of
-#'  [rlang::is_interactive] (ie `TRUE` for interactive sessions).
+#'  [rlang::is_interactive] (that is, `TRUE` for interactive sessions).
 #' @param ... optional arguments to be passed through to [arrow::read_parquet]
 #' @returns A tibble
 #' @examples \dontrun{
@@ -139,12 +139,10 @@ check_blob_exists <- function(container, file, ext, info, path) {
     dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
     dplyr::pull("name")
 
-  if (length(filepath_out) == 0) {
-    cli::cli_abort("no matching {ext} file found")
-  }
-  if (length(filepath_out) > 1) {
-    cli::cli_abort("multiple matching {ext} files found")
-  }
+  msg1 <- ct_error_msg("no matching {ext} file found")
+  msg2 <- cst_error_msg("multiple matching {ext} files found")
+  check_that(filepath_out, \(x) length(x) > 0, msg1) # check length > 0
+  check_scalar_type(filepath_out, "character", msg2) # check length == 1
 
   info_option <- getOption("azkit.info")
   stopifnot(rlang::is_scalar_logical(info) || is.null(info))
