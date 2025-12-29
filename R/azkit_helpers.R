@@ -109,7 +109,7 @@ check_container_class <- function(container) {
   if (inherits(container, "blob_container")) {
     container
   } else {
-    ccc <- "check_container_class"
+    ccc <- "check_container_class" # nolint
     cc <- rlang::caller_call()
     cli::cli_abort("{.fn {ccc}}: This is not a valid blob container", call = cc)
   }

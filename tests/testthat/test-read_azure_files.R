@@ -189,10 +189,6 @@ test_that("dirname and basename logic works", {
     filepath_out <- AzureStor::list_blobs(res, path, recursive = FALSE) |>
       dplyr::filter(
         !dplyr::if_any("isdir") &
-          # Don't include `filepath` in the first regex here, because we want to
-          # filter to `file_ext` explicitly, as well as also allow for
-          # `filepath`to include its file extension if that suits the user's
-          # approach.
           dplyr::if_any("name", \(x) {
             gregg(x, "\\.{file_ext}$") & gregg(x, "^{filepath}")
           })
@@ -219,10 +215,6 @@ test_that("tdd of check_blob_exists", {
         dplyr::filter(
           !dplyr::if_any("isdir") &
             dplyr::if_any("name", \(x) {
-              # Don't include `file` in the regex here, because we want to
-              # filter to `file_ext` explicitly, as well as also allow for
-              # `file` to include its file extension if that suits the user's
-              # approach.
               grepl(glue::glue("\\.{file_ext}$"), x) & grepl(file, x)
             })
         ) |>
