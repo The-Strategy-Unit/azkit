@@ -15,14 +15,25 @@ get_container <- function(container_name = NULL, ...) {
     "{.var container_name} is empty. ",
     "Did you forget to set an environment variable?"
   )
+  possibly_list_cont_names <- \(...) purrr::possibly(list_container_names)(...)
   cont_nm <- check_nzchar(container_name, msg) %||% check_envvar("AZ_CONTAINER")
   token <- get_auth_token(...)
   endpoint <- get_default_endpoint(token)
-  container_names <- list_container_names(token)
-  not_found_msg <- ct_error_msg("Container {.val {cont_nm}} not found")
-  cont_nm |>
-    check_that(\(x) x %in% container_names, not_found_msg) |>
-    AzureStor::blob_container(endpoint = endpoint)
+
+  # list_container_names() fails when run on Connect deployment, so work around:
+  container_names <- possibly_list_cont_names(token)
+
+  if (is.null(container_names)) {
+    if (rlang::is_interactive()) {
+      cli::cli_alert_info("Unable to check that container name exists")
+    }
+    AzureStor::blob_container(endpoint, cont_nm)
+  } else {
+    not_found_msg <- ct_error_msg("Container {.val {cont_nm}} not found")
+    cont_nm |>
+      check_that(\(x) x %in% container_names, not_found_msg) |>
+      AzureStor::blob_container(endpoint, name = _)
+  }
 }
 
 
