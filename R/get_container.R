@@ -1,24 +1,39 @@
 #' Get Azure storage container
 #'
-#' Use [list_container_names()] to see a list of available containers
+#' The environment variable "AZ_STORAGE_EP" must be set. This provides the URL
+#'  for the default Azure storage endpoint.
+#' Use [list_container_names] to get a list of available container names.
 #'
 #' @param container_name Name of the container as a string. `NULL` by default,
 #'  which means the function will look instead for a container name stored in
 #'  the environment variable "AZ_CONTAINER"
-#' @param ... arguments to be passed through to [get_auth_token()]
+#' @param ... arguments to be passed through to [get_auth_token]
 #' @returns An Azure blob container (list object of class "blob_container")
 #' @export
 get_container <- function(container_name = NULL, ...) {
-  cst_msg <- cst_error_msg("{.var container_name} must be a string")
-  container_name <- (container_name %||% check_envvar("AZ_CONTAINER")) |>
-    check_scalar_type("character", cst_msg)
+  msg <- glue::glue(
+    "{.var container_name} is empty. ",
+    "Did you forget to set an environment variable?"
+  )
+  possibly_list_cont_names <- \(...) purrr::possibly(list_container_names)(...)
+  cont_nm <- check_nzchar(container_name, msg) %||% check_envvar("AZ_CONTAINER")
   token <- get_auth_token(...)
   endpoint <- get_default_endpoint(token)
-  container_names <- list_container_names(token)
-  not_found_msg <- cv_error_msg("Container {.val {container_name}} not found")
-  container_name |>
-    check_vec(\(x) x %in% container_names, not_found_msg) |>
-    AzureStor::blob_container(endpoint = endpoint)
+
+  # list_container_names() fails when run on Connect deployment, so work around:
+  container_names <- possibly_list_cont_names(token)
+
+  if (is.null(container_names)) {
+    if (rlang::is_interactive()) {
+      cli::cli_alert_info("Unable to check that container name exists")
+    }
+    AzureStor::blob_container(endpoint, cont_nm)
+  } else {
+    not_found_msg <- ct_error_msg("Container {.val {cont_nm}} not found")
+    cont_nm |>
+      check_that(\(x) x %in% container_names, not_found_msg) |>
+      AzureStor::blob_container(endpoint, name = _)
+  }
 }
 
 
@@ -31,7 +46,7 @@ get_container <- function(container_name = NULL, ...) {
 list_container_names <- function(token = NULL, ...) {
   token <- token %||% get_auth_token(...)
   endpoint <- get_default_endpoint(token)
-  lcn <- "list_container_names"
+  lcn <- "list_container_names" # nolint
   container_list <- AzureStor::list_blob_containers(endpoint) |>
     rlang::try_fetch(error = \(e) cli::cli_abort("Error in {.fn {lcn}}: {e}"))
   stopifnot("no containers found" = length(container_list) >= 1L)
@@ -59,6 +74,6 @@ get_default_endpoint <- function(token) {
 #' @returns the value of the environment variable named in `x`
 #' @export
 check_envvar <- function(x) {
-  cst_msg <- cst_error_msg("{.envvar {x}} is not set")
+  cst_msg <- cst_error_msg("The environment variable {.envvar {x}} is not set")
   check_scalar_type(Sys.getenv(x, NA_character_), "string", cst_msg)
 }

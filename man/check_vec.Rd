@@ -18,7 +18,7 @@ check_vec(
 \item{predicate}{The predicate function used to check elements of \code{x}}
 
 \item{message}{A custom error message, as a string. Will be shown to the
-user if the predicate check does not succeed. Can include \code{glue} variables
+user if the predicate check does not succeed. Can include \code{glue}d variables
 and \code{{cli}} semantic markup. Variable values will be searched for in the
 environment of the caller function (not in the environment of \code{check_vec()}
 ). This makes it easier to include informative values in the message.}
@@ -30,7 +30,7 @@ predicate. "none" can be used to generate an inverse predicate, or the
 situation where success means that none of the elements of x satisfies the
 predicate. "some" is unlikely to be useful often, but it is available.}
 
-\item{pf}{Set as \code{\link[=parent.frame]{parent.frame()}} so variables in the caller environment can
+\item{pf}{Set as \link{parent.frame} so variables in the caller environment can
 be used in the custom error message.}
 }
 \description{
@@ -38,7 +38,7 @@ This function makes it easy to use the \code{{purrr}} functions \code{every()},
 \code{some()} and \code{none()} to handle vector inputs of length >= 1, and supports
 the seamless use of \code{glue} strings in the custom error message.
 Not suitable for checking if \code{length(x) == 1} as it will check vectors
-element-wise, so will potentially return TRUE even if \code{length(x) > 1}
+element-wise, so will potentially return \code{TRUE} even if \code{length(x) > 1}
 }
 \seealso{
 \code{\link[=check_scalar_type]{check_scalar_type()}}
