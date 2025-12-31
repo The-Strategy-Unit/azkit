@@ -30,7 +30,7 @@ predicate. "none" can be used to generate an inverse predicate, or the
 situation where success means that none of the elements of x satisfies the
 predicate. "some" is unlikely to be useful often, but it is available.}
 
-\item{pf}{Set as \link{parent.frame} so variables in the caller environment can
+\item{pf}{Set as \code{\link[=parent.frame]{parent.frame()}} so variables in the caller environment can
 be used in the custom error message.}
 }
 \description{

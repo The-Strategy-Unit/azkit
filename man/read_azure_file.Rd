@@ -24,7 +24,7 @@ container) by default.}
 being read. Useful for checking the function is doing what is expected, but
 can be turned off with \code{FALSE}. Can be set persistently with the option
 "azkit.info". If \code{NULL} then it will default to the value of
-\link[rlang:is_interactive]{rlang::is_interactive} (ie \code{TRUE} for interactive sessions).}
+\link[rlang:is_interactive]{rlang::is_interactive} (that is, \code{TRUE} for interactive sessions).}
 
 \item{ext}{If a custom extension needs to be supplied, you can specify it
 here. If \code{NULL}, the default, the extension of \code{file} will be used}
