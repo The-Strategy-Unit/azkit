@@ -4,15 +4,15 @@
 \alias{get_container}
 \title{Get Azure storage container}
 \usage{
-get_container(token = NULL, container_name = NULL, endpoint_url = NULL, ...)
+get_container(container_name = NULL, token = NULL, endpoint_url = NULL, ...)
 }
 \arguments{
-\item{token}{An Azure authentication token. If left as \code{NULL}, a token
-returned by \link{get_auth_token} will be used}
-
 \item{container_name}{Name of the container as a string. \code{NULL} by default,
 which means the function will look instead for a container name stored in
 the environment variable "AZ_CONTAINER"}
+
+\item{token}{An Azure authentication token. If left as \code{NULL}, a token
+returned by \link{get_auth_token} will be used}
 
 \item{endpoint_url}{An Azure endpoint URL. If left as \code{NULL}, the default,
 the value of the environment variable "AZ_STORAGE_EP" will be used}

@@ -4,11 +4,11 @@
 #'  for the default Azure storage endpoint.
 #' Use [list_container_names] to get a list of available container names.
 #'
-#' @param token An Azure authentication token. If left as `NULL`, a token
-#'  returned by [get_auth_token] will be used
 #' @param container_name Name of the container as a string. `NULL` by default,
 #'  which means the function will look instead for a container name stored in
 #'  the environment variable "AZ_CONTAINER"
+#' @param token An Azure authentication token. If left as `NULL`, a token
+#'  returned by [get_auth_token] will be used
 #' @param endpoint_url An Azure endpoint URL. If left as `NULL`, the default,
 #'  the value of the environment variable "AZ_STORAGE_EP" will be used
 #' @param ... arguments to be passed through to [get_auth_token], if a token is
@@ -16,8 +16,8 @@
 #' @returns An Azure blob container (list object of class "blob_container")
 #' @export
 get_container <- function(
-  token = NULL,
   container_name = NULL,
+  token = NULL,
   endpoint_url = NULL,
   ...
 ) {
