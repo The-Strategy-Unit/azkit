@@ -21,11 +21,12 @@ get_container <- function(
   endpoint_url = NULL,
   ...
 ) {
-  msg <- glue::glue(
+  msg <- paste0(
     "{.var container_name} is empty. ",
     "Did you forget to set an environment variable?"
   )
-  cont_nm <- check_nzchar(container_name, msg) %||% check_envvar("AZ_CONTAINER")
+  container_name <- container_name %||% check_envvar("AZ_CONTAINER")
+  contnr_name <- check_nzchar(container_name, msg)
   token <- token %||% get_auth_token(...)
   endpoint <- get_azure_endpoint(token, endpoint_url)
 
@@ -36,15 +37,15 @@ get_container <- function(
   if (is.null(container_names)) {
     if (rlang::is_interactive()) {
       cli::cli_alert_info("Unable to check that the container name exists")
-      cli::cli_alert_info("Attempting to return container {.val {cont_nm}}")
+      cli::cli_alert_info("Attempting to return container {.val {contnr_name}}")
     }
-    AzureStor::blob_container(endpoint, cont_nm)
+    AzureStor::blob_container(endpoint, contnr_name)
   } else {
     if (rlang::is_interactive()) {
-      cli::cli_alert_info("Attempting to return container {.val {cont_nm}}")
+      cli::cli_alert_info("Attempting to return container {.val {contnr_name}}")
     }
-    not_found_msg <- ct_error_msg("Container {.val {cont_nm}} not found")
-    cont_nm |>
+    not_found_msg <- ct_error_msg("Container {.val {contnr_name}} not found")
+    contnr_name |>
       check_that(\(x) x %in% container_names, not_found_msg) |>
       AzureStor::blob_container(endpoint, name = _)
   }
