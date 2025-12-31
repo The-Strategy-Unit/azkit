@@ -131,8 +131,7 @@ get_auth_token <- function(
     )
     invisible(NULL)
   } else {
-    # check_that(token, AzureAuth::is_azure_token, "Invalid token returned")
-    token
+    check_that(token, AzureAuth::is_azure_token, "Invalid token returned")
   }
 }
 
