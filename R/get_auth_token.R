@@ -61,7 +61,7 @@ get_auth_token <- function(
   dots <- rlang::list2(...)
   # if the user specifies force_refresh = TRUE we turn off `use_cache`,
   # otherwise we leave `use_cache` as it is (or as `NULL`, its default value)
-  use_cached <- if (force_refresh) FALSE else dots[["use_cache"]]
+  use_cached <- !force_refresh && (dots[["use_cache"]] %||% TRUE)
   dots <- rlang::dots_list(!!!dots, use_cache = use_cached, .homonyms = "last")
 
   # 1. Use environment variables if all three are set
