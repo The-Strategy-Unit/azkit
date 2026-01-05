@@ -1,6 +1,6 @@
 #' Read a parquet file from Azure storage
 #'
-#' @param container An Azure container object, as returned by [get_container()]
+#' @param container An Azure container object, as returned by [get_container]
 #' @param file The name of the file to be read, as a string. NB The file
 #'  extension does not need to be included (though it can be). The function
 #'  will error if multiple files are somehow matched.
@@ -14,8 +14,8 @@
 #'  being read. Useful for checking the function is doing what is expected, but
 #'  can be turned off with `FALSE`. Can be set persistently with the option
 #'  "azkit.info". If `NULL` then it will default to the value of
-#'  [rlang::is_interactive()] (ie `TRUE` for interactive sessions).
-#' @param ... optional arguments to be passed through to [arrow::read_parquet()]
+#'  [rlang::is_interactive] (ie `TRUE` for interactive sessions).
+#' @param ... optional arguments to be passed through to [arrow::read_parquet]
 #' @returns A tibble
 #' @examples \dontrun{
 #'   # if a full filepath is available then path can be ignored
@@ -38,7 +38,7 @@ read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
 #'
 #' @inheritParams read_azure_parquet
 #' @param ... optional arguments to be passed through to
-#'  [yyjsonr::read_json_raw()]
+#'  [yyjsonr::read_json_raw]
 #' @returns A list
 #' @export
 read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
@@ -46,6 +46,24 @@ read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
     # using `dest = NULL` means pass the data through as a raw vector
     AzureStor::download_blob(container, src = _, dest = NULL) |>
     yyjsonr::read_json_raw(...)
+}
+
+
+#' Read a json.gz file from Azure storage
+#'
+#' @inheritParams read_azure_parquet
+#' @param ... optional arguments to be passed through to
+#'   [yyjsonr::read_json_file]
+#' @returns A list
+#' @export
+read_azure_jsongz <- function(container, file, path = "/", info = NULL, ...) {
+  full_path <- check_blob_exists(container, file, "json.gz", info, path)
+  dl <- withr::local_tempfile(
+    pattern = tools::file_path_sans_ext(basename(full_path), TRUE),
+    fileext = "json.gz"
+  )
+  AzureStor::download_blob(container, src = full_path, dest = dl)
+  yyjsonr::read_json_file(dl, ...)
 }
 
 
@@ -63,12 +81,36 @@ read_azure_rds <- function(container, file, path = "/", info = NULL) {
 #' Read a csv file from Azure storage
 #'
 #' @inheritParams read_azure_parquet
-#' @param ... optional arguments to be passed through to [readr::read_delim()]
+#' @param ... optional arguments to be passed through to [readr::read_delim]
 #' @returns A tibble
 #' @export
 read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
   check_blob_exists(container, file, "csv", info, path) |>
     AzureStor::storage_read_csv(container, file = _, ...)
+}
+
+
+#' Read any file from Azure storage
+#'
+#' @inheritParams read_azure_parquet
+#' @param ext If a custom extension needs to be supplied, you can specify it
+#'  here. If `NULL`, the default, the extension of `file` will be used
+#' @param ... optional arguments to be passed through to
+#'  [AzureStor::download_blob]
+#' @returns A raw data stream
+#' @export
+read_azure_file <- function(
+  container,
+  file,
+  path = "/",
+  info = NULL,
+  ext = NULL,
+  ...
+) {
+  ext <- ext %||% tools::file_ext(file)
+  check_blob_exists(container, file, ext, info, path) |>
+    # using `dest = NULL` means pass the data through as a raw vector
+    AzureStor::download_blob(container, src = _, dest = NULL, ...)
 }
 
 
@@ -87,7 +129,9 @@ check_blob_exists <- function(container, file, ext, info, path) {
   # though this usage pattern should be quite rare!
   dpath <- file.path(path, dir_name)
   fname <- basename(file)
-  fname <- ifelse(gregg(fname, "\\.{ext}$"), fname, glue::glue("{fname}.{ext}"))
+  if (nzchar(ext) & !gregg(fname, "\\.{ext}$")) {
+    fname <- glue::glue("{fname}.{ext}")
+  }
   # remove duplicate slashes and any initial slashes
   file_path <- sub("^/", "", gsub("/+", "/", file.path(dpath, fname)))
 
@@ -95,10 +139,12 @@ check_blob_exists <- function(container, file, ext, info, path) {
     dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
     dplyr::pull("name")
 
-  msg1 <- cv_error_msg("no matching {ext} file found")
-  msg2 <- cst_error_msg("multiple matching {ext} files found")
-  check_vec(filepath_out, rlang::is_character, msg1) # check length > 0
-  check_scalar_type(filepath_out, "character", msg2) # check length == 1
+  if (length(filepath_out) == 0) {
+    cli::cli_abort("no matching {ext} file found")
+  }
+  if (length(filepath_out) > 1) {
+    cli::cli_abort("multiple matching {ext} files found")
+  }
 
   info_option <- getOption("azkit.info")
   stopifnot(rlang::is_scalar_logical(info) || is.null(info))
