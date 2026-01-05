@@ -110,6 +110,7 @@ get_auth_token <- function(
   }
 }
 
+
 #' Sub-routine for `get_auth_token()`
 #'
 #' Pulled out mainly to tidy up the main function code a bit

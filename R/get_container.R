@@ -1,6 +1,6 @@
 #' Get Azure storage container
 #'
-#' Use [list_container_names()] to see a list of available containers
+#' Use [list_container_names] to see a list of available containers
 #'
 #' @param container_name Name of the container as a string. `NULL` by default,
 #'  which means the function will look instead for a container name stored in
