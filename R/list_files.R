@@ -36,7 +36,7 @@ list_files <- function(container, path = "", ext = "", recursive = TRUE) {
 
   tbl <- AzureStor::list_blobs(container, path, recursive = recursive)
   if (nrow(tbl) > 0) {
-    ext_rx <- if (nzchar(ext)) sub("^\\.+", "", ext) else ".*"
+    ext_rx <- if (nzchar(ext)) sub("^\\.+", "", ext) else ".*" # nolint
     tbl <- tbl |>
       dplyr::filter(!.data[["isdir"]] & gregg(.data[["name"]], "\\.{ext_rx}$"))
   }
@@ -44,11 +44,11 @@ list_files <- function(container, path = "", ext = "", recursive = TRUE) {
   # A zero-row tbl can result if `path` is initially empty, or via the filter
   # step above. We handle this the same way, no matter which route led here.
   if (nrow(tbl) == 0) {
+    fix_path <- \(p) sub("^/+$", "", sub("^([^/])(.*)", "/\\1\\2", p)) # nolint
+    ext <- if (nzchar(ext)) paste0(" ", ext)
+    msg <- "No{ext} files found in {.val [{container$name}]:{fix_path(path)}}"
     if (rlang::is_interactive()) {
-      ext <- if (nzchar(ext)) paste0(" ", ext)
-      fix_path <- \(path) sub("^/+$", "", sub("^([^/])(.*)", "/\\1\\2", path))
-      "No{ext} files found in {.val [{container[['name']]}]{fix_path(path)}}" |>
-        cli::cli_alert_info()
+      cli::cli_alert_info(msg)
     }
     invisible(character(0))
   } else {

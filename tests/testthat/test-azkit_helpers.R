@@ -15,7 +15,7 @@ test_that("I understand how rlang::abort works", {
   var <- "test"
   message <- "{.var {var}} error"
   # will only succeed if devtools::load_all() has been run:
-  # expect_error(rlang::abort(message), "`test` error")
+  # expect_error(rlang::abort(message), "`test` error") # nolint
   expect_error(rlang::abort(message), class = "rlang_error")
   rlang::local_use_cli(inline = TRUE)
   expect_error(rlang::abort(message), "`test` error", class = "rlang_error")
