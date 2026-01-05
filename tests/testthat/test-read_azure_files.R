@@ -16,7 +16,7 @@ test_that("basic success", {
     files <- AzureStor::list_blobs(inputs_data, "dev", recursive = FALSE) |>
       dplyr::filter(grepl("\\.parquet$", .data[["name"]])) |>
       dplyr::pull("name")
-    name <- "wli"
+    name <- "baseline"
     pqt_file <- grep(name, files, value = TRUE)
     expect_length(pqt_file, 1)
     expect_true(AzureStor::blob_exists(inputs_data, pqt_file))
@@ -34,7 +34,7 @@ test_that("understand some new errors in check_blob_exists", {
   if (nzchar(endpoint_uri)) {
     inp <- expect_no_error(get_container("inputs-data"))
     path <- "dev"
-    file <- "wli"
+    file <- "baseline"
     ext <- "parquet"
     path <- if (path %in% c("", "/")) "" else path
     expect_equal(path, "dev")
@@ -43,19 +43,19 @@ test_that("understand some new errors in check_blob_exists", {
     p2 <- file.path(path, dir_name)
     expect_equal(p2, "dev")
     file_name <- paste0(basename(file), ".", ext)
-    expect_equal(file_name, "wli.parquet")
+    expect_equal(file_name, "baseline.parquet")
     file_path <- sub("^/", "", sub("/+", "/", file.path(p2, file_name)))
-    expect_equal(file_path, "dev/wli.parquet")
+    expect_equal(file_path, "dev/baseline.parquet")
     dir_list <- AzureStor::list_blobs(inp, p2, recursive = FALSE)
     file_name_out <- dir_list |>
       dplyr::filter(dplyr::if_any("name", \(x) x == file_path)) |>
       dplyr::pull("name")
-    expect_equal(file_name_out, "dev/wli.parquet")
+    expect_equal(file_name_out, "dev/baseline.parquet")
     expect_no_error(check_blob_exists(inp, file, ext, FALSE, path))
 
     # check still works if full filepath is passed to file arg
     path <- ""
-    file <- "dev/wli.parquet"
+    file <- "dev/baseline.parquet"
     path <- if (path %in% c("", "/")) "" else path
     expect_equal(path, "")
     dir_name <- if (dirname(file) == ".") "" else dirname(file)
@@ -63,9 +63,9 @@ test_that("understand some new errors in check_blob_exists", {
     p2 <- glue::glue("{path}/{dir_name}")
     expect_equal(p2, "/dev")
     file_name <- basename(file)
-    expect_equal(file_name, "wli.parquet")
+    expect_equal(file_name, "baseline.parquet")
     file_path <- sub("^/", "", sub("/+", "/", glue::glue("{p2}/{file_name}")))
-    expect_equal(file_path, "dev/wli.parquet")
+    expect_equal(file_path, "dev/baseline.parquet")
     dir_list <- AzureStor::list_blobs(inp, p2, recursive = FALSE)
     file_name_out <- dir_list |>
       dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
@@ -81,11 +81,19 @@ test_that("whole read_parquet function works", {
   # only run the test if this variable is set (i.e. locally, but not on GitHub)
   if (nzchar(endpoint_uri)) {
     inputs_container <- expect_no_error(get_container("inputs-data"))
-    expect_no_error(read_azure_parquet(inputs_container, "wli", path = "dev"))
-    out1 <- read_azure_parquet(inputs_container, "wli", path = "dev")
+    expect_no_error(read_azure_parquet(
+      inputs_container,
+      "baseline",
+      path = "dev"
+    ))
+    out1 <- read_azure_parquet(inputs_container, "baseline", path = "dev")
     expect_s3_class(out1, "tbl_df")
     # check that it works with the file extension included
-    out2 <- read_azure_parquet(inputs_container, "wli.parquet", path = "dev")
+    out2 <- read_azure_parquet(
+      inputs_container,
+      "baseline.parquet",
+      path = "dev"
+    )
     expect_length(out2, 6) # ncol
 
     res <- get_container(Sys.getenv("AZ_RESULTS_CONTAINER"))
@@ -128,7 +136,6 @@ test_that("read_azure_json basically works", {
     raw_out <- support_container |>
       download_azure_blob("providers", "json")
     expect_type(raw_out, "raw")
-    # {yyjsonr} provides a function to read raw JSON (fast) - unlike {jsonlite}
     expect_no_error(yyjsonr::read_json_raw(raw_out))
     out <- yyjsonr::read_json_raw(raw_out)
     expect_type(out, "character")
@@ -182,9 +189,6 @@ test_that("dirname and basename logic works", {
     filepath_out <- AzureStor::list_blobs(res, path, recursive = FALSE) |>
       dplyr::filter(
         !dplyr::if_any("isdir") &
-          # Don't include `filepath` in the first regex here, because we want to
-          # filter to `file_ext` explicitly, as well as also allow for `filepath`
-          # to include its file extension if that suits the user's approach.
           dplyr::if_any("name", \(x) {
             gregg(x, "\\.{file_ext}$") & gregg(x, "^{filepath}")
           })
@@ -211,9 +215,6 @@ test_that("tdd of check_blob_exists", {
         dplyr::filter(
           !dplyr::if_any("isdir") &
             dplyr::if_any("name", \(x) {
-              # Don't include `file` in the regex here, because we want to filter to
-              # `file_ext` explicitly, as well as also allow for `file` to include
-              # its file extension if that suits the user's approach.
               grepl(glue::glue("\\.{file_ext}$"), x) & grepl(file, x)
             })
         ) |>

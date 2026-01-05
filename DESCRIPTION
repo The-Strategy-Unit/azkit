@@ -1,6 +1,6 @@
 Package: azkit
 Title: Azure storage authentication toolkit
-Version: 0.1.1
+Version: 0.1.9
 Authors@R:
     person(
         "Fran", "Barton",
@@ -14,7 +14,7 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Depends: R (>= 4.4)
+Depends: R (>= 4.5.0)
 Imports:
     arrow,
     AzureAuth,
@@ -23,10 +23,12 @@ Imports:
     cli,
     dplyr,
     glue,
+    httr2,
     purrr,
     rlang,
+    tibble,
+    withr,
     yyjsonr
 Suggests:
     testthat (>= 3.0.0),
-    readr,
-    withr
+    readr

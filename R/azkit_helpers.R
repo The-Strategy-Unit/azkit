@@ -30,7 +30,7 @@ ct_error_msg <- \(text) paste0("{.fn check_that}: ", text)
 #' `some()` and `none()` to handle vector inputs of length >= 1, and supports
 #' the seamless use of `glue` strings in the custom error message.
 #' Not suitable for checking if `length(x) == 1` as it will check vectors
-#' element-wise, so will potentially return TRUE even if `length(x) > 1`
+#' element-wise, so will potentially return `TRUE` even if `length(x) > 1`
 #'
 #' @param predicate The predicate function used to check elements of `x`
 #' @param message A custom error message, as a string. Will be shown to the
@@ -68,6 +68,7 @@ cv_error_msg <- \(text) paste0("{.fn check_vec}: ", text)
 
 
 #' An alternative to stopifnot/assert_that etc
+#'
 #' This function makes it easy to use the `is_scalar_*` functions from `{rlang}`
 #'  to check the type of `x`, _and_ that `length(x) == 1`, and supports the
 #'  seamless use of `glue` strings in the custom error message.
@@ -158,7 +159,7 @@ check_container_class <- function(container) {
   if (inherits(container, "blob_container")) {
     container
   } else {
-    ccc <- "check_container_class"
+    ccc <- "check_container_class" # nolint
     cc <- rlang::caller_call()
     cli::cli_abort("{.fn {ccc}}: This is not a valid blob container", call = cc)
   }

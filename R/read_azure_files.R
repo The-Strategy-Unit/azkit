@@ -38,7 +38,7 @@ read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
 #'
 #' @inheritParams read_azure_parquet
 #' @param ... optional arguments to be passed through to
-#'  [yyjsonr::read_json_raw()]
+#'  [yyjsonr::read_json_raw]
 #' @returns A list
 #' @export
 read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
@@ -46,6 +46,24 @@ read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
     # using `dest = NULL` means pass the data through as a raw vector
     AzureStor::download_blob(container, src = _, dest = NULL) |>
     yyjsonr::read_json_raw(...)
+}
+
+
+#' Read a json.gz file from Azure storage
+#'
+#' @inheritParams read_azure_parquet
+#' @param ... optional arguments to be passed through to
+#'   [yyjsonr::read_json_file]
+#' @returns A list
+#' @export
+read_azure_jsongz <- function(container, file, path = "/", info = NULL, ...) {
+  full_path <- check_blob_exists(container, file, "json.gz", info, path)
+  dl <- withr::local_tempfile(
+    pattern = tools::file_path_sans_ext(basename(full_path), TRUE),
+    fileext = "json.gz"
+  )
+  AzureStor::download_blob(container, src = full_path, dest = dl)
+  yyjsonr::read_json_file(dl, ...)
 }
 
 
@@ -63,12 +81,36 @@ read_azure_rds <- function(container, file, path = "/", info = NULL) {
 #' Read a csv file from Azure storage
 #'
 #' @inheritParams read_azure_parquet
-#' @param ... optional arguments to be passed through to [readr::read_delim()]
+#' @param ... optional arguments to be passed through to [readr::read_delim]
 #' @returns A tibble
 #' @export
 read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
   check_blob_exists(container, file, "csv", info, path) |>
     AzureStor::storage_read_csv(container, file = _, ...)
+}
+
+
+#' Read any file from Azure storage
+#'
+#' @inheritParams read_azure_parquet
+#' @param ext If a custom extension needs to be supplied, you can specify it
+#'  here. If `NULL`, the default, the extension of `file` will be used
+#' @param ... optional arguments to be passed through to
+#'  [AzureStor::download_blob]
+#' @returns A raw data stream
+#' @export
+read_azure_file <- function(
+  container,
+  file,
+  path = "/",
+  info = NULL,
+  ext = NULL,
+  ...
+) {
+  ext <- ext %||% tools::file_ext(file)
+  check_blob_exists(container, file, ext, info, path) |>
+    # using `dest = NULL` means pass the data through as a raw vector
+    AzureStor::download_blob(container, src = _, dest = NULL, ...)
 }
 
 
@@ -87,7 +129,9 @@ check_blob_exists <- function(container, file, ext, info, path) {
   # though this usage pattern should be quite rare!
   dpath <- file.path(path, dir_name)
   fname <- basename(file)
-  fname <- ifelse(gregg(fname, "\\.{ext}$"), fname, glue::glue("{fname}.{ext}"))
+  if (nzchar(ext) & !gregg(fname, "\\.{ext}$")) {
+    fname <- glue::glue("{fname}.{ext}")
+  }
   # remove duplicate slashes and any initial slashes
   file_path <- sub("^/", "", gsub("/+", "/", file.path(dpath, fname)))
 

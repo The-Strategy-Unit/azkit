@@ -7,7 +7,7 @@
 check_blob_exists(container, file, ext, info, path)
 }
 \arguments{
-\item{container}{An Azure container object, as returned by \code{\link[=get_container]{get_container()}}}
+\item{container}{An Azure container object, as returned by \link{get_container}}
 
 \item{file}{The name of the file to be read, as a string. NB The file
 extension does not need to be included (though it can be). The function
