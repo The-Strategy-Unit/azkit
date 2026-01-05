@@ -3,6 +3,7 @@
 on:
   pull_request:
     branches: [ "main" ]
+  release:
 name: R-CMD-check
 permissions: read-all
 jobs:
