@@ -4,20 +4,27 @@
 \alias{get_container}
 \title{Get Azure storage container}
 \usage{
-get_container(container_name = NULL, ...)
+get_container(container_name = NULL, token = NULL, endpoint_url = NULL, ...)
 }
 \arguments{
 \item{container_name}{Name of the container as a string. \code{NULL} by default,
 which means the function will look instead for a container name stored in
 the environment variable "AZ_CONTAINER"}
 
-\item{...}{arguments to be passed through to \link{get_auth_token}}
+\item{token}{An Azure authentication token. If left as \code{NULL}, a token
+returned by \link{get_auth_token} will be used}
+
+\item{endpoint_url}{An Azure endpoint URL. If left as \code{NULL}, the default,
+the value of the environment variable "AZ_STORAGE_EP" will be used}
+
+\item{...}{arguments to be passed through to \link{get_auth_token}, if a token is
+not already supplied}
 }
 \value{
 An Azure blob container (list object of class "blob_container")
 }
 \description{
-The environment variable "AZ_STORAGE_EP" must be set. This provides the URL
+The environment variable "AZ_STORAGE_EP" should be set. This provides the URL
 for the default Azure storage endpoint.
 Use \link{list_container_names} to get a list of available container names.
 }

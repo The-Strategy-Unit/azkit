@@ -4,3 +4,4 @@
 ^azkit\.code-workspace$
 ^CODEOWNERS$
 ^\.github$
+^\.lintr$

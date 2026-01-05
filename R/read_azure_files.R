@@ -129,7 +129,7 @@ check_blob_exists <- function(container, file, ext, info, path) {
   # though this usage pattern should be quite rare!
   dpath <- file.path(path, dir_name)
   fname <- basename(file)
-  if (nzchar(ext) & !gregg(fname, "\\.{ext}$")) {
+  if (nzchar(ext) && !gregg(fname, "\\.{ext}$")) {
     fname <- glue::glue("{fname}.{ext}")
   }
   # remove duplicate slashes and any initial slashes

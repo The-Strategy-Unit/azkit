@@ -15,7 +15,7 @@ check_scalar_type(x, type, message, pf = parent.frame())
 user if the predicate check does not succeed. Can include \code{glue}d variables
 and \code{{cli}} semantic markup.}
 
-\item{pf}{Set as \link{parent.frame} so variables in the caller environment can
+\item{pf}{Set as \code{\link[=parent.frame]{parent.frame()}} so variables in the caller environment can
 be used in the custom error message.}
 }
 \description{
