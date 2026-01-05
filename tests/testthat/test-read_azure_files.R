@@ -236,7 +236,7 @@ test_that("tdd of check_blob_exists", {
         dplyr::pull("name")
       stop_msg1 <- glue::glue("no matching {file_ext} file found")
       stop_msg2 <- glue::glue("multiple matching {file_ext} files found")
-      check_vec(filepath, rlang::is_character, stop_msg1) # check length > 0
+      check_that(filepath, \(x) length(x) > 0, stop_msg1) # check length > 0
       check_scalar_type(filepath, "character", stop_msg2) # check length == 1
     }
     expect_error(check_blob_exists(support_container, "unmatched"), "matching")
@@ -255,7 +255,7 @@ test_that("tdd of check_blob_exists", {
         dplyr::pull("name")
       stop_msg1 <- glue::glue("no matching {file_ext} file found")
       stop_msg2 <- glue::glue("multiple matching {file_ext} files found")
-      check_vec(filepath, rlang::is_character, stop_msg1) # check length > 0
+      check_that(filepath, \(x) length(x) > 0, stop_msg1) # check length > 0
       check_scalar_type(filepath, "character", stop_msg2) # check length == 1
       filepath
     }

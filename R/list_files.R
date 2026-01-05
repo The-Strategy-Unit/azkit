@@ -31,8 +31,8 @@
 list_files <- function(container, path = "", ext = "", recursive = TRUE) {
   stopifnot(rlang::is_character(c(path, ext), 2))
   stopifnot(rlang::is_bool(recursive))
-  pnf_msg <- cv_error_msg("Path {.val {path}} not found")
-  check_vec(path, \(x) AzureStor::blob_dir_exists(container, x), pnf_msg)
+  pnf_msg <- ct_error_msg("Path {.val {path}} not found")
+  check_that(path, \(x) AzureStor::blob_dir_exists(container, x), pnf_msg)
 
   tbl <- AzureStor::list_blobs(container, path, recursive = recursive)
   if (nrow(tbl) > 0) {

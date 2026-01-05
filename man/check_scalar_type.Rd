@@ -12,10 +12,8 @@ check_scalar_type(x, type, message, pf = parent.frame())
 \item{type}{A string defining the R object type that \code{x} is checked to be}
 
 \item{message}{A custom error message, as a string. Will be shown to the
-user if the predicate check does not succeed. Can include \code{glue} variables
-and \code{{cli}} semantic markup. Variable values will be searched for in the
-environment of the caller function (not in the environment of \code{check_vec()}
-). This makes it easier to include informative values in the message.}
+user if the predicate check does not succeed. Can include \code{glue}d variables
+and \code{{cli}} semantic markup.}
 
 \item{pf}{Set as \link{parent.frame} so variables in the caller environment can
 be used in the custom error message.}
@@ -28,6 +26,6 @@ Possible values for the \code{type} parameter are: "character", "logical", "list
 "integer", "double", "string", "bool", "bytes", "raw", "vector", "complex".
 }
 \seealso{
-\code{\link[=check_vec]{check_vec()}}
+\link{check_that}
 }
 \keyword{internal}
