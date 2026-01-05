@@ -14,7 +14,7 @@ has not yet been a stable release][repostatus_svg]][repostatus_info]
 [repostatus_svg]: https://www.repostatus.org/badges/latest/wip.svg
 [lifecycle]: https://lifecycle.r-lib.org/articles/stages.html#experimental
 [lifecycle_svg]: https://img.shields.io/badge/lifecycle-experimental-orange.svg
-[cmd_svg]: https://github.com/The-Strategy-Unit/azkit/actions/workflows/R-CMD-check.yaml/badge.svg
+[cmd_svg]: https://github.com/The-Strategy-Unit/azkit/actions/workflows/R-CMD-check.yaml/badge.svg?event=release
 [cmd_yaml]: https://github.com/The-Strategy-Unit/azkit/actions/workflows/R-CMD-check.yaml
 <!-- badges: end -->
 
