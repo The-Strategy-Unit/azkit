@@ -12,17 +12,25 @@
 #'  a user token using the provided parameters, requiring the user to have
 #'  authenticated using their device. If `force_refresh` is set to `TRUE`, a
 #'  fresh web authentication process should be launched. Otherwise it will
-#'  attempt to use a cached token matching the given `resource` and `tenant`.
+#'  attempt to use a cached token matching the given `resource`, `tenant` and
+#'  `aad_version`.
 #'
-#' @param resource A string specifying the URL of the Azure resource for which
-#'  the token is requested. Defaults to `"https://storage.azure.com"`.
+#' @param resource For v2, a vector specifying the URL of the Azure resource
+#'  for which the token is requested as well as any desired scopes. See
+#'  [AzureAuth::get_azure_token] for details. For v1, a simple URL such as
+#'  `"https://storage.azure.com/"` should be supplied. Use [generate_resource]
+#'  to help provide an appropriate string or vector. The values default to
+#'  `c("https://storage.azure.com/.default", "openid", "offline_access")`.
+#'  If setting version to 1, ensure that the `aad_version` argument is also set
+#'  to 1. Both are set to use AAD version 2 by default.
 #' @param tenant A string specifying the Azure tenant. Defaults to
 #'  `"organizations"`. See [AzureAuth::get_azure_token] for other values.
 #' @param client_id A string specifying the application ID (client ID). If
 #'  `NULL`, (the default) the function attempts to obtain the client ID from the
 #'  Azure Resource Manager token, or prompts the user to log in to obtain it.
 #' @param auth_method A string specifying the authentication method. Defaults to
-#'  `"authorization_code"`. See ?[AzureAuth::get_azure_token] for other values.
+#'  `"authorization_code"`. See [AzureAuth::get_azure_token] for other values.
+#' @param aad_version Numeric. The AAD version, either 1 or 2 (2 by default)
 #' @param force_refresh Boolean: whether to use a stored token if available
 #'  (`FALSE`, the default), or try to obtain a new one from Azure (`TRUE`).
 #'  This may be useful if you wish to generate a new token with the same
@@ -40,7 +48,8 @@
 #' # Get a token for a specific resource and tenant
 #' token <- get_auth_token(
 #'  resource = "https://graph.microsoft.com",
-#'  tenant = "my-tenant-id"
+#'  tenant = "my-tenant-id",
+#'  aad_version = 1
 #' )
 #'
 #' # Get a token using a specific app ID
@@ -48,14 +57,16 @@
 #' }
 #' @export
 get_auth_token <- function(
-  resource = "https://storage.azure.com",
-  tenant = "common",
+  resource = generate_resource(),
+  tenant = "organizations",
   client_id = NULL,
   auth_method = "authorization_code",
+  aad_version = 2,
   force_refresh = FALSE,
   ...
 ) {
-  possibly_get_token <- \(...) purrr::possibly(AzureAuth::get_azure_token)(...)
+  aad_msg <- "Invalid {.arg aad_version} variable supplied (must be 1 or 2)"
+  aad_version <- check_that(aad_version, \(x) x %in% seq(2), aad_msg)
   possibly_get_mtk <- \(...) purrr::possibly(AzureAuth::get_managed_token)(...)
 
   dots <- rlang::list2(...)
@@ -176,4 +187,48 @@ get_client_id <- function() {
     client_id <- possibly_pluck_client_id() %||% azure_cli_default_client_id
   }
   client_id
+}
+
+
+#' Generate appropriate values for the `resource` parameter in [get_auth_token]
+#'
+#' A helper function to generate appropriate values. Ensure that the `version`
+#'  argument matches the `aad_version` argument to [get_auth_token].
+#'  It's unlikely that you will ever want to set `authorise` to `FALSE` but it's
+#'  here as an option since [AzureAuth::get_azure_token] supports it. Similarly,
+#'  you are likely to want to keep `refresh` turned on (this argument has no
+#'  effect on v1 tokens, it only applies to v2).
+#'
+#' @param version numeric. The AAD version, either 1 or 2 (2 by default)
+#' @param url The URL of the Azure resource host
+#' @param path For v2, the path designating the access scope
+#' @param authorise Boolean, whether to return a token with authorisation scope,
+#'  (TRUE, the default) or one that just provides authentication. You are
+#'  unlikely to want to turn this off
+#' @param refresh Boolean, applies to v2 tokens only, whether to return a token
+#'  that has a refresh token also supplied.
+#' @returns A scalar character, or (in most v2 situations) a character vector
+#' @export
+generate_resource <- function(
+  version = 2,
+  url = "https://storage.azure.com",
+  path = "/.default",
+  authorise = TRUE,
+  refresh = TRUE
+) {
+  stopifnot("version must be 1 or 2" = version %in% seq(2))
+  scopes <- if (refresh) c("openid", "offline_access") else "openid"
+  if (authorise) {
+    if (version == 2) {
+      c(paste0(url, path), scopes)
+    } else {
+      url
+    }
+  } else {
+    if (version == 2) {
+      scopes
+    } else {
+      ""
+    }
+  }
 }
