@@ -6,7 +6,7 @@
 \usage{
 get_auth_token(
   resource = "https://storage.azure.com",
-  tenant = "common",
+  tenant = "organizations",
   client_id = NULL,
   auth_method = "authorization_code",
   force_refresh = FALSE,

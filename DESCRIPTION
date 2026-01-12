@@ -1,13 +1,18 @@
 Package: azkit
 Title: Azure storage authentication toolkit
-Version: 0.2.0
+Version: 0.2.1
 Authors@R:
-    person(
+    c(person(
         "Fran", "Barton",
         email = "francis.barton@nhs.net",
         role = c("aut", "cre"),
         comment = c(ORCID = "0000-0002-5650-1176")
-    )
+    ),
+    person(
+        "Tom", "Jemmett",
+        email = "thomas.jemmett@nhs.net",
+        role = "ctb"
+    ))
 Description: Handles authentication and basic tasks with Azure blob storage.
 License: MIT + file LICENSE
 Config/testthat/edition: 3
