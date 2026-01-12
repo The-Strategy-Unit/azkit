@@ -72,6 +72,13 @@ get_auth_token <- function(
 ) {
   aad_msg <- "Invalid {.arg aad_version} variable supplied (must be 1 or 2)"
   aad_version <- check_that(aad_version, \(x) x %in% seq(2), aad_msg)
+
+  safely_get_token <- \(...) purrr::safely(AzureAuth::get_azure_token)(...)
+  get_azure_token <- purrr::partial(
+    safely_get_token,
+    resource = resource,
+    version = aad_version
+  )
   possibly_get_mtk <- \(...) purrr::possibly(AzureAuth::get_managed_token)(...)
 
   dots <- rlang::list2(...)
@@ -103,15 +110,16 @@ get_auth_token <- function(
       cli::cli_alert_info("No matching cached token found: fetching new token")
     }
     client_id <- client_id %||% get_client_id()
-    token <- rlang::inject(
-      possibly_get_token(
-        resource = resource,
+    token_resp <- rlang::inject(
+      get_azure_token(
         tenant = tenant,
         app = client_id,
         auth_type = auth_method,
         !!!dots
       )
     )
+    token <- token_resp[["result"]]
+    token_error <- token_error %||% token_resp[["error"]]
   }
 
   # Give some helpful feedback if the steps above have not succeeded
