@@ -65,46 +65,22 @@ get_auth_token <- function(
   dots <- rlang::dots_list(!!!dots, use_cache = use_cached, .homonyms = "last")
 
   # 1. Use environment variables if all three are set
-  tenant_id_env <- Sys.getenv("AZ_TENANT_ID")
-  client_id_env <- Sys.getenv("AZ_CLIENT_ID")
-  client_secret <- Sys.getenv("AZ_APP_SECRET")
+  token_resp <- rlang::inject(try_token_from_vars(get_azure_token, !!!dots))
+  token <- token_resp[["result"]]
+  token_error <- token_resp[["error"]]
 
-  if (all(nzchar(c(tenant_id_env, client_id_env, client_secret)))) {
-    token <- rlang::inject(
-      possibly_get_token(
-        resource = resource,
-        tenant = tenant_id_env,
-        app = client_id_env,
-        password = client_secret,
-        !!!dots
-      )
-    )
-  } else {
-    # 2. Try to get a managed token (for example on Azure VM, App Service)
+  # 2. Try to get a managed token (for example on Azure VM, App Service)
+  if (is.null(token)) {
     token <- rlang::inject(possibly_get_mtk(resource, !!!dots))
   }
 
   # 3. If neither of those has worked, try to get an already stored user token
-  #    (unless `force_refresh` is on, in which case skip to option 4 anyway)
-  if (is.null(token) && !force_refresh) {
-    # list tokens already locally cached
-    local_tokens <- AzureAuth::list_azure_tokens()
-    if (length(local_tokens) > 0) {
-      resources <- purrr::map(local_tokens, "resource")
-      scopes <- purrr::map(local_tokens, list("scope", 1))
-      resources <- purrr::map2(resources, scopes, `%||%`)
-      tenants <- purrr::map(local_tokens, "tenant")
-      resource_index <- gregg(resources, "^{resource}")
-      tenant_index <- tenant == tenants
-      # if there are token(s) matching `resource` and `tenant` then return one
-      token_index <- which(resource_index & tenant_index)[1]
-      token <- if (!is.na(token_index)) local_tokens[[token_index]] else NULL
-    } else {
-      token <- NULL
-    }
+  #    (unless `force_refresh` is on, in which case skip to option 4)
+  if (is.null(token) && use_cached) {
+    token <- match_cached_token(resource, tenant, aad_version)
   }
-  # 4. If we still don't have a valid token, try to get a new one via user
-  #    reauthentication
+
+  # 4. If we still don't have a token, try to get a new one via reauthentication
   if (is.null(token)) {
     if (!force_refresh) {
       cli::cli_alert_info("No matching cached token found: fetching new token")
@@ -129,9 +105,52 @@ get_auth_token <- function(
       "Alternatively, running {.fn AzureRMR::get_azure_login} or
       {.fn AzureRMR::list_azure_tokens} may shed some light on the problem."
     )
-    invisible(NULL)
+#' Get token via app and secret environment variables
+#' Sub-routine for `get_auth_token()`
+#' @keywords internal
+#' @returns A list with elements `result` and `error`. If this method is
+#'  successful, the `result` element will contain a token.
+try_token_from_vars <- function(get_token_fun, ...) {
+  tenant_id_env <- Sys.getenv("AZ_TENANT_ID")
+  client_id_env <- Sys.getenv("AZ_CLIENT_ID")
+  client_secret <- Sys.getenv("AZ_APP_SECRET")
+
+  if (all(nzchar(c(tenant_id_env, client_id_env, client_secret)))) {
+    rlang::inject(
+      get_token_fun(
+        tenant = tenant_id_env,
+        app = client_id_env,
+        password = client_secret,
+        ...
+      )
+    )
   } else {
-    check_that(token, AzureAuth::is_azure_token, "Invalid token returned")
+    list(result = NULL, error = NULL)
+  }
+}
+
+
+#' Find an already cached token that matches desired parameters
+#' Sub-routine for `get_auth_token()`
+#' @keywords internal
+#' @returns A token from local cache, or NULL if none matches
+match_cached_token <- function(resource, tenant, aad_version) {
+  # list tokens already locally cached
+  local_tokens <- AzureAuth::list_azure_tokens()
+  if (length(local_tokens) > 0) {
+    resources <- purrr::map(local_tokens, "resource")
+    scopes <- purrr::map(local_tokens, list("scope", 1))
+    resources <- purrr::map2_chr(resources, scopes, `%||%`)
+    tenants <- purrr::map_chr(local_tokens, "tenant")
+    versions <- purrr::map_int(local_tokens, "version")
+    resource_index <- gregg(resources, "^{resource[[1]]}")
+    tenant_index <- tenants == tenant
+    version_index <- versions == aad_version
+    # return a token matching `resource`, `tenant` and `version`, if any
+    token_index <- which(resource_index & tenant_index & version_index)[1]
+    if (!is.na(token_index)) local_tokens[[token_index]] else NULL
+  } else {
+    NULL
   }
 }
 
