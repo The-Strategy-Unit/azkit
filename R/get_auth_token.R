@@ -35,7 +35,9 @@
 #'  (`FALSE`, the default), or try to obtain a new one from Azure (`TRUE`).
 #'  This may be useful if you wish to generate a new token with the same
 #'  `resource` value as an existing token, but a different `tenant` or
-#'  `auth_method`.
+#'  `auth_method`. Note that you can also try using [refresh_token] which will
+#'  cause an existing token to refresh itself, without obtaining a new token
+#'  from Azure via online reauthentication
 #' @param ... Optional arguments (`token_args` or `use_cache`) to be passed on
 #'  to [AzureAuth::get_managed_token] or [AzureAuth::get_azure_token].
 #'
@@ -44,6 +46,9 @@
 #' \dontrun{
 #' # Get a token for the default resource
 #' token <- get_auth_token()
+#'
+#' # Force generation of a new token via online reauthentication
+#' token <- get_auth_token(force_refresh = TRUE)
 #'
 #' # Get a token for a specific resource and tenant
 #' token <- get_auth_token(
@@ -70,11 +75,12 @@ get_auth_token <- function(
   possibly_get_mtk <- \(...) purrr::possibly(AzureAuth::get_managed_token)(...)
 
   dots <- rlang::list2(...)
-  # if the user specifies force_refresh = TRUE we turn off `use_cache`,
+  # If the user specifies force_refresh = TRUE we turn off `use_cache`,
   # otherwise we leave `use_cache` as it is (or as `NULL`, its default value)
   use_cached <- !force_refresh && (dots[["use_cache"]] %||% TRUE)
   dots <- rlang::dots_list(!!!dots, use_cache = use_cached, .homonyms = "last")
 
+  # We have 4 approaches to get a token, depending on the context
   # 1. Use environment variables if all three are set
   token_resp <- rlang::inject(try_token_from_vars(get_azure_token, !!!dots))
   token <- token_resp[["result"]]
@@ -108,7 +114,7 @@ get_auth_token <- function(
     )
   }
 
-  # Give some helpful feedback if process above has not worked
+  # Give some helpful feedback if the steps above have not succeeded
   if (is.null(token) || length(token) == 0) {
     cli::cli_alert_info("No authentication token was obtained.")
     cli::cli_alert_info("Please check any variables you have supplied.")
@@ -116,6 +122,18 @@ get_auth_token <- function(
       "Alternatively, running {.fn AzureRMR::get_azure_login} or
       {.fn AzureRMR::list_azure_tokens} may shed some light on the problem."
     )
+    error_msg <- "{.fn get_auth_token}: No authentication token was obtained."
+    cli::cli_abort(as.character(token_error %||% error_msg))
+  } else {
+    if (aad_version == 2) {
+      check_that(token, AzureAuth::is_azure_v2_token, "Invalid token returned")
+    } else {
+      check_that(token, AzureAuth::is_azure_v1_token, "Invalid token returned")
+    }
+  }
+}
+
+
 #' Get token via app and secret environment variables
 #' Sub-routine for `get_auth_token()`
 #' @keywords internal
