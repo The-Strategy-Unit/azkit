@@ -19,7 +19,7 @@ read_azure_table <- function(
   table_name <- table_name %||% check_envvar("AZ_TABLE_NAME")
   table_ep <- table_endpoint %||% check_envvar("AZ_TABLE_EP")
   token <- token %||% get_auth_token(...)
-  access_token <- token_refresh(token) |>
+  access_token <- token |>
     purrr::pluck("credentials", "access_token")
   headers <- list("2025-11-05", "application/json;odata=nometadata") |>
     purrr::set_names(c("x-ms-version", "Accept"))
@@ -37,3 +37,4 @@ read_azure_table <- function(
     purrr::map(tibble::as_tibble) |>
     purrr::list_rbind()
 }
+
