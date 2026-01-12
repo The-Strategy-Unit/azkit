@@ -4,7 +4,7 @@
 \alias{read_azure_table}
 \title{Read in data from an Azure table}
 \usage{
-read_azure_table(table_name = NULL, table_endpoint = NULL, ...)
+read_azure_table(table_name = NULL, table_endpoint = NULL, token = NULL, ...)
 }
 \arguments{
 \item{table_name}{name of the table to be read. If left as \code{NULL},
@@ -14,6 +14,9 @@ environment variable "AZ_TABLE_NAME"}
 \item{table_endpoint}{URL of the Azure table endpoint. If left as \code{NULL},
 the default, the function will look instead for a value stored in the
 environment variable "AZ_TABLE_EP"}
+
+\item{token}{An Azure authentication token. If left as \code{NULL}, a token
+returned by \link{get_auth_token} will be used}
 
 \item{...}{parameters to be passed through to \link{get_auth_token}}
 }

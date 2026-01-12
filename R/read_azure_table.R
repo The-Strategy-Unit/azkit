@@ -7,12 +7,19 @@
 #'  the default, the function will look instead for a value stored in the
 #'  environment variable "AZ_TABLE_EP"
 #' @param ... parameters to be passed through to [get_auth_token]
+#' @inheritParams get_container
 #' @returns A tibble
 #' @export
-read_azure_table <- function(table_name = NULL, table_endpoint = NULL, ...) {
+read_azure_table <- function(
+  table_name = NULL,
+  table_endpoint = NULL,
+  token = NULL,
+  ...
+) {
   table_name <- table_name %||% check_envvar("AZ_TABLE_NAME")
   table_ep <- table_endpoint %||% check_envvar("AZ_TABLE_EP")
-  access_token <- get_auth_token(...) |>
+  token <- token %||% get_auth_token(...)
+  access_token <- token_refresh(token) |>
     purrr::pluck("credentials", "access_token")
   headers <- list("2025-11-05", "application/json;odata=nometadata") |>
     purrr::set_names(c("x-ms-version", "Accept"))
