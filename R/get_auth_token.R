@@ -250,3 +250,17 @@ generate_resource <- function(
     }
   }
 }
+
+
+#' Use a token's internal refresh method to refresh it
+#'
+#' This method avoids the need to refresh by reauthenticating online. It seems
+#'  like this only works with v1 tokens? v2 tokens always seem to refresh by
+#'  reauthenticating with Azure online. But v2 tokens ought to refresh
+#'  automatically and not need manual refreshing. To instead generate a
+#'  completely fresh token, pass `use_cache = FALSE` or `force_refresh = TRUE`
+#'  to [get_auth_token].
+#' @param token An Azure authentication token
+#' @returns An Azure authentication token
+#' @export
+refresh_token <- \(token) token$refresh()
