@@ -8,8 +8,8 @@ test_that("possibly manages failure by returning NULL", {
 test_that("generate_resource() behaves itself", {
   generate_resource(version = 3) |>
     expect_error()
-  base_url <- "https://storage.azure.com/"
-  def_url <- paste0(base_url, ".default")
+  base_url <- "https://storage.azure.com"
+  def_url <- paste0(base_url, "/.default")
   def1 <- c(def_url, "openid", "offline_access")
   generate_resource() |>
     expect_equal(def1)

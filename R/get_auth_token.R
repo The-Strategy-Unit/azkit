@@ -180,9 +180,11 @@ match_cached_token <- function(resource, tenant, aad_version) {
     resources <- purrr::map2_chr(resources, scopes, `%||%`)
     tenants <- purrr::map_chr(local_tokens, "tenant")
     versions <- purrr::map_int(local_tokens, "version")
+
     resource_index <- gregg(resources, "^{resource[[1]]}")
     tenant_index <- tenants == tenant
     version_index <- versions == aad_version
+
     # return a token matching `resource`, `tenant` and `version`, if any
     token_index <- which(resource_index & tenant_index & version_index)[1]
     if (!is.na(token_index)) local_tokens[[token_index]] else NULL
