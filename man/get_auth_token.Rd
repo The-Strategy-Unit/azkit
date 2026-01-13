@@ -5,17 +5,24 @@
 \title{Get Azure authentication token}
 \usage{
 get_auth_token(
-  resource = "https://storage.azure.com",
+  resource = generate_resource(),
   tenant = "organizations",
   client_id = NULL,
   auth_method = "authorization_code",
+  aad_version = 2,
   force_refresh = FALSE,
   ...
 )
 }
 \arguments{
-\item{resource}{A string specifying the URL of the Azure resource for which
-the token is requested. Defaults to \code{"https://storage.azure.com"}.}
+\item{resource}{For v2, a vector specifying the URL of the Azure resource
+for which the token is requested as well as any desired scopes. See
+\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for details. For v1, a simple URL such as
+\code{"https://storage.azure.com/"} should be supplied. Use \link{generate_resource}
+to help provide an appropriate string or vector. The values default to
+\code{c("https://storage.azure.com/.default", "openid", "offline_access")}.
+If setting version to 1, ensure that the \code{aad_version} argument is also set
+to 1. Both are set to use AAD version 2 by default.}
 
 \item{tenant}{A string specifying the Azure tenant. Defaults to
 \code{"organizations"}. See \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
@@ -25,13 +32,17 @@ the token is requested. Defaults to \code{"https://storage.azure.com"}.}
 Azure Resource Manager token, or prompts the user to log in to obtain it.}
 
 \item{auth_method}{A string specifying the authentication method. Defaults to
-\code{"authorization_code"}. See ?\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
+\code{"authorization_code"}. See \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
+
+\item{aad_version}{Numeric. The AAD version, either 1 or 2 (2 by default)}
 
 \item{force_refresh}{Boolean: whether to use a stored token if available
 (\code{FALSE}, the default), or try to obtain a new one from Azure (\code{TRUE}).
 This may be useful if you wish to generate a new token with the same
 \code{resource} value as an existing token, but a different \code{tenant} or
-\code{auth_method}.}
+\code{auth_method}. Note that you can also try using \link{refresh_token} which will
+cause an existing token to refresh itself, without obtaining a new token
+from Azure via online reauthentication}
 
 \item{...}{Optional arguments (\code{token_args} or \code{use_cache}) to be passed on
 to \link[AzureAuth:get_azure_token]{AzureAuth::get_managed_token} or \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}.}
@@ -53,17 +64,22 @@ If neither of these approaches has returned a token, it will try to retrieve
 a user token using the provided parameters, requiring the user to have
 authenticated using their device. If \code{force_refresh} is set to \code{TRUE}, a
 fresh web authentication process should be launched. Otherwise it will
-attempt to use a cached token matching the given \code{resource} and \code{tenant}.
+attempt to use a cached token matching the given \code{resource}, \code{tenant} and
+\code{aad_version}.
 }
 \examples{
 \dontrun{
 # Get a token for the default resource
 token <- get_auth_token()
 
+# Force generation of a new token via online reauthentication
+token <- get_auth_token(force_refresh = TRUE)
+
 # Get a token for a specific resource and tenant
 token <- get_auth_token(
  resource = "https://graph.microsoft.com",
- tenant = "my-tenant-id"
+ tenant = "my-tenant-id",
+ aad_version = 1
 )
 
 # Get a token using a specific app ID
