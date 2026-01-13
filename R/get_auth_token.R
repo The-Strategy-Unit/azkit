@@ -49,7 +49,7 @@
 #' @export
 get_auth_token <- function(
   resource = "https://storage.azure.com",
-  tenant = "common",
+  tenant = "organizations",
   client_id = NULL,
   auth_method = "authorization_code",
   force_refresh = FALSE,
@@ -158,3 +158,8 @@ get_client_id <- function() {
   }
   client_id
 }
+
+#' Use the token's internal refresh() method to refresh it
+#' @param token An Azure authentication token
+#' @returns An Azure authentication token
+refresh_token <- \(token) token$refresh()
