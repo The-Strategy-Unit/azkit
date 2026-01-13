@@ -1,3 +1,5 @@
+<img src="man/figures/logo.png" align="right" height="138" alt="azkit badge" />
+
 # `{azkit}` 🌊🔑📂📦![R](https://www.r-project.org/favicon-32x32.png)
 
 <!-- badges: start -->
@@ -18,14 +20,13 @@ has not yet been a stable release][repostatus_svg]][repostatus_info]
 [cmd_yaml]: https://github.com/The-Strategy-Unit/azkit/actions/workflows/R-CMD-check.yaml
 <!-- badges: end -->
 
-<img src="man/figures/logo.png" align="right" height="138" alt="azkit badge" />
-R package to handle Azure authentication and basic tasks with blob storage.
+An R package to handle Azure authentication and some basic tasks accessing
+blob and table storage and reading in data from files.
 
 ## Status
 
 The package is in development.
-Please leave an issue or raise a pull request if you have ideas for its
-improvement.
+Please [create an issue][issues] if you have ideas for its improvement.
 
 ## Installation
 
@@ -44,18 +45,17 @@ A primary function in `{azkit}` enables access to an Azure blob container:
 data_container <- azkit::get_container()
 
 ```
-Authentication is handled "under the hood" by the `get_container()` function,
-but if you need to, you can explicitly return an authentication token for
-inspection or testing:
+Authentication is handled automatically by `get_container()`, but if you need
+to, you can explicitly return an authentication token for inspection or re-use:
 
 ```r
 my_token <- azkit::get_auth_token()
 
 ```
 
-The container returned will be set by the name stored in the `AZ_CONTAINER`
-environment variable, if any, by default, but you can override this by supplying
-a container name to the function:
+The container returned will be defined by the name stored in the
+`AZ_CONTAINER` environment variable, by default, but you can override this by
+supplying a container name to the function:
 
 ```r
 custom_container <- azkit::get_container("custom")

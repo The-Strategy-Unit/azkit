@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_auth_token.R
 \name{refresh_token}
 \alias{refresh_token}
-\title{Use a token's internal refresh method to refresh it}
+\title{Use the token's internal refresh() method to refresh it}
 \usage{
 refresh_token(token)
 }

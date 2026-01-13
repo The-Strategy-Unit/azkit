@@ -37,3 +37,4 @@ read_azure_table <- function(
     purrr::map(tibble::as_tibble) |>
     purrr::list_rbind()
 }
+
