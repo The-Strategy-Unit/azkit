@@ -1,6 +1,6 @@
 Package: azkit
 Title: Azure storage authentication toolkit
-Version: 0.2.2
+Version: 0.2.3
 Authors@R:
     c(person(
         "Fran", "Barton",
@@ -35,5 +35,9 @@ Imports:
     withr,
     yyjsonr
 Suggests:
-    testthat (>= 3.0.0),
-    readr
+    httpuv,
+    knitr,
+    quarto,
+    readr,
+    testthat (>= 3.0.0)
+VignetteBuilder: quarto
