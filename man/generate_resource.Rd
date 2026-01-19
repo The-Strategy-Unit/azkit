@@ -5,7 +5,7 @@
 \title{Generate appropriate values for the \code{resource} parameter in \link{get_auth_token}}
 \usage{
 generate_resource(
-  version = 2,
+  version = 1,
   url = "https://storage.azure.com",
   path = "/.default",
   authorise = TRUE,
@@ -13,7 +13,7 @@ generate_resource(
 )
 }
 \arguments{
-\item{version}{numeric. The AAD version, either 1 or 2 (2 by default)}
+\item{version}{numeric. The AAD version, either 1 or 2 (1 by default)}
 
 \item{url}{The URL of the Azure resource host}
 

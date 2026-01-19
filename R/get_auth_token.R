@@ -15,14 +15,14 @@
 #'  attempt to use a cached token matching the given `resource`, `tenant` and
 #'  `aad_version`.
 #'
-#' @param resource For v2, a vector specifying the URL of the Azure resource
+#' @param resource For v1, a simple URL such as `"https://storage.azure.com/"`
+#'  should be supplied.For v2, a vector specifying the URL of the Azure resource
 #'  for which the token is requested as well as any desired scopes. See
-#'  [AzureAuth::get_azure_token] for details. For v1, a simple URL such as
-#'  `"https://storage.azure.com/"` should be supplied. Use [generate_resource]
+#'  [AzureAuth::get_azure_token] for details. Use [generate_resource]
 #'  to help provide an appropriate string or vector. The values default to
 #'  `c("https://storage.azure.com/.default", "openid", "offline_access")`.
-#'  If setting version to 1, ensure that the `aad_version` argument is also set
-#'  to 1. Both are set to use AAD version 2 by default.
+#'  If setting version to 2, ensure that the `aad_version` argument is also set
+#'  to 2. Both are set to use AAD version 1 by default.
 #' @param tenant A string specifying the Azure tenant. Defaults to
 #'  `"organizations"`. See [AzureAuth::get_azure_token] for other values.
 #' @param client_id A string specifying the application ID (client ID). If
@@ -30,7 +30,7 @@
 #'  Azure Resource Manager token, or prompts the user to log in to obtain it.
 #' @param auth_method A string specifying the authentication method. Defaults to
 #'  `"authorization_code"`. See [AzureAuth::get_azure_token] for other values.
-#' @param aad_version Numeric. The AAD version, either 1 or 2 (2 by default)
+#' @param aad_version Numeric. The AAD version, either 1 or 2 (1 by default)
 #' @param force_refresh Boolean: whether to use a stored token if available
 #'  (`FALSE`, the default), or try to obtain a new one from Azure (`TRUE`).
 #'  This may be useful if you wish to generate a new token with the same
@@ -53,8 +53,7 @@
 #' # Get a token for a specific resource and tenant
 #' token <- get_auth_token(
 #'  resource = "https://graph.microsoft.com",
-#'  tenant = "my-tenant-id",
-#'  aad_version = 1
+#'  tenant = "my-tenant-id"
 #' )
 #'
 #' # Get a token using a specific app ID
@@ -66,7 +65,7 @@ get_auth_token <- function(
   tenant = "organizations",
   client_id = NULL,
   auth_method = "authorization_code",
-  aad_version = 2,
+  aad_version = 1,
   force_refresh = FALSE,
   ...
 ) {
@@ -227,7 +226,7 @@ get_client_id <- function() {
 #'  you are likely to want to keep `refresh` turned on (this argument has no
 #'  effect on v1 tokens, it only applies to v2).
 #'
-#' @param version numeric. The AAD version, either 1 or 2 (2 by default)
+#' @param version numeric. The AAD version, either 1 or 2 (1 by default)
 #' @param url The URL of the Azure resource host
 #' @param path For v2, the path designating the access scope
 #' @param authorise Boolean, whether to return a token with authorisation scope,
@@ -238,7 +237,7 @@ get_client_id <- function() {
 #' @returns A scalar character, or (in most v2 situations) a character vector
 #' @export
 generate_resource <- function(
-  version = 2,
+  version = 1,
   url = "https://storage.azure.com",
   path = "/.default",
   authorise = TRUE,
@@ -262,11 +261,11 @@ generate_resource <- function(
 }
 
 
-#' Use a token's internal refresh method to refresh it
+#' Use a token's internal `refresh()` method to refresh it
 #'
-#' This method avoids the need to refresh by reauthenticating online. It seems
-#'  like this only works with v1 tokens? v2 tokens always seem to refresh by
-#'  reauthenticating with Azure online. But v2 tokens ought to refresh
+#' This method avoids the need to refresh by re-authenticating online. It seems
+#'  like this only works with v1 tokens. v2 tokens always seem to refresh by
+#'  re-authenticating with Azure online. But v2 tokens _ought_ to refresh
 #'  automatically and not need manual refreshing. To instead generate a
 #'  completely fresh token, pass `use_cache = FALSE` or `force_refresh = TRUE`
 #'  to [get_auth_token].
