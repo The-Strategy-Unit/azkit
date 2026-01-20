@@ -36,8 +36,5 @@ Imports:
     yyjsonr
 Suggests:
     httpuv,
-    knitr,
-    quarto,
     readr,
     testthat (>= 3.0.0)
-VignetteBuilder: quarto
