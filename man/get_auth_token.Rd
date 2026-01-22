@@ -9,20 +9,20 @@ get_auth_token(
   tenant = "organizations",
   client_id = NULL,
   auth_method = "authorization_code",
-  aad_version = 2,
+  aad_version = 1,
   force_refresh = FALSE,
   ...
 )
 }
 \arguments{
-\item{resource}{For v2, a vector specifying the URL of the Azure resource
+\item{resource}{For v1, a simple URL such as \code{"https://storage.azure.com/"}
+should be supplied.For v2, a vector specifying the URL of the Azure resource
 for which the token is requested as well as any desired scopes. See
-\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for details. For v1, a simple URL such as
-\code{"https://storage.azure.com/"} should be supplied. Use \link{generate_resource}
+\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for details. Use \link{generate_resource}
 to help provide an appropriate string or vector. The values default to
 \code{c("https://storage.azure.com/.default", "openid", "offline_access")}.
-If setting version to 1, ensure that the \code{aad_version} argument is also set
-to 1. Both are set to use AAD version 2 by default.}
+If setting version to 2, ensure that the \code{aad_version} argument is also set
+to 2. Both are set to use AAD version 1 by default.}
 
 \item{tenant}{A string specifying the Azure tenant. Defaults to
 \code{"organizations"}. See \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
@@ -34,7 +34,7 @@ Azure Resource Manager token, or prompts the user to log in to obtain it.}
 \item{auth_method}{A string specifying the authentication method. Defaults to
 \code{"authorization_code"}. See \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
 
-\item{aad_version}{Numeric. The AAD version, either 1 or 2 (2 by default)}
+\item{aad_version}{Numeric. The AAD version, either 1 or 2 (1 by default)}
 
 \item{force_refresh}{Boolean: whether to use a stored token if available
 (\code{FALSE}, the default), or try to obtain a new one from Azure (\code{TRUE}).
@@ -78,8 +78,7 @@ token <- get_auth_token(force_refresh = TRUE)
 # Get a token for a specific resource and tenant
 token <- get_auth_token(
  resource = "https://graph.microsoft.com",
- tenant = "my-tenant-id",
- aad_version = 1
+ tenant = "my-tenant-id"
 )
 
 # Get a token using a specific app ID

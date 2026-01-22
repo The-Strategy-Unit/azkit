@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_auth_token.R
 \name{refresh_token}
 \alias{refresh_token}
-\title{Use the token's internal refresh() method to refresh it}
+\title{Use a token's internal \code{refresh()} method to refresh it}
 \usage{
 refresh_token(token)
 }
@@ -13,9 +13,9 @@ refresh_token(token)
 An Azure authentication token
 }
 \description{
-This method avoids the need to refresh by reauthenticating online. It seems
-like this only works with v1 tokens? v2 tokens always seem to refresh by
-reauthenticating with Azure online. But v2 tokens ought to refresh
+This method avoids the need to refresh by re-authenticating online. It seems
+like this only works with v1 tokens. v2 tokens always seem to refresh by
+re-authenticating with Azure online. But v2 tokens \emph{ought} to refresh
 automatically and not need manual refreshing. To instead generate a
 completely fresh token, pass \code{use_cache = FALSE} or \code{force_refresh = TRUE}
 to \link{get_auth_token}.

@@ -47,7 +47,7 @@ test_that("we can evolve list_files()", {
       stopifnot("path not found" = AzureStor::blob_dir_exists(container, path))
       tbl <- AzureStor::list_blobs(container, dir = path, recursive = recursive)
       if (nrow(tbl) == 0) {
-        return(character(0))
+        character(0)
       } else {
         tbl |>
           dplyr::filter(
