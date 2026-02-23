@@ -4,7 +4,7 @@
 \alias{read_azure_rds}
 \title{Read an rds file from Azure storage}
 \usage{
-read_azure_rds(container, file, path = "/", info = NULL)
+read_azure_rds(container, file, path = "/", info = NULL, ...)
 }
 \arguments{
 \item{container}{An Azure container object, as returned by \link{get_container}}
@@ -25,9 +25,15 @@ being read. Useful for checking the function is doing what is expected, but
 can be turned off with \code{FALSE}. Can be set persistently with the option
 "azkit.info". If \code{NULL} then it will default to the value of
 \link[rlang:is_interactive]{rlang::is_interactive} (that is, \code{TRUE} for interactive sessions).}
+
+\item{...}{optional arguments to be passed through to
+\link[AzureStor:storage_save]{AzureStor::storage_load_rds}. For example, a compression type (one of
+c("unknown", "gzip", "bzip2", "xz", "zstd", "none")) can be provided using
+the argument \code{type}, which will be passed on to \link{memDecompress} via
+\link[AzureStor:storage_save]{AzureStor::storage_load_rds}.}
 }
 \value{
-Data object that was stored in the rds file
+The data object that was stored in the rds file
 }
 \description{
 Read an rds file from Azure storage

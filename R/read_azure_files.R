@@ -53,7 +53,7 @@ read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
 #'
 #' @inheritParams read_azure_parquet
 #' @param ... optional arguments to be passed through to
-#'   [yyjsonr::read_json_file]
+#'  [yyjsonr::read_json_file]
 #' @returns A list
 #' @export
 read_azure_jsongz <- function(container, file, path = "/", info = NULL, ...) {
@@ -70,11 +70,20 @@ read_azure_jsongz <- function(container, file, path = "/", info = NULL, ...) {
 #' Read an rds file from Azure storage
 #'
 #' @inheritParams read_azure_parquet
-#' @returns Data object that was stored in the rds file
+#' @param ... optional arguments to be passed through to
+#'  [AzureStor::storage_load_rds]. For example, a compression type (one of
+#'  c("unknown", "gzip", "bzip2", "xz", "zstd", "none")) can be provided using
+#'  the argument `type`, which will be passed on to [memDecompress] via
+#'  [AzureStor::storage_load_rds].
+#   If nothing is provided here, the compression type will be set to "none".
+#' @returns The data object that was stored in the rds file
 #' @export
-read_azure_rds <- function(container, file, path = "/", info = NULL) {
-  check_blob_exists(container, file, "rds", info, path) |>
-    AzureStor::storage_load_rds(container, file = _)
+read_azure_rds <- function(container, file, path = "/", info = NULL, ...) {
+  # If the user doesn't specify a (de)compression type with `type` in `...`, we
+  # will set a `type` of "none", as this seems to be the standard on SU Azure
+  dots <- rlang::dots_list(..., type = "none", .homonyms = "first")
+  blob <- check_blob_exists(container, file, "rds", info, path)
+  rlang::inject(AzureStor::storage_load_rds(container, blob, !!!dots))
 }
 
 
