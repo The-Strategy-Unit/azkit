@@ -21,12 +21,18 @@ get_container <- function(
   endpoint_url = NULL,
   ...
 ) {
-  msg <- paste0(
+  msg1 <- paste0(
     "{.var container_name} is empty. ",
     "Did you forget to set an environment variable?"
   )
+  msg2 <- paste0(
+    "{.var endpoint_url} is empty. ",
+    "Did you forget to set an environment variable?"
+  )
   container_name <- (container_name %||% check_envvar("AZ_CONTAINER")) |>
-    check_nzchar(msg)
+    check_nzchar(msg1)
+  endpoint_url <- (endpoint_url %||% check_envvar("AZ_STORAGE_EP")) |>
+    check_nzchar(msg2)
   token <- token %||% get_auth_token(...)
 
   get_azure_endpoint(token, endpoint_url) |>
