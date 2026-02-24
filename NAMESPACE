@@ -2,7 +2,10 @@
 
 export(check_container_class)
 export(check_envvar)
+export(check_nzchar)
+export(check_scalar_type)
 export(check_that)
+export(check_vec)
 export(generate_resource)
 export(get_auth_token)
 export(get_container)

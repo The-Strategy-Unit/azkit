@@ -46,7 +46,7 @@ ct_error_msg <- \(text) paste0("{.fn check_that}: ", text)
 #'  predicate. "some" is unlikely to be useful often, but it is available.
 #' @inheritParams check_that
 #' @seealso [check_scalar_type()]
-#' @keywords internal
+#' @export
 check_vec <- function(
   x,
   predicate,
@@ -78,7 +78,7 @@ cv_error_msg <- \(text) paste0("{.fn check_vec}: ", text)
 #' @seealso [check_that]
 #' @inheritParams check_that
 #' @param type A string defining the R object type that `x` is checked to be
-#' @keywords internal
+#' @export
 check_scalar_type <- function(
   x,
   type,
@@ -122,7 +122,7 @@ cst_error_msg <- \(text) paste0("{.fn check_scalar_type}: ", text)
 #'  semantic markup. Variable values will be searched for in the environment of
 #'  the caller function (not in the environment of `check_nzchar()`). This
 #'  makes it easier to include informative values in the message.
-#' @keywords internal
+#' @export
 check_nzchar <- function(x, message, pf = parent.frame()) {
   if (is.null(x)) {
     NULL
