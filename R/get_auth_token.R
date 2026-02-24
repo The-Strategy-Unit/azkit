@@ -24,7 +24,7 @@
 #'  If setting version to 2, ensure that the `aad_version` argument is also set
 #'  to 2. Both are set to use AAD version 1 by default.
 #' @param tenant A string specifying the Azure tenant. Defaults to
-#'  `"organizations"`. See [AzureAuth::get_azure_token] for other values.
+#'  `"common"`. See [AzureAuth::get_azure_token] for other values.
 #' @param client_id A string specifying the application ID (client ID). If
 #'  `NULL`, (the default) the function attempts to obtain the client ID from the
 #'  Azure Resource Manager token, or prompts the user to log in to obtain it.
@@ -62,7 +62,7 @@
 #' @export
 get_auth_token <- function(
   resource = generate_resource(),
-  tenant = "organizations",
+  tenant = "common",
   client_id = NULL,
   auth_method = "authorization_code",
   aad_version = 1,
