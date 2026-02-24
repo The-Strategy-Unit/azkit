@@ -21,7 +21,7 @@ check_that <- function(x, predicate, message, pf = parent.frame()) {
 }
 
 
-#' @keywords internal
+#' @export
 ct_error_msg <- \(text) paste0("{.fn check_that}: ", text)
 
 #' An alternative to stopifnot/assert_that etc
@@ -63,7 +63,7 @@ check_vec <- function(
   }
 }
 
-#' @keywords internal
+#' @export
 cv_error_msg <- \(text) paste0("{.fn check_vec}: ", text)
 
 
@@ -108,7 +108,7 @@ check_scalar_type <- function(
   }
 }
 
-#' @keywords internal
+#' @export
 cst_error_msg <- \(text) paste0("{.fn check_scalar_type}: ", text)
 
 
