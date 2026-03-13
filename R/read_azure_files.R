@@ -27,10 +27,10 @@
 #' }
 #' @export
 read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
-	check_blob_exists(container, file, "parquet", info, path) |>
-		# using `dest = NULL` means pass the data through as a raw vector
-		AzureStor::download_blob(container, src = _, dest = NULL) |>
-		arrow::read_parquet(...)
+  check_blob_exists(container, file, "parquet", info, path) |>
+  	# using `dest = NULL` means pass the data through as a raw vector
+  	AzureStor::download_blob(container, src = _, dest = NULL) |>
+  	arrow::read_parquet(...)
 }
 
 #' Read a json file from Azure storage
@@ -41,10 +41,10 @@ read_azure_parquet <- function(container, file, path = "/", info = NULL, ...) {
 #' @returns A list
 #' @export
 read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
-	check_blob_exists(container, file, "json", info, path) |>
-		# using `dest = NULL` means pass the data through as a raw vector
-		AzureStor::download_blob(container, src = _, dest = NULL) |>
-		yyjsonr::read_json_raw(...)
+  check_blob_exists(container, file, "json", info, path) |>
+  	# using `dest = NULL` means pass the data through as a raw vector
+  	AzureStor::download_blob(container, src = _, dest = NULL) |>
+  	yyjsonr::read_json_raw(...)
 }
 
 #' Read a json.gz file from Azure storage
@@ -55,13 +55,13 @@ read_azure_json <- function(container, file, path = "/", info = NULL, ...) {
 #' @returns A list
 #' @export
 read_azure_jsongz <- function(container, file, path = "/", info = NULL, ...) {
-	full_path <- check_blob_exists(container, file, "json.gz", info, path)
-	dl <- withr::local_tempfile(
-		pattern = tools::file_path_sans_ext(basename(full_path), TRUE),
-		fileext = "json.gz"
-	)
-	AzureStor::download_blob(container, src = full_path, dest = dl)
-	yyjsonr::read_json_file(dl, ...)
+  full_path <- check_blob_exists(container, file, "json.gz", info, path)
+  dl <- withr::local_tempfile(
+  	pattern = tools::file_path_sans_ext(basename(full_path), TRUE),
+  	fileext = "json.gz"
+  )
+  AzureStor::download_blob(container, src = full_path, dest = dl)
+  yyjsonr::read_json_file(dl, ...)
 }
 
 #' Read an rds file from Azure storage
@@ -76,11 +76,11 @@ read_azure_jsongz <- function(container, file, path = "/", info = NULL, ...) {
 #' @returns The data object that was stored in the rds file
 #' @export
 read_azure_rds <- function(container, file, path = "/", info = NULL, ...) {
-	# If the user doesn't specify a (de)compression type with `type` in `...`, we
-	# will set a `type` of "none", as this seems to be the standard on SU Azure
-	dots <- rlang::dots_list(..., type = "none", .homonyms = "first")
-	blob <- check_blob_exists(container, file, "rds", info, path)
-	rlang::inject(AzureStor::storage_load_rds(container, blob, !!!dots))
+  # If the user doesn't specify a (de)compression type with `type` in `...`, we
+  # will set a `type` of "none", as this seems to be the standard on SU Azure
+  dots <- rlang::dots_list(..., type = "none", .homonyms = "first")
+  blob <- check_blob_exists(container, file, "rds", info, path)
+  rlang::inject(AzureStor::storage_load_rds(container, blob, !!!dots))
 }
 
 #' Read a csv file from Azure storage
@@ -90,8 +90,8 @@ read_azure_rds <- function(container, file, path = "/", info = NULL, ...) {
 #' @returns A tibble
 #' @export
 read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
-	check_blob_exists(container, file, "csv", info, path) |>
-		AzureStor::storage_read_csv(container, file = _, ...)
+  check_blob_exists(container, file, "csv", info, path) |>
+  	AzureStor::storage_read_csv(container, file = _, ...)
 }
 
 #' Read any file from Azure storage
@@ -104,17 +104,17 @@ read_azure_csv <- function(container, file, path = "/", info = NULL, ...) {
 #' @returns A raw data stream
 #' @export
 read_azure_file <- function(
-	container,
-	file,
-	path = "/",
-	info = NULL,
-	ext = NULL,
-	...
+  container,
+  file,
+  path = "/",
+  info = NULL,
+  ext = NULL,
+  ...
 ) {
-	ext <- ext %||% tools::file_ext(file)
-	check_blob_exists(container, file, ext, info, path) |>
-		# using `dest = NULL` means pass the data through as a raw vector
-		AzureStor::download_blob(container, src = _, dest = NULL, ...)
+  ext <- ext %||% tools::file_ext(file)
+  check_blob_exists(container, file, ext, info, path) |>
+  	# using `dest = NULL` means pass the data through as a raw vector
+  	AzureStor::download_blob(container, src = _, dest = NULL, ...)
 }
 
 #' Ensures that the filepath for the file to read exists
@@ -123,35 +123,35 @@ read_azure_file <- function(
 #' @param ext The standard file extension for the file type, e.g. "json"
 #' @keywords internal
 check_blob_exists <- function(container, file, ext, info, path) {
-	stopifnot("no container found" = inherits(container, "blob_container"))
-	path <- if (path %in% c("", "/")) "" else path
-	stopifnot("path not found" = AzureStor::blob_dir_exists(container, path))
-	dir_name <- if (dirname(file) == ".") "" else dirname(file)
-	# Potentially the user could provide a partial file path in `path` and a
-	# further sub-directory as part of `file`. This handles that eventuality,
-	# though this usage pattern should be quite rare!
-	dpath <- file.path(path, dir_name)
-	fname <- basename(file)
-	if (nzchar(ext) && !gregg(fname, "\\.{ext}$")) {
-		fname <- glue::glue("{fname}.{ext}")
-	}
-	# remove duplicate slashes and any initial slashes
-	file_path <- sub("^/", "", gsub("/+", "/", file.path(dpath, fname)))
+  stopifnot("no container found" = inherits(container, "blob_container"))
+  path <- if (path %in% c("", "/")) "" else path
+  stopifnot("path not found" = AzureStor::blob_dir_exists(container, path))
+  dir_name <- if (dirname(file) == ".") "" else dirname(file)
+  # Potentially the user could provide a partial file path in `path` and a
+  # further sub-directory as part of `file`. This handles that eventuality,
+  # though this usage pattern should be quite rare!
+  dpath <- file.path(path, dir_name)
+  fname <- basename(file)
+  if (nzchar(ext) && !gregg(fname, "\\.{ext}$")) {
+  	fname <- glue::glue("{fname}.{ext}")
+  }
+  # remove duplicate slashes and any initial slashes
+  file_path <- sub("^/", "", gsub("/+", "/", file.path(dpath, fname)))
 
-	filepath_out <- AzureStor::list_blobs(container, dpath, recursive = FALSE) |>
-		dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
-		dplyr::pull("name")
+  filepath_out <- AzureStor::list_blobs(container, dpath, recursive = FALSE) |>
+  	dplyr::filter(dplyr::if_any("name", \(x) x == {{ file_path }})) |>
+  	dplyr::pull("name")
 
-	msg1 <- ct_error_msg("no matching {ext} file found")
-	msg2 <- cst_error_msg("multiple matching {ext} files found")
-	check_that(filepath_out, \(x) length(x) > 0, msg1) # check length > 0
-	check_scalar_type(filepath_out, "character", msg2) # check length == 1
+  msg1 <- ct_error_msg("no matching {ext} file found")
+  msg2 <- cst_error_msg("multiple matching {ext} files found")
+  check_that(filepath_out, \(x) length(x) > 0, msg1) # check length > 0
+  check_scalar_type(filepath_out, "character", msg2) # check length == 1
 
-	info_option <- getOption("azkit.info")
-	stopifnot(rlang::is_scalar_logical(info) || is.null(info))
-	stopifnot(rlang::is_scalar_logical(info_option) || is.null(info_option))
-	if (info %||% info_option %||% rlang::is_interactive()) {
-		cli::cli_alert_info("File {.val {filepath_out}} will be read in")
-	}
-	filepath_out
+  info_option <- getOption("azkit.info")
+  stopifnot(rlang::is_scalar_logical(info) || is.null(info))
+  stopifnot(rlang::is_scalar_logical(info_option) || is.null(info_option))
+  if (info %||% info_option %||% rlang::is_interactive()) {
+  	cli::cli_alert_info("File {.val {filepath_out}} will be read in")
+  }
+  filepath_out
 }

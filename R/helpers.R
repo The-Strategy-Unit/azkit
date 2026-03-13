@@ -13,11 +13,11 @@
 #' @seealso [check_vec]
 #' @export
 check_that <- function(x, predicate, message, pf = parent.frame()) {
-	if (predicate(x)) {
-		x
-	} else {
-		cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
-	}
+  if (predicate(x)) {
+  	x
+  } else {
+  	cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
+  }
 }
 
 #' @export
@@ -47,19 +47,19 @@ ct_error_msg <- \(text) paste0("{.fn check_that}: ", text)
 #' @seealso [check_scalar_type()]
 #' @export
 check_vec <- function(
-	x,
-	predicate,
-	message,
-	which = c("every", "some", "none"),
-	pf = parent.frame()
+  x,
+  predicate,
+  message,
+  which = c("every", "some", "none"),
+  pf = parent.frame()
 ) {
-	w <- rlang::arg_match(which)
-	test_call <- rlang::call2(w, .x = x, .p = predicate, .ns = "purrr")
-	if (eval(test_call)) {
-		x
-	} else {
-		cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
-	}
+  w <- rlang::arg_match(which)
+  test_call <- rlang::call2(w, .x = x, .p = predicate, .ns = "purrr")
+  if (eval(test_call)) {
+  	x
+  } else {
+  	cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
+  }
 }
 
 #' @export
@@ -78,32 +78,32 @@ cv_error_msg <- \(text) paste0("{.fn check_vec}: ", text)
 #' @param type A string defining the R object type that `x` is checked to be
 #' @export
 check_scalar_type <- function(
-	x,
-	type,
-	message,
-	pf = parent.frame()
+  x,
+  type,
+  message,
+  pf = parent.frame()
 ) {
-	opts <- c(
-		"character",
-		"logical",
-		"integer",
-		"double",
-		"string",
-		"bool",
-		"list",
-		"bytes",
-		"raw",
-		"vector",
-		"complex"
-	)
-	t <- rlang::arg_match(type, opts)
-	t <- if (t %in% c("string", "bool")) t else paste0("scalar_", t)
-	test_call <- rlang::call2(paste0("is_", t), x = x, .ns = "rlang")
-	if (eval(test_call)) {
-		x
-	} else {
-		cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
-	}
+  opts <- c(
+  	"character",
+  	"logical",
+  	"integer",
+  	"double",
+  	"string",
+  	"bool",
+  	"list",
+  	"bytes",
+  	"raw",
+  	"vector",
+  	"complex"
+  )
+  t <- rlang::arg_match(type, opts)
+  t <- if (t %in% c("string", "bool")) t else paste0("scalar_", t)
+  test_call <- rlang::call2(paste0("is_", t), x = x, .ns = "rlang")
+  if (eval(test_call)) {
+  	x
+  } else {
+  	cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
+  }
 }
 
 #' @export
@@ -121,17 +121,17 @@ cst_error_msg <- \(text) paste0("{.fn check_scalar_type}: ", text)
 #'  makes it easier to include informative values in the message.
 #' @export
 check_nzchar <- function(x, message, pf = parent.frame()) {
-	if (is.null(x)) {
-		NULL
-	}
-	cnz <- "check_nzchar" # nolint
-	check_scalar_type(x, "string", "{.fn {cnz}}: {.var x} is not a string")
-	if (nzchar(x)) {
-		x
-	} else {
-		message <- paste0("{.fn {cnz}}: ", message)
-		cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
-	}
+  if (is.null(x)) {
+  	NULL
+  }
+  cnz <- "check_nzchar" # nolint
+  check_scalar_type(x, "string", "{.fn {cnz}}: {.var x} is not a string")
+  if (nzchar(x)) {
+  	x
+  } else {
+  	message <- paste0("{.fn {cnz}}: ", message)
+  	cli::cli_abort(message, call = rlang::caller_call(), .envir = pf)
+  }
 }
 
 #' grepl a glued regex
@@ -151,11 +151,11 @@ gregg <- \(x, rx, ..., g = parent.frame()) grepl(glue::glue_data(g, rx), x, ...)
 #' @inheritParams read_azure_parquet
 #' @export
 check_container_class <- function(container) {
-	if (inherits(container, "blob_container")) {
-		container
-	} else {
-		ccc <- "check_container_class" # nolint
-		cc <- rlang::caller_call()
-		cli::cli_abort("{.fn {ccc}}: This is not a valid blob container", call = cc)
-	}
+  if (inherits(container, "blob_container")) {
+  	container
+  } else {
+  	ccc <- "check_container_class" # nolint
+  	cc <- rlang::caller_call()
+  	cli::cli_abort("{.fn {ccc}}: This is not a valid blob container", call = cc)
+  }
 }
