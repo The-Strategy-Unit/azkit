@@ -29,29 +29,29 @@
 #' }
 #' @export
 list_files <- function(container, path = "", ext = "", recursive = TRUE) {
-  stopifnot(rlang::is_character(c(path, ext), 2))
-  stopifnot(rlang::is_bool(recursive))
-  pnf_msg <- ct_error_msg("Path {.val {path}} not found")
-  check_that(path, \(x) AzureStor::blob_dir_exists(container, x), pnf_msg)
+	stopifnot(rlang::is_character(c(path, ext), 2))
+	stopifnot(rlang::is_bool(recursive))
+	pnf_msg <- ct_error_msg("Path {.val {path}} not found")
+	check_that(path, \(x) AzureStor::blob_dir_exists(container, x), pnf_msg)
 
-  tbl <- AzureStor::list_blobs(container, path, recursive = recursive)
-  if (nrow(tbl) > 0) {
-    ext_rx <- if (nzchar(ext)) sub("^\\.+", "", ext) else ".*" # nolint
-    tbl <- tbl |>
-      dplyr::filter(!.data[["isdir"]] & gregg(.data[["name"]], "\\.{ext_rx}$"))
-  }
+	tbl <- AzureStor::list_blobs(container, path, recursive = recursive)
+	if (nrow(tbl) > 0) {
+		ext_rx <- if (nzchar(ext)) sub("^\\.+", "", ext) else ".*" # nolint
+		tbl <- tbl |>
+			dplyr::filter(!.data[["isdir"]] & gregg(.data[["name"]], "\\.{ext_rx}$"))
+	}
 
-  # A zero-row tbl can result if `path` is initially empty, or via the filter
-  # step above. We handle this the same way, no matter which route led here.
-  if (nrow(tbl) == 0) {
-    fix_path <- \(p) sub("^/+$", "", sub("^([^/])(.*)", "/\\1\\2", p)) # nolint
-    ext <- if (nzchar(ext)) paste0(" ", ext)
-    msg <- "No{ext} files found in {.val [{container$name}]:{fix_path(path)}}"
-    if (rlang::is_interactive()) {
-      cli::cli_alert_info(msg)
-    }
-    invisible(character(0))
-  } else {
-    tbl[["name"]]
-  }
+	# A zero-row tbl can result if `path` is initially empty, or via the filter
+	# step above. We handle this the same way, no matter which route led here.
+	if (nrow(tbl) == 0) {
+		fix_path <- \(p) sub("^/+$", "", sub("^([^/])(.*)", "/\\1\\2", p)) # nolint
+		ext <- if (nzchar(ext)) paste0(" ", ext)
+		msg <- "No{ext} files found in {.val [{container$name}]:{fix_path(path)}}"
+		if (rlang::is_interactive()) {
+			cli::cli_alert_info(msg)
+		}
+		invisible(character(0))
+	} else {
+		tbl[["name"]]
+	}
 }
