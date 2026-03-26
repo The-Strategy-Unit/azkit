@@ -4,17 +4,16 @@
 \alias{list_container_names}
 \title{Return a list of container names that are found at the endpoint}
 \usage{
-list_container_names(token = NULL, endpoint_url = NULL, ...)
+list_container_names(
+  endpoint_url = Sys.getenv("AZ_STORAGE_EP"),
+  token = get_auth_token()
+)
 }
 \arguments{
-\item{token}{An Azure authentication token. If left as \code{NULL}, a token
-returned by \link{get_auth_token} will be used}
+\item{endpoint_url}{An Azure endpoint URL.}
 
-\item{endpoint_url}{An Azure endpoint URL. If left as \code{NULL}, the default,
-the value of the environment variable "AZ_STORAGE_EP" will be used}
-
-\item{...}{arguments to be passed through to \link{get_auth_token}, if a token is
-not already supplied}
+\item{token}{An Azure authentication token, or a function that returns one.
+Uses \link{get_auth_token} by default.}
 }
 \value{
 A character vector of all container names found
