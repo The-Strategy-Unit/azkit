@@ -21,6 +21,8 @@ check_that <- function(x, predicate, message, pf = parent.frame()) {
 }
 
 
+#' A custom error message generator for the `check_that` function
+#' @param text The main text of the error message
 #' @export
 ct_error_msg <- \(text) paste0("{.fn check_that}: ", text)
 
@@ -63,6 +65,8 @@ check_vec <- function(
   }
 }
 
+#' A custom error message generator for the `check_vec` function
+#' @inheritParams ct_error_msg
 #' @export
 cv_error_msg <- \(text) paste0("{.fn check_vec}: ", text)
 
@@ -108,6 +112,8 @@ check_scalar_type <- function(
   }
 }
 
+#' A custom error message generator for the `check_scalar_type` function
+#' @inheritParams ct_error_msg
 #' @export
 cst_error_msg <- \(text) paste0("{.fn check_scalar_type}: ", text)
 
