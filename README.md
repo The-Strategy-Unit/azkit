@@ -4,18 +4,14 @@
 
 <!-- badges: start -->
 [![License: MIT][mit_svg]](https://opensource.org/licenses/MIT)
-[![Project Status: WIP – Initial development is in progress, but there
-has not yet been a stable release][repostatus_svg]][repostatus_info]
-[![Lifecycle: experimental][lifecycle_svg]][lifecycle]
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed][repostatus_svg]][repostatus_info]
 ![GitHub R package version][gh_ver]
 [![R CMD check status][cmd_svg]][cmd_yaml]
 
 [mit_svg]: https://img.shields.io/badge/License-MIT-yellow.svg
 [gh_ver]: https://img.shields.io/github/r-package/v/The-Strategy-Unit/azkit
 [repostatus_info]: https://www.repostatus.org/#project-statuses
-[repostatus_svg]: https://www.repostatus.org/badges/latest/wip.svg
-[lifecycle]: https://lifecycle.r-lib.org/articles/stages.html#experimental
-[lifecycle_svg]: https://img.shields.io/badge/lifecycle-experimental-orange.svg
+[repostatus_svg]: https://www.repostatus.org/badges/latest/active.svg
 [cmd_svg]: https://github.com/The-Strategy-Unit/azkit/actions/workflows/R-CMD-check.yaml/badge.svg?event=release
 [cmd_yaml]: https://github.com/The-Strategy-Unit/azkit/actions/workflows/R-CMD-check.yaml
 <!-- badges: end -->
@@ -42,7 +38,7 @@ pak::pak("The-Strategy-Unit/azkit")
 A primary function in `{azkit}` enables access to an Azure blob container:
 
 ```r
-data_container <- azkit::get_container()
+data_container <- azkit::get_container("data-container")
 
 ```
 Authentication is handled automatically by `get_container()`, but if you need
@@ -53,12 +49,8 @@ my_token <- azkit::get_auth_token()
 
 ```
 
-The container returned will be defined by the name stored in the
-`AZ_CONTAINER` environment variable, by default, but you can override this by
-supplying a container name to the function:
-
 ```r
-custom_container <- azkit::get_container("custom")
+data_container <- azkit::get_container("data-container", token = my_token)
 ```
 
 Return a list of all available containers in your default Azure storage with:
@@ -68,42 +60,36 @@ list_container_names()
 ```
 
 Once you have access to a container, you can use one of a set of data reading
-functions to bring data into R from `.parquet`, `.rds`, `.json` or `.csv` files:
+functions to bring data into R from `.parquet`, `.rds`, `.json` or `.csv` files.
+For example:
 
 ```r
-pqt_data <- azkit::read_azure_parquet(data_container, "v_important_data")
+pqt_data <- azkit::read_azure_parquet(data_container, "important_data.parquet")
 
 ```
 
-The functions will try to match a file of the required type using the `file`
-name supplied. In the case above, "v_important_data" would match a file named
-"v_important_data.parquet", no need to supply the file extension.
+To read in any file from the container in raw format, to be passed to the
+handler of your choice, use:
 
-By default the `read_*` functions will look in the root folder of the container.
-To specify a subfolder, supply this to the `path` argument.
-The functions will _not_ search recursively into further subfolders, so the path
-needs to be full and accurate.
+```r
+raw_data <- azkit::read_azure_file(data_container, "misc_data.ext")
+```
 
-Or you may have "long" filenames that include the full notional path to the
-file, in which case you can ignore the "path" argument.
-Long filenames are returned by `azkit::list_files()`, for example.
+You can map over multiple files by first using `azkit::list_files()` and then
+passing the file paths to the `read*` function:
 
 ```r
 azkit::list_files(data_container, "data/latest", "parquet") |>
-  purrr::map(\(x) azkit::read_azure_parquet(data_container, x, info = FALSE))
+  purrr::map(\(x) azkit::read_azure_parquet(data_container, x))
 ```
-
-If there is more than 1 file matching the string supplied to `file` argument,
-the functions will throw an error.
-Specifying the exact filename will avoid this of course - but shorter `file`
-arguments may be convenient in some situations.
 
 Currently these functions only read in a single file at a time.
 
-Setting the `info` argument to `TRUE` will enable the functions to give some
-confirmatory feedback on what file is being read in.
-You can also pass through arguments that will be applied to, for example,
-`readr::read_delim()`, such as `col_types`, as the function reads in a CSV file:
+You can also pass through arguments in `...` that will be applied to the
+appropriate handler function (see documentation).
+For example, `readr::read_delim()` is used under the hood by
+`azkit::read_azure_csv`, so you can pass through a config argument such as
+`col_types`:
 
 ```r
 csv_data <- data_container |>
@@ -113,36 +99,54 @@ csv_data <- data_container |>
 
 ## Environment variables
 
-To access Azure Storage you will want to set some environment variables.
+To facilitate access to Azure Storage you may want to set some environment
+variables.
 The neatest way to do this is to include a [`.Renviron` file][posit_env] in
 your project folder.
 
-⚠️These values are sensitive and should not be exposed to anyone outside The
+⚠️ These values are sensitive and should not be exposed to anyone outside The
 Strategy Unit.
 Make sure you include `.Renviron` in [the `.gitignore` file][github] for
 your project.
 
-Your `.Renviron` file should contain the variables below.
+Your `.Renviron` file can contain the variables below.
 Ask a member of [the Data Science team][suds] for the necessary values.
 
 ```
-# essential
 AZ_STORAGE_EP=
-# useful but not absolutely essential:
-AZ_CONTAINER=
-
-# optional, for certain authentication scenarios:
-AZ_TENANT_ID=
-AZ_CLIENT_ID=
-AZ_APP_SECRET=
+AZ_TABLE_EP=
 ```
 
-These may vary depending on the specific container you’re connecting to.
+## Troubleshooting
 
-For one project you might want to set the default container (`AZ_CONTAINER`) to
-one value, but for a different project you might be mainly working with a
-different container so it would make sense to set the values within the
-`.Renviron` file for each project, rather than globally for your account.
+Azure authentication is probably the main area where you might experience
+difficulty.
+
+To debug, try running:
+
+```r
+azkit::get_auth_token()
+```
+and see what is returned.
+
+`AzureRMR::get_azure_login()` or `AzureRMR::list_azure_tokens()` may also be
+helpful for troubleshooting - try them and see if they work / what they reveal.
+
+To refresh a token, you can do:
+
+```r
+# if previously you did:
+# token <- azkit::get_auth_token()
+azkit::refresh_token(token)
+```
+
+If you get errors when reading in files, first check that you are passing in
+the full and correct filepath relative to the root directory of the container.
+
+If `read_azure_json()` and similar are not working as expected, try reading in
+the raw data first with `azkit::read_azure_file()` and then passing that to a
+handler function of your choice.
+
 
 ## Getting help
 
@@ -152,11 +156,6 @@ or problems, including with the package documentation.
 Alternatively, to ask any questions about the package you may contact
 [Fran Barton](mailto:francis.barton@nhs.net).
 
-## Development
-
-If you wish to clone this package for development, including running the
-included tests, you will want some further environment variables for your local
-`.Renviron`. Contact Fran if you need help with this.
 
 [posit_env]: https://docs.posit.co/ide/user/ide/guide/environments/r/managing-r.html#renviron
 [github]: https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
