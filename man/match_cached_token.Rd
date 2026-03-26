@@ -3,7 +3,7 @@
 \name{match_cached_token}
 \alias{match_cached_token}
 \title{Find an already cached token that matches desired parameters
-Sub-routine for \code{get_auth_token()}}
+Sub-routine for \link{get_auth_token}}
 \usage{
 match_cached_token(resource, tenant, aad_version)
 }
@@ -12,6 +12,6 @@ A token from local cache, or NULL if none matches
 }
 \description{
 Find an already cached token that matches desired parameters
-Sub-routine for \code{get_auth_token()}
+Sub-routine for \link{get_auth_token}
 }
 \keyword{internal}

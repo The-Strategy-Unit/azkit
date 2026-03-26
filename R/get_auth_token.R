@@ -2,44 +2,42 @@
 #'
 #' This function retrieves an Azure token for a specified resource.
 #'
-#' If the environment variables `AZ_TENANT_ID`, `AZ_CLIENT_ID` and
-#'  `AZ_APP_SECRET` are all set, it will try to use these to return a token.
+#' It will try to get a managed token when used within a managed resource such
+#'  as Azure VM or Azure App Service.
 #'
-#' Otherwise it will try to get a managed token from a managed resource such as
-#'  Azure VM or Azure App Service.
-#'
-#' If neither of these approaches has returned a token, it will try to retrieve
-#'  a user token using the provided parameters, requiring the user to have
-#'  authenticated using their device. If `force_refresh` is set to `TRUE`, a
-#'  fresh web authentication process should be launched. Otherwise it will
-#'  attempt to use a cached token matching the given `resource`, `tenant` and
-#'  `aad_version`.
+#' If this method does not return a token, it will try to retrieve a user token
+#'  using the provided parameters, requiring the user to have authenticated
+#'  using their device. If `force_refresh` is set to `TRUE`, a fresh web
+#'  authentication process should be launched. Otherwise it will attempt to use
+#'  a cached token matching the given `resource`, `tenant` and `aad_version`.
 #'
 #' @param resource For v1, a simple URL such as `"https://storage.azure.com/"`
-#'  should be supplied.For v2, a vector specifying the URL of the Azure resource
-#'  for which the token is requested as well as any desired scopes. See
-#'  [AzureAuth::get_azure_token] for details. Use [generate_resource]
-#'  to help provide an appropriate string or vector. The values default to
-#'  `c("https://storage.azure.com/.default", "openid", "offline_access")`.
+#'  should be supplied. For v2, a vector specifying the URL of the Azure
+#'  resource for which the token is requested as well as any desired scopes.
+#'  See [AzureAuth::get_azure_token] for details. Use [generate_resource]
+#'  to help provide an appropriate string or vector.
 #'  If setting version to 2, ensure that the `aad_version` argument is also set
 #'  to 2. Both are set to use AAD version 1 by default.
 #' @param tenant A string specifying the Azure tenant. Defaults to
 #'  `"common"`. See [AzureAuth::get_azure_token] for other values.
-#' @param client_id A string specifying the application ID (client ID). If
+#' @param client_id A string specifying the application ID (aka client ID). If
 #'  `NULL`, (the default) the function attempts to obtain the client ID from the
 #'  Azure Resource Manager token, or prompts the user to log in to obtain it.
 #' @param auth_method A string specifying the authentication method. Defaults to
-#'  `"authorization_code"`. See [AzureAuth::get_azure_token] for other values.
+#'  `"authorization_code"`. To use a secret, pass `"client_credentials"` instead
+#'  and provide the secret using the `password` argument in `...`. See
+#'  [AzureAuth::get_azure_token] for more information.
 #' @param aad_version Numeric. The AAD version, either 1 or 2 (1 by default)
-#' @param force_refresh Boolean: whether to use a stored token if available
+#' @param force_refresh logical. Whether to use a stored token if available
 #'  (`FALSE`, the default), or try to obtain a new one from Azure (`TRUE`).
 #'  This may be useful if you wish to generate a new token with the same
 #'  `resource` value as an existing token, but a different `tenant` or
-#'  `auth_method`. Note that you can also try using [refresh_token] which will
+#'  `auth_method`. Note that you can also try [refresh_token], which should
 #'  cause an existing token to refresh itself, without obtaining a new token
 #'  from Azure via online reauthentication
-#' @param ... Optional arguments (`token_args` or `use_cache`) to be passed on
-#'  to [AzureAuth::get_managed_token] or [AzureAuth::get_azure_token].
+#' @param ... Optional arguments (eg `token_args` or `use_cache`) to be passed
+#'  on to [AzureAuth::get_managed_token] or [AzureAuth::get_azure_token], for
+#'  example to overwrite any opf their default values or to supply a `password`
 #'
 #' @returns An Azure token object
 #' @examples
@@ -58,6 +56,14 @@
 #'
 #' # Get a token using a specific app ID
 #' token <- get_auth_token(client_id = "my-app-id")
+#'
+#' # Use a secret
+#' token <- get_auth_token(
+#'  tenant = "my-tenant-id",
+#'  client_id = "my-app-id",
+#'  auth_method = "client_credentials",
+#'  password = "123459878&%^"
+#' )
 #' }
 #' @export
 get_auth_token <- function(
@@ -73,52 +79,49 @@ get_auth_token <- function(
   aad_version <- check_that(aad_version, \(x) x %in% seq(2), aad_msg)
 
   safely_get_token <- \(...) purrr::safely(AzureAuth::get_azure_token)(...)
-  get_azure_token <- purrr::partial(
-    safely_get_token,
-    resource = resource,
-    version = aad_version
-  )
-  possibly_get_mtk <- \(...) purrr::possibly(AzureAuth::get_managed_token)(...)
+  possibly_get_mgdt <- \(...) purrr::possibly(AzureAuth::get_managed_token)(...)
 
   dots <- rlang::list2(...)
   # If the user specifies force_refresh = TRUE we turn off `use_cache`,
-  # otherwise we leave `use_cache` as it is (or as `NULL`, its default value)
-  use_cached <- !force_refresh && (dots[["use_cache"]] %||% TRUE)
-  dots <- rlang::dots_list(!!!dots, use_cache = use_cached, .homonyms = "last")
+  # otherwise we leave `use_cache` as it is
+  if (force_refresh) {
+    use_cached <- FALSE
+  } else {
+    use_cached <- dots[["use_cache"]] # NULL by default if not supplied by user
+  }
+  dots <- rlang::dots_list(..., use_cache = use_cached, .homonyms = "last")
 
-  # We have 4 approaches to get a token, depending on the context
-  # 1. Use environment variables if all three are set
-  token_resp <- rlang::inject(try_token_from_vars(get_azure_token, !!!dots))
-  token <- token_resp[["result"]]
-  token_error <- token_resp[["error"]]
-
-  # 2. Try to get a managed token (for example on Azure VM, App Service)
-  if (is.null(token) && imds_available()) {
-    token <- rlang::inject(possibly_get_mtk(resource, !!!dots))
+  # We have 3 approaches to get a token, depending on the context
+  # 1. Try to get a managed token (for example on Azure VM, App Service)
+  if (imds_available()) {
+    token <- rlang::inject(possibly_get_mgdt(resource, !!!dots))
+  } else {
+    token <- NULL
   }
 
-  # 3. If neither of those has worked, try to get an already stored user token
-  #    (unless `force_refresh` is on, in which case skip to option 4)
+  # 2. If that hasn't worked, try to get an already stored user token
+  #    (unless `force_refresh` is on, in which case skip to option 3)
   if (is.null(token) && use_cached) {
     token <- match_cached_token(resource, tenant, aad_version)
   }
 
-  # 4. If we still don't have a token, try to get a new one via reauthentication
+  # 3. If we still don't have a token, try to get a new one via reauthentication
   if (is.null(token)) {
     if (!force_refresh) {
       cli::cli_alert_info("No matching cached token found: fetching new token")
     }
-    client_id <- client_id %||% get_client_id()
     token_resp <- rlang::inject(
-      get_azure_token(
+      safely_get_token(
+        resource = resource,
         tenant = tenant,
-        app = client_id,
+        app = client_id %||% get_client_id(),
         auth_type = auth_method,
+        version = aad_version,
         !!!dots
       )
     )
     token <- token_resp[["result"]]
-    token_error <- token_error %||% token_resp[["error"]]
+    token_error <- token_resp[["error"]]
   }
 
   # Give some helpful feedback if the steps above have not succeeded
@@ -141,33 +144,8 @@ get_auth_token <- function(
 }
 
 
-#' Get token via app and secret environment variables
-#' Sub-routine for `get_auth_token()`
-#' @keywords internal
-#' @returns A list with elements `result` and `error`. If this method is
-#'  successful, the `result` element will contain a token.
-try_token_from_vars <- function(get_token_fun, ...) {
-  tenant_id_env <- Sys.getenv("AZ_TENANT_ID")
-  client_id_env <- Sys.getenv("AZ_CLIENT_ID")
-  client_secret <- Sys.getenv("AZ_APP_SECRET")
-
-  if (all(nzchar(c(tenant_id_env, client_id_env, client_secret)))) {
-    rlang::inject(
-      get_token_fun(
-        tenant = tenant_id_env,
-        app = client_id_env,
-        password = client_secret,
-        ...
-      )
-    )
-  } else {
-    list(result = NULL, error = NULL)
-  }
-}
-
-
 #' Find an already cached token that matches desired parameters
-#' Sub-routine for `get_auth_token()`
+#' Sub-routine for [get_auth_token]
 #' @keywords internal
 #' @returns A token from local cache, or NULL if none matches
 match_cached_token <- function(resource, tenant, aad_version) {
@@ -193,7 +171,7 @@ match_cached_token <- function(resource, tenant, aad_version) {
 }
 
 
-#' Sub-routine for `get_auth_token()`
+#' Sub-routine for [get_auth_token]
 #'
 #' Pulled out mainly to tidy up the main function code a bit
 #' @keywords internal
@@ -264,12 +242,12 @@ generate_resource <- function(
 #' Use a token's internal `refresh()` method to refresh it
 #'
 #' This method avoids the need to refresh by re-authenticating online. It seems
-#'  like this only works with v1 tokens. v2 tokens always seem to refresh by
-#'  re-authenticating with Azure online. But v2 tokens _ought_ to refresh
-#'  automatically and not need manual refreshing. To instead generate a
-#'  completely fresh token, pass `use_cache = FALSE` or `force_refresh = TRUE`
-#'  to [get_auth_token].
+#'  that this only works with v1 tokens. (v2 tokens always seem to refresh via
+#'  online re-authentication, but they _ought_ to refresh automatically.)
+#' To instead generate a completely fresh token, set `force_refresh = TRUE` in
+#'  [get_auth_token]
 #' @param token An Azure authentication token
+#' @rdname get_auth_token
 #' @returns An Azure authentication token
 #' @export
 refresh_token <- \(token) token$refresh()
