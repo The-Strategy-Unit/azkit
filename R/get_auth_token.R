@@ -282,7 +282,7 @@ refresh_token <- \(token) token$refresh()
 #' repeated checks.
 #'
 #' You can also set the `IMDS_AVAILABLE` environment variable manually to
-#' "true" or "false" to override the automatic check, which can be useful for
+#' "TRUE" or "FALSE" to override the automatic check, which can be useful for
 #' testing or in environments where the check may not work correctly.
 imds_available <- function() {
   available <- Sys.getenv("IMDS_AVAILABLE")
@@ -305,5 +305,13 @@ imds_available <- function() {
     )
     Sys.setenv(IMDS_AVAILABLE = available)
   }
-  as.logical(available)
+
+  switch(toupper(available), "TRUE" = TRUE, "FALSE" = FALSE, {
+    warning(
+      "Invalid value for IMDS_AVAILABLE environment variable: ",
+      available,
+      ". Expected 'true' or 'false'. Defaulting to FALSE."
+    )
+    FALSE
+  })
 }

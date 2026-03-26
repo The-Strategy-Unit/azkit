@@ -14,6 +14,6 @@ repeated checks.
 }
 \details{
 You can also set the \code{IMDS_AVAILABLE} environment variable manually to
-"true" or "false" to override the automatic check, which can be useful for
+"TRUE" or "FALSE" to override the automatic check, which can be useful for
 testing or in environments where the check may not work correctly.
 }
