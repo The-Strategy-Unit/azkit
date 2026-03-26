@@ -4,27 +4,12 @@
 \alias{read_azure_csv}
 \title{Read a csv file from Azure storage}
 \usage{
-read_azure_csv(container, file, path = "/", info = NULL, ...)
+read_azure_csv(container, file, ...)
 }
 \arguments{
 \item{container}{An Azure container object, as returned by \link{get_container}}
 
-\item{file}{The name of the file to be read, as a string. NB The file
-extension does not need to be included (though it can be). The function
-will error if multiple files are somehow matched.}
-
-\item{path}{The path to the directory where \code{file} is located, as a string.
-Only needed if \code{file} does not already contain its full path. If file is
-just a file name with no path, then provide the path to the directory here.
-This must be the full path to the file location, as the function will not
-search into subdirectories recursively. Set to \code{"/"} (the root of the
-container) by default.}
-
-\item{info}{Boolean. Whether to print user feedback about the file that is
-being read. Useful for checking the function is doing what is expected, but
-can be turned off with \code{FALSE}. Can be set persistently with the option
-"azkit.info". If \code{NULL} then it will default to the value of
-\link[rlang:is_interactive]{rlang::is_interactive} (that is, \code{TRUE} for interactive sessions).}
+\item{file}{string The path to the file to be read.}
 
 \item{...}{optional arguments to be passed through to \link[readr:read_delim]{readr::read_delim}}
 }
