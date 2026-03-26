@@ -2,6 +2,7 @@
 % Please edit documentation in R/get_auth_token.R
 \name{get_auth_token}
 \alias{get_auth_token}
+\alias{refresh_token}
 \title{Get Azure authentication token}
 \usage{
 get_auth_token(
@@ -13,59 +14,69 @@ get_auth_token(
   force_refresh = FALSE,
   ...
 )
+
+refresh_token(token)
 }
 \arguments{
 \item{resource}{For v1, a simple URL such as \code{"https://storage.azure.com/"}
-should be supplied.For v2, a vector specifying the URL of the Azure resource
-for which the token is requested as well as any desired scopes. See
-\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for details. Use \link{generate_resource}
-to help provide an appropriate string or vector. The values default to
-\code{c("https://storage.azure.com/.default", "openid", "offline_access")}.
+should be supplied. For v2, a vector specifying the URL of the Azure
+resource for which the token is requested as well as any desired scopes.
+See \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for details. Use \link{generate_resource}
+to help provide an appropriate string or vector.
 If setting version to 2, ensure that the \code{aad_version} argument is also set
 to 2. Both are set to use AAD version 1 by default.}
 
 \item{tenant}{A string specifying the Azure tenant. Defaults to
 \code{"common"}. See \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
 
-\item{client_id}{A string specifying the application ID (client ID). If
+\item{client_id}{A string specifying the application ID (aka client ID). If
 \code{NULL}, (the default) the function attempts to obtain the client ID from the
 Azure Resource Manager token, or prompts the user to log in to obtain it.}
 
 \item{auth_method}{A string specifying the authentication method. Defaults to
-\code{"authorization_code"}. See \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
+\code{"authorization_code"}. To use a secret, pass \code{"client_credentials"} instead
+and provide the secret using the \code{password} argument in \code{...}. See
+\link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for more information.}
 
 \item{aad_version}{Numeric. The AAD version, either 1 or 2 (1 by default)}
 
-\item{force_refresh}{Boolean: whether to use a stored token if available
+\item{force_refresh}{logical. Whether to use a stored token if available
 (\code{FALSE}, the default), or try to obtain a new one from Azure (\code{TRUE}).
 This may be useful if you wish to generate a new token with the same
 \code{resource} value as an existing token, but a different \code{tenant} or
-\code{auth_method}. Note that you can also try using \link{refresh_token} which will
+\code{auth_method}. Note that you can also try \link{refresh_token}, which should
 cause an existing token to refresh itself, without obtaining a new token
 from Azure via online reauthentication}
 
-\item{...}{Optional arguments (\code{token_args} or \code{use_cache}) to be passed on
-to \link[AzureAuth:get_azure_token]{AzureAuth::get_managed_token} or \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}.}
+\item{...}{Optional arguments (eg \code{token_args} or \code{use_cache}) to be passed
+on to \link[AzureAuth:get_azure_token]{AzureAuth::get_managed_token} or \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}, for
+example to overwrite any opf their default values or to supply a \code{password}}
+
+\item{token}{An Azure authentication token}
 }
 \value{
 An Azure token object
+
+An Azure authentication token
 }
 \description{
 This function retrieves an Azure token for a specified resource.
+
+This method avoids the need to refresh by re-authenticating online. It seems
+that this only works with v1 tokens. (v2 tokens always seem to refresh via
+online re-authentication, but they \emph{ought} to refresh automatically.)
+To instead generate a completely fresh token, set \code{force_refresh = TRUE} in
+\link{get_auth_token}
 }
 \details{
-If the environment variables \code{AZ_TENANT_ID}, \code{AZ_CLIENT_ID} and
-\code{AZ_APP_SECRET} are all set, it will try to use these to return a token.
+It will try to get a managed token when used within a managed resource such
+as Azure VM or Azure App Service.
 
-Otherwise it will try to get a managed token from a managed resource such as
-Azure VM or Azure App Service.
-
-If neither of these approaches has returned a token, it will try to retrieve
-a user token using the provided parameters, requiring the user to have
-authenticated using their device. If \code{force_refresh} is set to \code{TRUE}, a
-fresh web authentication process should be launched. Otherwise it will
-attempt to use a cached token matching the given \code{resource}, \code{tenant} and
-\code{aad_version}.
+If this method does not return a token, it will try to retrieve a user token
+using the provided parameters, requiring the user to have authenticated
+using their device. If \code{force_refresh} is set to \code{TRUE}, a fresh web
+authentication process should be launched. Otherwise it will attempt to use
+a cached token matching the given \code{resource}, \code{tenant} and \code{aad_version}.
 }
 \examples{
 \dontrun{
@@ -83,5 +94,13 @@ token <- get_auth_token(
 
 # Get a token using a specific app ID
 token <- get_auth_token(client_id = "my-app-id")
+
+# Use a secret
+token <- get_auth_token(
+ tenant = "my-tenant-id",
+ client_id = "my-app-id",
+ auth_method = "client_credentials",
+ password = "123459878&\%^"
+)
 }
 }

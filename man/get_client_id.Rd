@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_auth_token.R
 \name{get_client_id}
 \alias{get_client_id}
-\title{Sub-routine for \code{get_auth_token()}}
+\title{Sub-routine for \link{get_auth_token}}
 \usage{
 get_client_id()
 }
