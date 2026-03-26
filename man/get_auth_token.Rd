@@ -88,8 +88,8 @@ token <- get_auth_token(force_refresh = TRUE)
 
 # Get a token for a specific resource and tenant
 token <- get_auth_token(
- resource = "https://graph.microsoft.com",
- tenant = "my-tenant-id"
+  resource = "https://graph.microsoft.com",
+  tenant = "my-tenant-id"
 )
 
 # Get a token using a specific app ID

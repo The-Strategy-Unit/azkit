@@ -50,8 +50,8 @@
 #'
 #' # Get a token for a specific resource and tenant
 #' token <- get_auth_token(
-#'  resource = "https://graph.microsoft.com",
-#'  tenant = "my-tenant-id"
+#'   resource = "https://graph.microsoft.com",
+#'   tenant = "my-tenant-id"
 #' )
 #'
 #' # Get a token using a specific app ID
@@ -251,3 +251,45 @@ generate_resource <- function(
 #' @returns An Azure authentication token
 #' @export
 refresh_token <- \(token) token$refresh()
+
+#' Check if Azure Instance Metadata Service (IMDS) is Available
+#'
+#' This function checks if the Azure Instance Metadata Service (IMDS) is
+#' available by attempting to make a request to the IMDS endpoint. The result is
+#' cached in an environment variable for future use, saving the need for
+#' repeated checks.
+#'
+#' You can also set the `IMDS_AVAILABLE` environment variable manually to
+#' "TRUE" or "FALSE" to override the automatic check, which can be useful for
+#' testing or in environments where the check may not work correctly.
+imds_available <- function() {
+  available <- Sys.getenv("IMDS_AVAILABLE")
+
+  if (available == "") {
+    available <- tryCatch(
+      {
+        Sys.getenv(
+          "MSI_ENDPOINT",
+          "http://169.254.169.254/metadata/identity/oauth2"
+        ) |>
+          httr2::request() |>
+          httr2::req_headers(Metadata = "true") |>
+          httr2::req_timeout(0.2) |>
+          httr2::req_perform()
+
+        TRUE
+      },
+      error = function(e) FALSE
+    )
+    Sys.setenv(IMDS_AVAILABLE = available)
+  }
+
+  switch(toupper(available), "TRUE" = TRUE, "FALSE" = FALSE, {
+    warning(
+      "Invalid value for IMDS_AVAILABLE environment variable: ",
+      available,
+      ". Expected 'true' or 'false'. Defaulting to FALSE."
+    )
+    FALSE
+  })
+}
