@@ -4,38 +4,35 @@
 \alias{list_files}
 \title{List files in a container}
 \usage{
-list_files(container, path = "", ext = "", recursive = TRUE)
+list_files(container, dir = "", ext = "", recursive = FALSE)
 }
 \arguments{
 \item{container}{An Azure container object, as returned by \link{get_container}}
 
-\item{path}{(optional) subdirectory of the container to list files within.
-\code{""} (the root folder of the container) by default}
+\item{dir}{(optional) The directory of the container to list files within.
+\code{""} (the root directory of the container) by default}
 
 \item{ext}{(optional) A string giving the extension of a particular file type
-you want to restrict the list to. No need to include the initial ".". The
-default, \code{""}, means no filtering by file extension will be applied. Can be
-a regular expression.}
+to restrict the list to. No need to include the initial ".". The default,
+\code{""}, means no filtering by file extension will be applied.}
 
-\item{recursive}{A Boolean value: whether to list files recursively. \code{TRUE}
-by default}
+\item{recursive}{logical: whether to list files recursively. Default \code{FALSE}}
 }
 \value{
 A vector of file names, or an empty character vector if none found
 }
 \description{
-Recursively (or not, if desired) lists all files found in a container. Search
-can be restricted to a particular 'subdirectory' of the container, and/or
-to files with a specific extension. The function assumes that all file names
-end with a ".ext" extension of some sort.
+Lists all files (recursively, if desired) found in a container within a
+given directory (\code{dir}). The search can be restricted to files with a
+specific extension.
 }
 \details{
 The function does not support filtering by file name, only by file extension.
 
 The returned file list (character vector) contains the full paths to the
-files, ready to be passed perhaps to a \verb{read_azure_*} function, or further
-filtered by you. If you just want the names of the files without the folder
-path, use \code{\link[=basename]{basename()}} to extract these.
+files, ready to be passed perhaps to a \verb{read_azure_*} function, or filtered
+further. If you just want the names of the files without the folder path,
+use \link{basename} to extract these.
 }
 \examples{
 \dontrun{
