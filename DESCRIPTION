@@ -1,6 +1,6 @@
 Package: azkit
 Title: Azure storage authentication toolkit
-Version: 0.2.5
+Version: 0.2.6
 Authors@R:
     c(person(
         "Fran", "Barton",

@@ -101,7 +101,7 @@ get_auth_token <- function(
 
   # 2. If that hasn't worked, try to get an already stored user token
   #    (unless `force_refresh` is on, in which case skip to option 3)
-  if (is.null(token) && use_cached) {
+  if (is.null(token) && (use_cached %||% TRUE)) {
     token <- match_cached_token(resource, tenant, aad_version)
   }
 
