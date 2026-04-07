@@ -8,8 +8,8 @@ imds_available()
 }
 \description{
 This function checks if the Azure Instance Metadata Service (IMDS) is
-available by attempting to make a request to the IMDS endpoint. The result is
-cached in an environment variable for future use, saving the need for
+available by attempting to make a request to the IMDS endpoint. The result
+is cached in an environment variable for future use, saving the need for
 repeated checks.
 }
 \details{
