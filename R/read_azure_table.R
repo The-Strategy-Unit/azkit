@@ -21,6 +21,8 @@ read_azure_table <- function(
   responses <- httr2::req_perform_iterative(
     req = base_req,
     next_req = function(resp, req) {
+      httr2::resp_check_status(resp)
+
       headers <- httr2::resp_headers(resp)
 
       pk <- headers[["x-ms-continuation-nextpartitionkey"]]
