@@ -10,21 +10,38 @@ read_azure_table <- function(
   table_endpoint = Sys.getenv("AZ_TABLE_EP"),
   token = get_auth_token()
 ) {
-  access_token <- token |>
-    purrr::pluck("credentials", "access_token")
-  headers <- list("2025-11-05", "application/json;odata=nometadata") |>
-    purrr::set_names(c("x-ms-version", "Accept"))
-
-  resp <- httr2::request(table_endpoint) |>
+  base_req <- httr2::request(table_endpoint) |>
     httr2::req_url_path_append(table_name) |>
-    httr2::req_auth_bearer_token(access_token) |>
-    httr2::req_headers(!!!headers) |>
-    httr2::req_perform() |>
-    httr2::resp_check_status()
+    httr2::req_auth_bearer_token(token$credentials$access_token) |>
+    httr2::req_headers(
+      "x-ms-version" = "2025-11-05",
+      "Accept" = "application/json;odata=nometadata"
+    )
 
-  resp |>
-    httr2::resp_body_json() |>
-    purrr::pluck("value") |>
-    purrr::map(tibble::as_tibble) |>
-    purrr::list_rbind()
+  responses <- httr2::req_perform_iterative(
+    req = base_req,
+    next_req = function(resp, req) {
+      headers <- httr2::resp_headers(resp)
+
+      pk <- headers[["x-ms-continuation-nextpartitionkey"]]
+      rk <- headers[["x-ms-continuation-nextrowkey"]]
+
+      # Stop when no continuation headers are present
+      if (is.null(pk) && is.null(rk)) {
+        return(NULL)
+      }
+
+      httr2::req_url_query(
+        req,
+        NextPartitionKey = pk,
+        NextRowKey = rk
+      )
+    }
+  )
+
+  responses |>
+    purrr::map(httr2::resp_body_json, simplifyVector = TRUE) |>
+    purrr::map("value") |>
+    purrr::list_rbind() |>
+    tibble::as_tibble()
 }
