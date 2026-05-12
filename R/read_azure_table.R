@@ -45,7 +45,6 @@ read_azure_table <- function(
     purrr::map(httr2::resp_body_json, simplifyVector = TRUE) |>
     purrr::map("value") |>
     purrr::list_flatten() |>
-    purrr::map(tibble::as_tibble_row) |>
     purrr::list_rbind() |>
     tibble::as_tibble()
 }
