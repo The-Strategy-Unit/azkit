@@ -26,22 +26,23 @@ read_azure_table <- function(
 
   if (!is.null(filter)) {
     stopifnot(
-      "filter must be a character string" = is.character(filter),
-      "filter must be a single string" = length(filter) == 1
+      "filter must be a single character string" = rlang::is_scalar_character(
+        filter
+      )
     )
     base_req <- httr2::req_url_query(base_req, `$filter` = filter)
   }
   if (!is.null(select)) {
     stopifnot(
-      "select must be a character string" = is.character(select),
-      "select must be a single string" = length(select) == 1
+      "select must be a single character string" = rlang::is_scalar_character(
+        select
+      )
     )
     base_req <- httr2::req_url_query(base_req, `$select` = select)
   }
   if (!is.null(top)) {
     stopifnot(
-      "top must be numeric" = is.numeric(top),
-      "top must be a single number" = length(top) == 1,
+      "top must be a single integer" = rlang::is_scalar_integerish(top),
       "top must be a positive number" = top > 0
     )
     base_req <- httr2::req_url_query(base_req, `$top` = top)
