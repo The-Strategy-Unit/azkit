@@ -45,7 +45,7 @@ read_azure_table <- function(
       rk <- headers[["x-ms-continuation-nextrowkey"]]
 
       # Stop when no continuation headers are present
-      if (is.null(pk) && is.null(rk)) {
+      if ((is.null(pk) && is.null(rk)) || !is.null(top)) {
         return(NULL)
       }
 
