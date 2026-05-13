@@ -26,23 +26,23 @@ read_azure_table <- function(
 
   if (!is.null(filter)) {
     stopifnot(
-      is.character(filter) = "filter must be a character string",
-      length(filter) == 1 = "filter must be a single string"
+      "filter must be a character string" = is.character(filter),
+      "filter must be a single string" = length(filter) == 1
     )
     base_req <- httr2::req_url_query(base_req, `$filter` = filter)
   }
   if (!is.null(select)) {
     stopifnot(
-      is.character(select) = "select must be a character string",
-      length(select) == 1 = "select must be a single string"
+      "select must be a character string" = is.character(select),
+      "select must be a single string" = length(select) == 1
     )
     base_req <- httr2::req_url_query(base_req, `$select` = select)
   }
   if (!is.null(top)) {
     stopifnot(
-      is.numeric(top) = "top must be numeric",
-      length(top) == 1 = "top must be a single number",
-      top > 0 = "top must be a positive number"
+      "top must be numeric" = is.numeric(top),
+      "top must be a single number" = length(top) == 1,
+      "top must be a positive number" = top > 0
     )
     base_req <- httr2::req_url_query(base_req, `$top` = top)
   }
