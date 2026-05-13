@@ -3,12 +3,18 @@
 #' @param table_name Name of the table to be read.
 #' @param table_endpoint An Azure table endpoint URL.
 #' @inheritParams get_container
+#' @param filter An OData filter string to filter the results.
+#' @param select An OData select string to specify which properties to return.
+#' @param top An integer specifying the maximum number of records to return.
 #' @returns A tibble
 #' @export
 read_azure_table <- function(
   table_name,
   table_endpoint = Sys.getenv("AZ_TABLE_EP"),
-  token = get_auth_token()
+  token = get_auth_token(),
+  filter = NULL,
+  select = NULL,
+  top = NULL
 ) {
   base_req <- httr2::request(table_endpoint) |>
     httr2::req_url_path_append(table_name) |>
@@ -17,6 +23,29 @@ read_azure_table <- function(
       "x-ms-version" = "2025-11-05",
       "Accept" = "application/json;odata=nometadata"
     )
+
+  if (!is.null(filter)) {
+    stopifnot(
+      is.character(filter) = "filter must be a character string",
+      length(filter) == 1 = "filter must be a single string"
+    )
+    base_req <- httr2::req_url_query(base_req, `$filter` = filter)
+  }
+  if (!is.null(select)) {
+    stopifnot(
+      is.character(select) = "select must be a character string",
+      length(select) == 1 = "select must be a single string"
+    )
+    base_req <- httr2::req_url_query(base_req, `$select` = select)
+  }
+  if (!is.null(top)) {
+    stopifnot(
+      is.numeric(top) = "top must be numeric",
+      length(top) == 1 = "top must be a single number",
+      top > 0 = "top must be a positive number"
+    )
+    base_req <- httr2::req_url_query(base_req, `$top` = top)
+  }
 
   responses <- httr2::req_perform_iterative(
     req = base_req,
@@ -29,7 +58,7 @@ read_azure_table <- function(
       rk <- headers[["x-ms-continuation-nextrowkey"]]
 
       # Stop when no continuation headers are present
-      if (is.null(pk) && is.null(rk)) {
+      if ((is.null(pk) && is.null(rk)) || !is.null(top)) {
         return(NULL)
       }
 
