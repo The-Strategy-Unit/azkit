@@ -78,3 +78,46 @@ read_azure_table <- function(
     purrr::list_rbind() |>
     tibble::as_tibble()
 }
+
+#' Read in data from an Azure table
+#'
+#' @param table_name Name of the table to be read.
+#' @param partition_key The partition key of the entity to be read.
+#' @param row_key The row key of the entity to be read.
+#' @param table_endpoint An Azure table endpoint URL.
+#' @inheritParams get_container
+#' @returns A tibble
+#' @export
+read_azure_table_single_entity <- function(
+  table_name,
+  partition_key,
+  row_key,
+  table_endpoint = Sys.getenv("AZ_TABLE_EP"),
+  token = get_auth_token()
+) {
+  if (!token$validate()) {
+    token$refresh()
+  }
+
+  table_name_with_keys <- paste0(
+    table_name,
+    "(PartitionKey='",
+    partition_key,
+    "',RowKey='",
+    row_key,
+    "')"
+  )
+
+  req <- httr2::request(table_endpoint) |>
+    httr2::req_url_path_append(table_name_with_keys) |>
+    httr2::req_auth_bearer_token(token$credentials$access_token) |>
+    httr2::req_headers(
+      "x-ms-version" = "2025-11-05",
+      "Accept" = "application/json;odata=nometadata"
+    )
+
+  req |>
+    httr2::req_perform() |>
+    httr2::resp_check_status() |>
+    httr2::resp_body_json(simplifyVector = TRUE)
+}
