@@ -49,7 +49,7 @@ cause an existing token to refresh itself, without obtaining a new token
 from Azure via online reauthentication}
 
 \item{...}{Optional arguments (eg \code{token_args} or \code{use_cache}) to be passed
-on to \link[AzureAuth:get_azure_token]{AzureAuth::get_managed_token} or \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}, for
+on to \link[AzureAuth:get_managed_token]{AzureAuth::get_managed_token} or \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token}, for
 example to overwrite any opf their default values or to supply a \code{password}}
 
 \item{token}{An Azure authentication token}

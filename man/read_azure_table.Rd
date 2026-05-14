@@ -7,7 +7,10 @@
 read_azure_table(
   table_name,
   table_endpoint = Sys.getenv("AZ_TABLE_EP"),
-  token = get_auth_token()
+  token = get_auth_token(),
+  filter = NULL,
+  select = NULL,
+  top = NULL
 )
 }
 \arguments{
@@ -17,6 +20,12 @@ read_azure_table(
 
 \item{token}{An Azure authentication token, or a function that returns one.
 Uses \link{get_auth_token} by default.}
+
+\item{filter}{An OData filter string to filter the results.}
+
+\item{select}{An OData select string to specify which properties to return.}
+
+\item{top}{An integer specifying the maximum number of records to return.}
 }
 \value{
 A tibble

@@ -12,7 +12,7 @@ read_azure_file(container, file, ...)
 \item{file}{string The path to the file to be read.}
 
 \item{...}{optional arguments to be passed through to
-\link[AzureStor:blob]{AzureStor::download_blob}}
+\link[AzureStor:download_blob]{AzureStor::download_blob}}
 }
 \value{
 A raw data stream

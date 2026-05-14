@@ -12,10 +12,10 @@ read_azure_rds(container, file, ...)
 \item{file}{string The path to the file to be read.}
 
 \item{...}{optional arguments to be passed through to
-\link[AzureStor:storage_save]{AzureStor::storage_load_rds}. For example, a compression type (one of
+\link[AzureStor:storage_load_rds]{AzureStor::storage_load_rds}. For example, a compression type (one of
 c("unknown", "gzip", "bzip2", "xz", "zstd", "none")) can be provided using
 the argument \code{type}, which will be passed on to \link{memDecompress} via
-\link[AzureStor:storage_save]{AzureStor::storage_load_rds}.}
+\link[AzureStor:storage_load_rds]{AzureStor::storage_load_rds}.}
 }
 \value{
 The data object that was stored in the rds file
