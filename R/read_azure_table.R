@@ -16,6 +16,10 @@ read_azure_table <- function(
   select = NULL,
   top = NULL
 ) {
+  if (!token$validate()) {
+    token$refresh()
+  }
+
   base_req <- httr2::request(table_endpoint) |>
     httr2::req_url_path_append(table_name) |>
     httr2::req_auth_bearer_token(token$credentials$access_token) |>
