@@ -9,7 +9,7 @@ gregg(x, rx, ..., g = parent.frame())
 \arguments{
 \item{x}{A character vector to check}
 
-\item{rx}{A string that after processing by \code{\link[glue:glue]{glue::glue_data()}} will be used
+\item{rx}{A string that after processing by \code{\link[glue:glue_data]{glue::glue_data()}} will be used
 as a regex pattern in \code{\link[=grepl]{grepl()}}}
 
 \item{...}{Arguments passed onto \code{\link[=grepl]{grepl()}}}
