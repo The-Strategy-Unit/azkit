@@ -270,12 +270,13 @@ imds_available <- function() {
 
 
 ping_msi_endpoint <- function() {
-  fallback_url <- "http://169.254.169.254/metadata/identity/oauth2"
-  Sys.getenv("MSI_ENDPOINT", fallback_url) |>
-    httr2::request() |>
+  httr2::request("http://169.254.169.254") |>
+    httr2::req_url_path("metadata", "instance") |>
+    httr2::req_url_query("api-version" = "2021-02-01") |>
     httr2::req_headers(Metadata = "true") |>
     httr2::req_timeout(0.2) |>
     httr2::req_perform()
+
   TRUE
 }
 
