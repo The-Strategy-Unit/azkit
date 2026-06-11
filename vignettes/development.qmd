@@ -1,0 +1,74 @@
+---
+title: Development of the package
+vignette: >
+  %\VignetteIndexEntry{development}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+
+The main motivation for developing the package was that colleagues were using
+individual workflows for authenticating to Azure and accessing containers and
+files, often copying and pasting chunks of code from project to project.
+
+There was no central, standardised set of functions for doing these common
+tasks.
+
+This package provides documented, tested and standardised functions that can be
+used across projects.
+This saves lines of code and copy-pasting, and enables us to make processes
+more robust and to gather bug reports and ideas for improvement in a central and
+visible location (the GitHub repository!)
+
+Some of the learnings, as a developer, from writing the package were:
+
+* I wanted to provide helpful error messages to users. With remote, online
+  authentication, there is a risk that errors can be obscure, and you might not
+  know whether the error is with the internet connection, the server, your
+  personal authentication, or with the local R code. I used the `{cli}` package
+  to help gather error messages and format them appropriately (using
+  [semantic formatting][cli_slides]).
+* However, I think initially I definitely overdid this - adding too much detail
+  in the error message formatting, instead of (or worse, in addition to)
+  allowing R's own quite useful error messages to surface. I also used the
+  `{purrr}` `possibly()` and `safely()` functions in places to try to shield the
+  user from errors. Sometimes this was necessary, but in other places this was
+  being "too helpful" - it's usually better to allow an error to occur and
+  naturally alert the user that there is an issue. It does depend though!
+* Azure authentication (with `AzureAuth::get_azure_token()`) has lots of
+  potential options and a forking mess of paths and subsets of options depending
+  on one's local circumstances. For our purposes, there were certain options
+  that I wanted to set up with default values as these would be the ones used
+  most often, or always, in the Strategy Unit context. There was therefore a set
+  of options that would become irrelevant and could be hidden from the `azkit`
+  user. But I still wanted it to be possible for the user to override these and
+  use a custom set of options if necessary. I used `...` to support this.
+  It's a spectrum: at one end I could have written a very thin wrapper around
+  `AzureAuth::get_azure_token()` and expected the user to pass everything in via
+  `...`, and to refer to the AzureAuth documentation themself rather than
+  me providing function documentation. However in that case why bother writing
+  the function? At the other end of the spectrum, I could have written a much
+  more opinionated function with most arguments set to defaults, and very little
+  flexibility for the user. This might have been easier to write - and to use -
+  but at the cost of making it impossible to use in non-standard contexts.
+* environment variables - config-driven
+* tests - using actual function calls to storage at first
+
+
+[cli_slides]: https://github.com/nhs-r-community/RPySOC2025_presentations/blob/main/presentations/2025-11-13_barton.md
+
+
+
+### The hex badge
+
+Making this was fun.
+The badge shows someone travelling on an escalator to the world of clouds where
+buckets and buckets of data are waiting.
+It also features some blobs.
+I used [Inkscape][iks] to generate an SVG file which was then exported to a PNG.
+
+[iks]: https://inkscape.org/

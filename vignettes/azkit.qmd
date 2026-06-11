@@ -1,0 +1,50 @@
+---
+title: Getting started
+vignette: >
+  %\VignetteIndexEntry{Getting started}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+`{azkit}` is an R package to help you:
+
+* handle authentication with Azure
+* perform basic tasks accessing blob and table storage (containers)
+* read in data from some common file types.
+
+The purpose of this page is to show you a few ways you might use azkit functions
+to achieve certain tasks.
+It's not the only way you can set things up and use the functions, it's just an
+opinionated example workflow - you may choose to do things differently 😀.
+
+## Example workflow
+
+Imagine you have a project where you need to read in a file that is hosted on
+Azure storage.
+
+Here are some steps you might follow.
+
+## General setup (optional)
+
+Open a `.Renviron` text file in your project folder.
+In this file, add a line:
+
+```
+AZ_STORAGE_EP=
+```
+and after the `=` sign add the URL of your Azure endpoint.
+
+## R code
+
+The steps below are just one approach - you are free to do things your own way!
+
+Open your preferred IDE and start an R script file or a quarto document.
+
+```{r}
+#| label: setup
+library(azkit)
+```
