@@ -7,6 +7,30 @@
 #' @param select An OData select string to specify which properties to return.
 #' @param top An integer specifying the maximum number of records to return.
 #' @returns A tibble
+#' @examples
+#' \dontrun{
+#' # Read all rows from a table
+#' read_azure_table(
+#'   "my_table",
+#'   table_endpoint = "https://myaccount.table.core.windows.net/"
+#' )
+#'
+#' # Filter rows using an OData filter string
+#' read_azure_table(
+#'   "my_table",
+#'   table_endpoint = "https://myaccount.table.core.windows.net/",
+#'   filter = "PartitionKey eq 'my-partition'"
+#' )
+#'
+#' # Filter, select specific properties, and limit the number of rows returned
+#' read_azure_table(
+#'   "my_table",
+#'   table_endpoint = "https://myaccount.table.core.windows.net/",
+#'   filter = "Status eq 'Active' and Score ge 10",
+#'   select = "PartitionKey,RowKey,Status,Score",
+#'   top = 100
+#' )
+#' }
 #' @export
 read_azure_table <- function(
   table_name,
