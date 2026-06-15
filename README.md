@@ -1,6 +1,4 @@
-<img src="man/figures/logo.png" align="right" height="138" alt="azkit badge" />
-
-# `{azkit}` 🌊🔑📂📦![R](https://www.r-project.org/favicon-32x32.png)
+# `azkit` 🌊🔑📂📦![R](https://www.r-project.org/favicon-32x32.png) <img src="man/figures/logo.png" align="right" height="138" alt="azkit badge" />
 
 <!-- badges: start -->
 [![License: MIT][mit_svg]](https://opensource.org/licenses/MIT)
