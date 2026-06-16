@@ -44,7 +44,6 @@ library(AzureRMR)
 AzureRMR::create_azure_login()
 
 AzureRMR::get_azure_login()
-
 ```
 
 A successful authentication will result in the following message:

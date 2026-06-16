@@ -183,12 +183,16 @@ container and credentials.
 For the simplest access downloading a csv:
 
 ```{r}
-# Note this code is "nested" so the get_container() function is inside 
+# Note this code is "nested" so the get_container() function is inside
 # the read_azure_csv() function
 
-azkit::read_azure_csv(azkit::get_container(container_name = "supporting-data",
-                             endpoint_url = Sys.getenv("AZ_STORAGE_EP")),
-               file = "mitigator-lookup.csv")
+azkit::read_azure_csv(
+  azkit::get_container(
+    container_name = "supporting-data",
+    endpoint_url = Sys.getenv("AZ_STORAGE_EP")
+  ),
+  file = "mitigator-lookup.csv"
+)
 ```
 
 You can also use other arguments that will be applied to the specific file 
@@ -199,17 +203,18 @@ use:
 
 
 ```{r}
-# Note this code is "piped" so the get_container() function is before the 
+# Note this code is "piped" so the get_container() function is before the
 # the read_azure_csv() function
 
 azkit::get_container(
   container_name = "supporting-data",
   endpoint_url = Sys.getenv("AZ_STORAGE_EP")
 ) |>
-  azkit::read_azure_csv(file = "mitigator-lookup.csv",
-                 # select specific columns and can be used with other dplyr functions
-                 col_select = dplyr::starts_with("active"))
-
+  azkit::read_azure_csv(
+    file = "mitigator-lookup.csv",
+    # select specific columns and can be used with other dplyr functions
+    col_select = dplyr::starts_with("active")
+  )
 ```
 
 Functions for other file types all follow the same pattern using `get_container()`
@@ -220,7 +225,6 @@ azkit::read_azure_rds()
 azkit::read_azure_json()
 azkit::read_azure_jsongz()
 azkit::read_azure_parquet()
-
 ```
 
 These all will download in formats that you will be familiar with but if the
@@ -231,24 +235,31 @@ any data type:
 ```{r}
 # This is not a human readable form!
 
-azkit::read_azure_file(azkit::get_container(container_name = "supporting-data",
-                             endpoint_url = Sys.getenv("AZ_STORAGE_EP")),
-               file = "mitigator-lookup.csv")
+azkit::read_azure_file(
+  azkit::get_container(
+    container_name = "supporting-data",
+    endpoint_url = Sys.getenv("AZ_STORAGE_EP")
+  ),
+  file = "mitigator-lookup.csv"
+)
 ```
 
 This makes transferring data very fast and can be translated locally. In this 
 example from a .csv it would look like:
 
 ```{r}
-raw_data <- azkit::read_azure_file(azkit::get_container(container_name = "supporting-data",
-                             endpoint_url = Sys.getenv("AZ_STORAGE_EP")),
-               file = "mitigator-lookup.csv")
+raw_data <- azkit::read_azure_file(
+  azkit::get_container(
+    container_name = "supporting-data",
+    endpoint_url = Sys.getenv("AZ_STORAGE_EP")
+  ),
+  file = "mitigator-lookup.csv"
+)
 
 csv_data <- read.csv(text = rawToChar(raw_data))
 
 # view top few rows of what is now a data frame
 head(csv_data)
-
 ```
 
 ## Reading multiple files
@@ -262,19 +273,20 @@ list_of_csvs <- azkit::list_files(
     container_name = "supporting-data",
     endpoint_url = Sys.getenv("AZ_STORAGE_EP")
   ),
-  ext = "csv") 
+  ext = "csv"
+)
 
-list_of_csvs |> 
-   # get the name from the file name but drop the extension detail
-   purrr::set_names(basename(tools::file_path_sans_ext(list_of_csvs))) |> 
-   purrr::map(\(x) {
+list_of_csvs |>
+  # get the name from the file name but drop the extension detail
+  purrr::set_names(basename(tools::file_path_sans_ext(list_of_csvs))) |>
+  purrr::map(\(x) {
     read_azure_csv(
-      azkit::get_container(container_name = "supporting-data", 
-                           endpoint_url = Sys.getenv("AZ_STORAGE_EP")),
+      azkit::get_container(
+        container_name = "supporting-data",
+        endpoint_url = Sys.getenv("AZ_STORAGE_EP")
+      ),
       x
     )
   }) |>
   list2env(.GlobalEnv)
-
 ```
-
