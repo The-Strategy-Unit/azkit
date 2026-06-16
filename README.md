@@ -33,129 +33,39 @@ pak::pak("The-Strategy-Unit/azkit")
 
 ## Usage
 
-A primary function in `{azkit}` enables access to an Azure blob container:
+Functions are grouped with consistent prefixes:
 
-```r
-data_container <- azkit::get_container("data-container")
+- `check_`
+- `get_`
+- `list_`
+- `read_`
 
-```
-Authentication is handled automatically by `get_container()`, but if you need
-to, you can explicitly return an authentication token for inspection or re-use:
+There are some single prefixed functions:
 
-```r
-my_token <- azkit::get_auth_token()
-
-```
-
-```r
-data_container <- azkit::get_container("data-container", token = my_token)
-```
-
-Return a list of all available containers in your default Azure storage with:
-
-```r
-list_container_names()
-```
-
-Once you have access to a container, you can use one of a set of data reading
-functions to bring data into R from `.parquet`, `.rds`, `.json` or `.csv` files.
-For example:
-
-```r
-pqt_data <- azkit::read_azure_parquet(data_container, "important_data.parquet")
-
-```
-
-To read in any file from the container in raw format, to be passed to the
-handler of your choice, use:
-
-```r
-raw_data <- azkit::read_azure_file(data_container, "misc_data.ext")
-```
-
-You can map over multiple files by first using `azkit::list_files()` and then
-passing the file paths to the `read*` function:
-
-```r
-azkit::list_files(data_container, "data/latest", "parquet") |>
-  purrr::map(\(x) azkit::read_azure_parquet(data_container, x))
-```
-
-Currently these functions only read in a single file at a time.
-
-You can also pass through arguments in `...` that will be applied to the
-appropriate handler function (see documentation).
-For example, `readr::read_delim()` is used under the hood by
-`azkit::read_azure_csv`, so you can pass through a config argument such as
-`col_types`:
-
-```r
-csv_data <- data_container |>
-  azkit::read_azure_csv("vital_data.csv", path = "data", col_types = "ccci")
-
-```
+- `cst_`
+- `ct_`
+- `cv_`
+- `generate_`
+- `imds_`
 
 ## Environment variables
 
-To facilitate access to Azure Storage you may want to set some environment
-variables.
-The neatest way to do this is to include a [`.Renviron` file][posit_env] in
-your project folder.
+To facilitate access to Azure Storage you will need to set up credentials to 
+authenticate access and you may want to set these in the environment. Details
+for the different places to save this can be found in 
+[Getting Started](./azkit.html).
 
-⚠️ These values are sensitive and should not be exposed to anyone outside The
-Strategy Unit.
-Make sure you include `.Renviron` in [the `.gitignore` file][github] for
-your project.
-
-Your `.Renviron` file can contain the variables below.
-Ask a member of [the Data Science team][suds] for the necessary values.
-
-```
-AZ_STORAGE_EP=
-AZ_TABLE_EP=
-```
-
-## Troubleshooting
-
-Azure authentication is probably the main area where you might experience
-difficulty.
-
-To debug, try running:
-
-```r
-azkit::get_auth_token()
-```
-and see what is returned.
-
-`AzureRMR::get_azure_login()` or `AzureRMR::list_azure_tokens()` may also be
-helpful for troubleshooting - try them and see if they work / what they reveal.
-
-To refresh a token, you can do:
-
-```r
-# if previously you did:
-# token <- azkit::get_auth_token()
-azkit::refresh_token(token)
-```
-
-If you get errors when reading in files, first check that you are passing in
-the full and correct filepath relative to the root directory of the container.
-
-If `read_azure_json()` and similar are not working as expected, try reading in
-the raw data first with `azkit::read_azure_file()` and then passing that to a
-handler function of your choice.
-
+> ⚠️ Important  
+> Ensure you follow the guidelines set by your IT security and/or team about
+how and where you save Azure credentials.
 
 ## Getting help
 
 Please use the [Issues][issues] feature on GitHub to report any bugs, ideas
-or problems, including with the package documentation.
+or problems.
 
 Alternatively, to ask any questions about the package you may contact
 [Fran Barton](mailto:francis.barton@nhs.net).
 
 
-[posit_env]: https://docs.posit.co/ide/user/ide/guide/environments/r/managing-r.html#renviron
-[github]: https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-[suds]: https://the-strategy-unit.github.io/data_science/about.html
 [issues]: https://github.com/The-Strategy-Unit/azkit/issues
