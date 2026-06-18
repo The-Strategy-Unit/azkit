@@ -40,5 +40,6 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Config/roxygen2/version: 8.0.0
-URL: https://the-strategy-unit.github.io/azkit/
 VignetteBuilder: knitr
+URL: https://the-strategy-unit.github.io/azkit/, https://github.com/The-Strategy-Unit/azkit
+BugReports: https://github.com/The-Strategy-Unit/azkit/issues
