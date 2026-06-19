@@ -145,13 +145,19 @@ to point to the exact container and provide the relevant credentials:
 
 ``` r
 
+# Retrieving the container information will be used in subsequent code
+sd_container <- get_container(
+  container_name = "supporting-data",
+  endpoint_url = Sys.getenv("AZ_STORAGE_EP")
+)
+```
+
+``` r
+
 # "supporting_data" is a name that you will have to change according to what the
 # containers you have access to and what they are called
 azkit::list_files(
-  get_container(
-    container_name = "supporting-data",
-    endpoint_url = Sys.getenv("AZ_STORAGE_EP")
-  ),
+  container = sd_container,
   ext = "csv"
 )
 ```
@@ -164,10 +170,7 @@ set to TRUE (the default is FALSE):
 ``` r
 
 azkit::list_files(
-  get_container(
-    container_name = "supporting-data",
-    endpoint_url = Sys.getenv("AZ_STORAGE_EP")
-  ),
+  container = sd_container,
   ext = "csv",
   recursive = TRUE
 )
@@ -194,10 +197,7 @@ For the simplest access downloading a csv:
 # the read_azure_csv() function
 
 azkit::read_azure_csv(
-  azkit::get_container(
-    container_name = "supporting-data",
-    endpoint_url = Sys.getenv("AZ_STORAGE_EP")
-  ),
+  container = sd_container,
   file = "mitigator-lookup.csv"
 )
 ```
@@ -216,8 +216,7 @@ could use:
 # the read_azure_csv() function
 
 azkit::get_container(
-  container_name = "supporting-data",
-  endpoint_url = Sys.getenv("AZ_STORAGE_EP")
+  container_name = "supporting-data"
 ) |>
   azkit::read_azure_csv(
     file = "mitigator-lookup.csv",
@@ -248,10 +247,7 @@ function will retrieve any data type:
 # This is not a human readable form!
 
 azkit::read_azure_file(
-  azkit::get_container(
-    container_name = "supporting-data",
-    endpoint_url = Sys.getenv("AZ_STORAGE_EP")
-  ),
+  container = sd_container,
   file = "mitigator-lookup.csv"
 )
 ```
@@ -262,10 +258,7 @@ this example from a .csv it would look like:
 ``` r
 
 raw_data <- azkit::read_azure_file(
-  azkit::get_container(
-    container_name = "supporting-data",
-    endpoint_url = Sys.getenv("AZ_STORAGE_EP")
-  ),
+  container = sd_container,
   file = "mitigator-lookup.csv"
 )
 
@@ -284,10 +277,7 @@ package:
 ``` r
 
 list_of_csvs <- azkit::list_files(
-  azkit::get_container(
-    container_name = "supporting-data",
-    endpoint_url = Sys.getenv("AZ_STORAGE_EP")
-  ),
+  container = sd_container,
   ext = "csv"
 )
 
@@ -296,10 +286,7 @@ list_of_csvs |>
   purrr::set_names(basename(tools::file_path_sans_ext(list_of_csvs))) |>
   purrr::map(\(x) {
     read_azure_csv(
-      azkit::get_container(
-        container_name = "supporting-data",
-        endpoint_url = Sys.getenv("AZ_STORAGE_EP")
-      ),
+      container = sd_container,
       x
     )
   }) |>

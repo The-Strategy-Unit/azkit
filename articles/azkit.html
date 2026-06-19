@@ -186,24 +186,26 @@ If you use both <code>.Renviron</code> files the project will be read before the
 <p><code><a href="../reference/list_files.html">list_files()</a></code> requires <code><a href="../reference/get_container.html">get_container()</a></code> to point to the exact container and provide the relevant credentials:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Retrieving the container information will be used in subsequent code</span></span>
+<span><span class="va">sd_container</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
+<span>  container_name <span class="op">=</span> <span class="st">"supporting-data"</span>,</span>
+<span>  endpoint_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># "supporting_data" is a name that you will have to change according to what the</span></span>
 <span><span class="co"># containers you have access to and what they are called</span></span>
 <span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_files.html">list_files</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
-<span>    container_name <span class="op">=</span> <span class="st">"supporting-data"</span>,</span>
-<span>    endpoint_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
+<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
 <span>  ext <span class="op">=</span> <span class="st">"csv"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>If the container has sub folders the <code><a href="../reference/list_files.html">list_files()</a></code> can also return the files in those when the <code>recursive =</code> parameter is set to TRUE (the default is FALSE):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_files.html">list_files</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
-<span>    container_name <span class="op">=</span> <span class="st">"supporting-data"</span>,</span>
-<span>    endpoint_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
+<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
 <span>  ext <span class="op">=</span> <span class="st">"csv"</span>,</span>
 <span>  recursive <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -217,27 +219,23 @@ If you’d prefer to view Azure in a GUI (Graphical User Interface) and have per
 <p>For all the functions to get particular files, they need to be used in conjunction with the <code><a href="../reference/get_container.html">get_container()</a></code> function that provides details of the container and credentials.</p>
 <p>For the simplest access downloading a csv:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Note this code is "nested" so the get_container() function is inside</span></span>
 <span><span class="co"># the read_azure_csv() function</span></span>
 <span></span>
 <span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span></span>
-<span>  <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
-<span>    container_name <span class="op">=</span> <span class="st">"supporting-data"</span>,</span>
-<span>    endpoint_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
+<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
 <span>  file <span class="op">=</span> <span class="st">"mitigator-lookup.csv"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>You can also use other arguments that will be applied to the specific file reader through the argument <code>...</code>. For example, <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_delim()</a></code> is used by the function <code>read_azure_csv</code> and because of this it’s possible to use other arguments that the <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_delim()</a></code> could use:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Note this code is "piped" so the get_container() function is before the</span></span>
 <span><span class="co"># the read_azure_csv() function</span></span>
 <span></span>
 <span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
-<span>  container_name <span class="op">=</span> <span class="st">"supporting-data"</span>,</span>
-<span>  endpoint_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span>
+<span>  container_name <span class="op">=</span> <span class="st">"supporting-data"</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span></span>
 <span>    file <span class="op">=</span> <span class="st">"mitigator-lookup.csv"</span>,</span>
@@ -247,7 +245,7 @@ If you’d prefer to view Azure in a GUI (Graphical User Interface) and have per
 </div>
 <p>Functions for other file types all follow the same pattern using <code><a href="../reference/get_container.html">get_container()</a></code> and detailing the file wanted:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_rds.html">read_azure_rds</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_json.html">read_azure_json</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_jsongz.html">read_azure_jsongz</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -255,25 +253,19 @@ If you’d prefer to view Azure in a GUI (Graphical User Interface) and have per
 </div>
 <p>These all will download in formats that you will be familiar with but if the data is required in the <code>raw binary</code> form that is stored in Azure and then parsed/translated by some other means then the following function will retrieve any data type:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># This is not a human readable form!</span></span>
 <span></span>
 <span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_file.html">read_azure_file</a></span><span class="op">(</span></span>
-<span>  <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
-<span>    container_name <span class="op">=</span> <span class="st">"supporting-data"</span>,</span>
-<span>    endpoint_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
+<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
 <span>  file <span class="op">=</span> <span class="st">"mitigator-lookup.csv"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>This makes transferring data very fast and can be translated locally. In this example from a .csv it would look like:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">raw_data</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_file.html">read_azure_file</a></span><span class="op">(</span></span>
-<span>  <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
-<span>    container_name <span class="op">=</span> <span class="st">"supporting-data"</span>,</span>
-<span>    endpoint_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
+<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
 <span>  file <span class="op">=</span> <span class="st">"mitigator-lookup.csv"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -286,12 +278,9 @@ If you’d prefer to view Azure in a GUI (Graphical User Interface) and have per
 </h2>
 <p>The functions don’t read in multiple files but can be combined with other code to do this using loops or the equivalent using the purrr package:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">list_of_csvs</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_files.html">list_files</a></span><span class="op">(</span></span>
-<span>  <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
-<span>    container_name <span class="op">=</span> <span class="st">"supporting-data"</span>,</span>
-<span>    endpoint_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
+<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
 <span>  ext <span class="op">=</span> <span class="st">"csv"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -300,10 +289,7 @@ If you’d prefer to view Azure in a GUI (Graphical User Interface) and have per
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/fileutils.html" class="external-link">file_path_sans_ext</a></span><span class="op">(</span><span class="va">list_of_csvs</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>\<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="../reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span></span>
-<span>      <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
-<span>        container_name <span class="op">=</span> <span class="st">"supporting-data"</span>,</span>
-<span>        endpoint_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span>
-<span>      <span class="op">)</span>,</span>
+<span>      container <span class="op">=</span> <span class="va">sd_container</span>,</span>
 <span>      <span class="va">x</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span></span>
