@@ -101,35 +101,63 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>Functions are grouped with consistent prefixes:</p>
-<ul>
-<li><code>check_</code></li>
-<li><code>get_</code></li>
-<li><code>list_</code></li>
-<li><code>read_</code></li>
-</ul>
-<p>There are some single prefixed functions:</p>
-<ul>
-<li><code>cst_</code></li>
-<li><code>ct_</code></li>
-<li><code>cv_</code></li>
-<li><code>generate_</code></li>
-<li><code>imds_</code></li>
-</ul>
+<p>A primary function in <a href="https://the-strategy-unit.github.io/azkit/">azkit</a> enables access to an Azure blob container:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data_container</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/get_container.html">get_container</a></span><span class="op">(</span><span class="st">"data-container"</span><span class="op">)</span></span></code></pre></div>
+<p>Authentication is handled automatically by <code><a href="reference/get_container.html">get_container()</a></code>, but if you need to, you can explicitly return an authentication token for inspection or re-use:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_token</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/get_auth_token.html">get_auth_token</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data_container</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/get_container.html">get_container</a></span><span class="op">(</span><span class="st">"data-container"</span>, token <span class="op">=</span> <span class="va">my_token</span><span class="op">)</span></span></code></pre></div>
+<p>Return a list of all available containers in your default Azure storage with:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/list_container_names.html">list_container_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Once you have access to a container, you can use one of a set of data reading functions to bring data into R from <code>.parquet</code>, <code>.rds</code>, <code>.json</code> or <code>.csv</code> files. For example:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pqt_data</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/read_azure_parquet.html">read_azure_parquet</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="st">"important_data.parquet"</span><span class="op">)</span></span></code></pre></div>
+<p>To read in any file from the container in raw format, to be passed to the handler of your choice, use:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">raw_data</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/read_azure_file.html">read_azure_file</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="st">"misc_data.ext"</span><span class="op">)</span></span></code></pre></div>
+<p>You can map over multiple files by first using <code><a href="reference/list_files.html">azkit::list_files()</a></code> and then passing the file paths to the <code>read*</code> function:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/list_files.html">list_files</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="st">"data/latest"</span>, <span class="st">"parquet"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>\<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/read_azure_parquet.html">read_azure_parquet</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="va">x</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Currently these functions only read in a single file at a time.</p>
+<p>You can also pass through arguments in <code>...</code> that will be applied to the appropriate handler function (see documentation). For example, <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_delim()</a></code> is used under the hood by <code><a href="reference/read_azure_csv.html">azkit::read_azure_csv</a></code>, so you can pass through a config argument such as <code>col_types</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">csv_data</span> <span class="op">&lt;-</span> <span class="va">data_container</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span><span class="st">"vital_data.csv"</span>, path <span class="op">=</span> <span class="st">"data"</span>, col_types <span class="op">=</span> <span class="st">"ccci"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="environment-variables">Environment variables<a class="anchor" aria-label="anchor" href="#environment-variables"></a>
 </h2>
-<p>To facilitate access to Azure Storage you will need to set up credentials to authenticate access and you may want to set these in the environment. Details for the different places to save this can be found in <a href="./azkit.html">Getting Started</a>.</p>
-<blockquote>
-<p>⚠️ Important<br>
-Ensure you follow the guidelines set by your IT security and/or team about how and where you save Azure credentials.</p>
-</blockquote>
+<p>To facilitate access to Azure Storage you may want to set some environment variables. The neatest way to do this is to include a <a href="https://docs.posit.co/ide/user/ide/guide/environments/r/managing-r.html#renviron" class="external-link"><code>.Renviron</code> file</a> in your project folder.</p>
+<p>⚠️ These values are sensitive and should not be exposed to anyone outside The Strategy Unit. Make sure you include <code>.Renviron</code> in <a href="https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files" class="external-link">the <code>.gitignore</code> file</a> for your project.</p>
+<p>Your <code>.Renviron</code> file can contain the variables below. Ask a member of <a href="https://the-strategy-unit.github.io/data_science/about.html" class="external-link">the Data Science team</a> for the necessary values.</p>
+<pre><code>AZ_STORAGE_EP=
+AZ_TABLE_EP=</code></pre>
+</div>
+<div class="section level2">
+<h2 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
+</h2>
+<p>Azure authentication is probably the main area where you might experience difficulty.</p>
+<p>To debug, try running:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/get_auth_token.html">get_auth_token</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>and see what is returned.</p>
+<p><code><a href="https://rdrr.io/pkg/AzureRMR/man/azure_login.html" class="external-link">AzureRMR::get_azure_login()</a></code> or <code><a href="https://rdrr.io/pkg/AzureAuth/man/get_azure_token.html" class="external-link">AzureRMR::list_azure_tokens()</a></code> may also be helpful for troubleshooting - try them and see if they work / what they reveal.</p>
+<p>To refresh a token, you can do:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># if previously you did:</span></span>
+<span><span class="co"># token &lt;- azkit::get_auth_token()</span></span>
+<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/get_auth_token.html">refresh_token</a></span><span class="op">(</span><span class="va">token</span><span class="op">)</span></span></code></pre></div>
+<p>If you get errors when reading in files, first check that you are passing in the full and correct filepath relative to the root directory of the container.</p>
+<p>If <code><a href="reference/read_azure_json.html">read_azure_json()</a></code> and similar are not working as expected, try reading in the raw data first with <code><a href="reference/read_azure_file.html">azkit::read_azure_file()</a></code> and then passing that to a handler function of your choice.</p>
 </div>
 <div class="section level2">
 <h2 id="getting-help">Getting help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
 </h2>
-<p>Please use the <a href="https://github.com/The-Strategy-Unit/azkit/issues" class="external-link">Issues</a> feature on GitHub to report any bugs, ideas or problems.</p>
+<p>Please use the <a href="https://github.com/The-Strategy-Unit/azkit/issues" class="external-link">Issues</a> feature on GitHub to report any bugs, ideas or problems, including with the package documentation.</p>
 <p>Alternatively, to ask any questions about the package you may contact <a href="mailto:francis.barton@nhs.net">Fran Barton</a>.</p>
 </div>
 </div>
