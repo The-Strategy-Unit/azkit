@@ -1,0 +1,9 @@
+url: https://the-strategy-unit.github.io/azkit/
+template:
+  bootstrap: 5
+  light-switch: true
+
+news:
+  releases:
+  - text: "Version 0.2"
+    href: https://github.com/The-Strategy-Unit/azkit/releases/tag/v0.2.0

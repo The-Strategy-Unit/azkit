@@ -84,3 +84,6 @@ ENV/
 env.bak/
 venv.bak/
 .Rproj.user
+.positai
+docs
+inst/doc
