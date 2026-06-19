@@ -38,7 +38,6 @@ using another package:
 
 ```{r}
 # install.packages("AzureRMR")
-library(AzureRMR)
 
 # This will open the browser and prompt for a Microsoft Account to be used to connect
 AzureRMR::create_azure_login()
