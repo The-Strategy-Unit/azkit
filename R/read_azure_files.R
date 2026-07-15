@@ -25,7 +25,7 @@ read_azure_parquet <- function(container, file, ...) {
 read_azure_json <- function(container, file, ...) {
   # using `dest = NULL` means pass the data through as a raw vector
   AzureStor::download_blob(container, file, dest = NULL) |>
-    yyjsonr::read_json_raw(...)
+    yyjsonr::read_json_raw(opts = list(obj_of_arrs_to_df = FALSE), ...)
 }
 
 
@@ -42,7 +42,7 @@ read_azure_jsongz <- function(container, file, ...) {
     fileext = "json.gz"
   )
   AzureStor::download_blob(container, file, dest = dl)
-  yyjsonr::read_json_file(dl, ...)
+  yyjsonr::read_json_file(dl, opts = list(obj_of_arrs_to_df = FALSE), ...)
 }
 
 
