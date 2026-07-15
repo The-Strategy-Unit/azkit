@@ -144,7 +144,8 @@ your usual one.
 Otherwise it is probably simpler to set the variables globally and then you can
 basically forget about it!
 
-> ⚠️ Important
+> ⚠️ **Important**
+>
 > If using a project-specific file, ensure this is listed in your `.gitignore`
 > file
 
@@ -175,7 +176,8 @@ Referencing them as envvars means that their actual values do not need to be
 included explicitly in any code that might be made public.
 
 
-> 💡 Tip
+> 💡 **Tip**
+>
 > If you use a project `.Renviron` file as well as a global one, the variables
 > in the project file will override those in the global file.
 > Ensure that any project `.Renviron` is not completely blank, as this
@@ -211,7 +213,8 @@ azkit::list_container_names()
 ```
 to output a list.
 
-> 💡 Tip
+> 💡 **Tip**
+>
 > Alternatively, it can be useful to browse your Azure storage account on the
 > web at <https://portal.azure.com/> or use [Azure Storage Explorer][aseapp].
 
