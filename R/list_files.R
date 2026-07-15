@@ -28,7 +28,7 @@
 list_files <- function(container, dir = "", ext = "", recursive = FALSE) {
   stopifnot(rlang::is_character(c(dir, ext), 2))
   stopifnot(rlang::is_bool(recursive))
-  pnf_msg <- ct_error_msg("Path {.val {path}} not found")
+  pnf_msg <- ct_error_msg("Path {.val {dir}} not found")
   check_that(dir, \(x) AzureStor::blob_dir_exists(container, x), pnf_msg)
 
   ext_rx <- ifelse(nzchar(ext), gsub("^\\.+", "\\.", ext), ".*") # nolint
@@ -40,7 +40,7 @@ list_files <- function(container, dir = "", ext = "", recursive = FALSE) {
   if (nrow(tbl) == 0) {
     fix_path <- \(p) sub("^/+$", "", sub("^([^/])(.*)", "/\\1\\2", p)) # nolint
     ext <- if (nzchar(ext)) paste0(" ", ext)
-    msg <- "No{ext} files found in {.val [{container$name}]:{fix_path(path)}}"
+    msg <- "No{ext} files found in {.val [{container$name}]:{fix_path(dir)}}"
     cli::cli_alert_info(msg)
     invisible(character(0))
   } else {

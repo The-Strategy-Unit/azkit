@@ -18,8 +18,8 @@
 #'  to help provide an appropriate string or vector.
 #'  If setting version to 2, ensure that the `aad_version` argument is also set
 #'  to 2. Both are set to use AAD version 1 by default.
-#' @param tenant A string specifying the Azure tenant. Defaults to
-#'  `"common"`. See [AzureAuth::get_azure_token] for other values.
+#' @param tenant A string specifying the Azure tenant. Defaults to `"common"`.
+#'  See [AzureAuth::get_azure_token] for other values.
 #' @param client_id A string specifying the application ID (aka client ID). If
 #'  `NULL`, (the default) the function attempts to obtain the client ID from the
 #'  Azure Resource Manager token, or prompts the user to log in to obtain it.
