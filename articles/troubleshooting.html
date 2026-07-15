@@ -81,7 +81,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/The-Strategy-Unit/azkit/blob/fb/issue137/vignettes/troubleshooting.qmd" class="external-link"><code>vignettes/troubleshooting.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/The-Strategy-Unit/azkit/blob/fb/issue135/vignettes/troubleshooting.qmd" class="external-link"><code>vignettes/troubleshooting.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -118,6 +118,10 @@
 </div>
 <p>A successful authentication will result in the following message:</p>
 <pre><code>Loading Azure Resource Manager login for default tenant</code></pre>
+<blockquote>
+<p>ℹ️ <strong>Note</strong></p>
+<p>Users at The Strategy Unit: when initially authenticating with Azure, you will be sent to the web. Since you may be logged into one of multiple Microsoft tenants, it is important that you authenticate with the same account (MLCSU) that is used for access to Azure storage. If you authenticate when logged into your nhs.net Microsoft account in your browser, your token will not be useable for access to Azure.</p>
+</blockquote>
 <p>If you had successfully used azkit to get a token and then run the code above you may now have multiple tokens which you can view:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
