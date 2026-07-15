@@ -1,42 +1,42 @@
 # Troubleshooting
 
-## Troubleshooting
-
 Azure authentication is probably the main area where you might
-experience difficulty. To debug, try running:
+experience difficulty. To debug initially, try running:
 
 ``` r
-
-library(azkit)
 
 token <- azkit::get_auth_token()
 ```
 
-It should look like:
+It should look something like:
 
-    Azure Active Directory v1.0 token for resource https://url.com
-      Tenant:
-      App ID:
-      Authentication method:
-      Token valid from: to:
-      MD5 hash of inputs: 
+``` sh
+Azure Active Directory v1.0 token for resource https://url.com
+  Tenant:
+  App ID:
+  Authentication method:
+  Token valid from: to:
+  MD5 hash of inputs:
+```
 
 If this errors, it’s worth testing the authentication is set up
 correctly by using another package:
 
 ``` r
 
-# install.packages("AzureRMR")
+# pak::pak("AzureRMR")
 
-# This will open the browser and prompt for a Microsoft Account to be used to connect
+# This will open the browser and prompt for a Microsoft account to be used to
+# connect
 AzureRMR::create_azure_login()
-
 AzureRMR::get_azure_login()
 ```
 
 A successful authentication will result in the following message:
 
-    Loading Azure Resource Manager login for default tenant
+``` sh
+Loading Azure Resource Manager login for default tenant
+```
 
 > ℹ️ **Note**
 >
@@ -68,9 +68,13 @@ If you get errors when reading in files, first check that you are
 passing in the full and correct file path relative to the root directory
 of the container.
 
-Next try reading in the raw data with
-[`read_azure_file()`](https://the-strategy-unit.github.io/azkit/reference/read_azure_file.md)
-which returns the binary form of data (which isn’t human readable). If
-this is successful then you will be able to pass the data to a handler
-function that’s relevant to the data. Details can be found in [Getting
-Started](https://the-strategy-unit.github.io/azkit/articles/azkit.md).
+You may wish to use the Azure Portal website or the Azure Storage
+Explorer app to check that you have a valid container name and file
+path.
+
+The following function should also return `TRUE` if the file exists:
+
+``` r
+
+AzureStor::blob_exists(container_name, file)
+```

@@ -142,8 +142,10 @@ different Azure endpoints, or a specific project that uses a different
 account to your usual one. Otherwise it is probably simpler to set the
 variables globally and then you can basically forget about it!
 
-> ⚠️ Important If using a project-specific file, ensure this is listed
-> in your `.gitignore` file
+> ⚠️ **Important**
+>
+> If using a project-specific file, ensure this is listed in your
+> `.gitignore` file
 
 ### What to add to your `.Renviron` file
 
@@ -169,10 +171,12 @@ reasons. Referencing them as envvars means that their actual values do
 not need to be included explicitly in any code that might be made
 public.
 
-> 💡 Tip If you use a project `.Renviron` file as well as a global one,
-> the variables in the project file will override those in the global
-> file. Ensure that any project `.Renviron` is not completely blank, as
-> this will unset any variables from the global file.
+> 💡 **Tip**
+>
+> If you use a project `.Renviron` file as well as a global one, the
+> variables in the project file will override those in the global file.
+> Ensure that any project `.Renviron` is not completely blank, as this
+> will unset any variables from the global file.
 
 ## Working with Azure blob storage
 
@@ -209,9 +213,10 @@ azkit::list_container_names()
 
 to output a list.
 
-> 💡 Tip Alternatively, it can be useful to browse your Azure storage
-> account on the web at <https://portal.azure.com/> or use [Azure
-> Storage
+> 💡 **Tip**
+>
+> Alternatively, it can be useful to browse your Azure storage account
+> on the web at <https://portal.azure.com/> or use [Azure Storage
 > Explorer](https://azure.microsoft.com/en-us/products/storage/storage-explorer/).
 
 ### Accessing files in the container

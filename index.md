@@ -5,14 +5,14 @@ accessing blob and table storage and reading in data from files.
 
 ## Status
 
-The package is in development. Please [create an
-issue](https://github.com/The-Strategy-Unit/azkit/issues) if you have
-ideas for its improvement.
+The package is stable and useable. Please [create a GitHub
+issue](https://github.com/The-Strategy-Unit/azkit/issues) if you
+encounter problems, or have ideas for its improvement.
 
 ## Installation
 
-You can install the development version of
-[azkit](https://the-strategy-unit.github.io/azkit/) with:
+You can install [azkit](https://the-strategy-unit.github.io/azkit/)
+with:
 
 ``` r
 
@@ -28,10 +28,13 @@ Azure blob container:
 
 ``` r
 
+# This assumes you have Azure authentication working, and the correct
+# Azure endpoint variables in your environment (see below).
+# NB the file/data locations used here are invented examples.
 data_container <- azkit::get_container("data-container")
 ```
 
-Authentication is handled automatically by
+Authentication should be handled automatically by
 [`get_container()`](https://the-strategy-unit.github.io/azkit/reference/get_container.md),
 but if you need to, you can explicitly return an authentication token
 for inspection or re-use:
@@ -40,6 +43,10 @@ for inspection or re-use:
 
 my_token <- azkit::get_auth_token()
 ```
+
+(For issues with authentication, including mysterious error messages,
+please see the Troubleshooting section below or the [Troubleshooting
+vignette](https://the-strategy-unit.github.io/azkit/articles/troubleshooting.html).)
 
 ``` r
 
@@ -71,6 +78,8 @@ the handler of your choice, use:
 raw_data <- azkit::read_azure_file(data_container, "misc_data.ext")
 ```
 
+Currently these functions only read in a single file at a time.
+
 You can map over multiple files by first using
 [`azkit::list_files()`](https://the-strategy-unit.github.io/azkit/reference/list_files.md)
 and then passing the file paths to the `read*` function:
@@ -81,14 +90,12 @@ azkit::list_files(data_container, "data/latest", "parquet") |>
   purrr::map(\(x) azkit::read_azure_parquet(data_container, x))
 ```
 
-Currently these functions only read in a single file at a time.
-
 You can also pass through arguments in `...` that will be applied to the
 appropriate handler function (see documentation). For example,
 [`readr::read_delim()`](https://readr.tidyverse.org/reference/read_delim.html)
 is used under the hood by
 [`azkit::read_azure_csv`](https://the-strategy-unit.github.io/azkit/reference/read_azure_csv.md),
-so you can pass through a config argument such as `col_types`:
+so you can pass through an argument such as `col_types`:
 
 ``` r
 

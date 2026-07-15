@@ -90,52 +90,43 @@
 
 
 
-    <section class="level2"><h2 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
-</h2>
-<p>Azure authentication is probably the main area where you might experience difficulty. To debug, try running:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://the-strategy-unit.github.io/azkit/">azkit</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">token</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_auth_token.html">get_auth_token</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>It should look like:</p>
-<pre><code>Azure Active Directory v1.0 token for resource https://url.com
-  Tenant:
-  App ID:
-  Authentication method:
-  Token valid from: to:
-  MD5 hash of inputs: </code></pre>
+    <p>Azure authentication is probably the main area where you might experience difficulty. To debug initially, try running:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">token</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_auth_token.html">get_auth_token</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>It should look something like:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Azure</span> Active Directory v1.0 token for resource https://url.com</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">Tenant:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">App</span> ID:</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">Authentication</span> method:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">Token</span> valid from: to:</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">MD5</span> hash of inputs:</span></code></pre></div>
 <p>If this errors, it’s worth testing the authentication is set up correctly by using another package:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("AzureRMR")</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># pak::pak("AzureRMR")</span></span>
 <span></span>
-<span><span class="co"># This will open the browser and prompt for a Microsoft Account to be used to connect</span></span>
+<span><span class="co"># This will open the browser and prompt for a Microsoft account to be used to</span></span>
+<span><span class="co"># connect</span></span>
 <span><span class="fu">AzureRMR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AzureRMR/man/azure_login.html" class="external-link">create_azure_login</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu">AzureRMR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AzureRMR/man/azure_login.html" class="external-link">get_azure_login</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
 <p>A successful authentication will result in the following message:</p>
-<pre><code>Loading Azure Resource Manager login for default tenant</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Loading</span> Azure Resource Manager login for default tenant</span></code></pre></div>
 <blockquote>
 <p>ℹ️ <strong>Note</strong></p>
 <p>Users at The Strategy Unit: when initially authenticating with Azure, you will be sent to the web. Since you may be logged into one of multiple Microsoft tenants, it is important that you authenticate with the same account (MLCSU) that is used for access to Azure storage. If you authenticate when logged into your nhs.net Microsoft account in your browser, your token will not be useable for access to Azure.</p>
 </blockquote>
 <p>If you had successfully used azkit to get a token and then run the code above you may now have multiple tokens which you can view:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">AzureRMR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AzureAuth/man/get_azure_token.html" class="external-link">list_azure_tokens</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
 <p>To refresh a token:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_auth_token.html">refresh_token</a></span><span class="op">(</span><span class="va">token</span><span class="op">)</span></span></code></pre></div>
-</div>
-</section><section class="level2"><h2 id="errors-reading-files">Errors reading files<a class="anchor" aria-label="anchor" href="#errors-reading-files"></a>
+<section class="level2"><h2 id="errors-reading-files">Errors reading files<a class="anchor" aria-label="anchor" href="#errors-reading-files"></a>
 </h2>
 <p>If you get errors when reading in files, first check that you are passing in the full and correct file path relative to the root directory of the container.</p>
-<p>Next try reading in the raw data with <code><a href="../reference/read_azure_file.html">read_azure_file()</a></code> which returns the binary form of data (which isn’t human readable). If this is successful then you will be able to pass the data to a handler function that’s relevant to the data. Details can be found in <a href="./azkit.html">Getting Started</a>.</p>
+<p>You may wish to use the Azure Portal website or the Azure Storage Explorer app to check that you have a valid container name and file path.</p>
+<p>The following function should also return <code>TRUE</code> if the file exists:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">AzureStor</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AzureStor/man/blob.html" class="external-link">blob_exists</a></span><span class="op">(</span><span class="va">container_name</span>, <span class="va">file</span><span class="op">)</span></span></code></pre></div>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
@@ -219,8 +210,7 @@
       }
     }
   });
-  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
-    </nav></aside>
+  </script></main>
 </div>
 
 

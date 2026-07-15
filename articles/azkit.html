@@ -147,7 +147,8 @@
 <code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">edit_r_environ</span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"project"</span><span class="op">)</span></span></code></pre></div>
 <p>The latter makes sense if you have multiple projects that may be using different Azure endpoints, or a specific project that uses a different account to your usual one. Otherwise it is probably simpler to set the variables globally and then you can basically forget about it!</p>
 <blockquote>
-<p>⚠️ Important If using a project-specific file, ensure this is listed in your <code>.gitignore</code> file</p>
+<p>⚠️ <strong>Important</strong></p>
+<p>If using a project-specific file, ensure this is listed in your <code>.gitignore</code> file</p>
 </blockquote>
 <section class="level3"><h3 id="what-to-add-to-your--renviron-file">What to add to your <code>.Renviron</code> file<a class="anchor" aria-label="anchor" href="#what-to-add-to-your--renviron-file"></a>
 </h3>
@@ -159,7 +160,8 @@ AZ_TABLE_EP=[your azure table storage endpoint url]</code></pre>
 <p>Changes to the <code>.Renviron</code> file will require you to reload your environment in order to update it, such as by restarting your R session.</p>
 <p><code>azkit</code> is expecting these variables to be present in your working environment. The reason we set these as environment variables is that the URLs are generally not meant to be made public, for security reasons. Referencing them as envvars means that their actual values do not need to be included explicitly in any code that might be made public.</p>
 <blockquote>
-<p>💡 Tip If you use a project <code>.Renviron</code> file as well as a global one, the variables in the project file will override those in the global file. Ensure that any project <code>.Renviron</code> is not completely blank, as this will unset any variables from the global file.</p>
+<p>💡 <strong>Tip</strong></p>
+<p>If you use a project <code>.Renviron</code> file as well as a global one, the variables in the project file will override those in the global file. Ensure that any project <code>.Renviron</code> is not completely blank, as this will unset any variables from the global file.</p>
 </blockquote>
 </section></section><section class="level2"><h2 id="working-with-azure-blob-storage">Working with Azure blob storage<a class="anchor" aria-label="anchor" href="#working-with-azure-blob-storage"></a>
 </h2>
@@ -179,7 +181,8 @@ AZ_TABLE_EP=[your azure table storage endpoint url]</code></pre>
 <code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_container_names.html">list_container_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>to output a list.</p>
 <blockquote>
-<p>💡 Tip Alternatively, it can be useful to browse your Azure storage account on the web at <a href="https://portal.azure.com/" class="external-link uri">https://portal.azure.com/</a> or use <a href="https://azure.microsoft.com/en-us/products/storage/storage-explorer/" class="external-link">Azure Storage Explorer</a>.</p>
+<p>💡 <strong>Tip</strong></p>
+<p>Alternatively, it can be useful to browse your Azure storage account on the web at <a href="https://portal.azure.com/" class="external-link uri">https://portal.azure.com/</a> or use <a href="https://azure.microsoft.com/en-us/products/storage/storage-explorer/" class="external-link">Azure Storage Explorer</a>.</p>
 </blockquote>
 </section><section class="level3"><h3 id="accessing-files-in-the-container">Accessing files in the container<a class="anchor" aria-label="anchor" href="#accessing-files-in-the-container"></a>
 </h3>
