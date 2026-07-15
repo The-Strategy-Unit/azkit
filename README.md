@@ -97,7 +97,7 @@ csv_data <- data_container |>
 
 ## Environment variables
 
-To facilitate access to Azure Storage you may want to set some environment
+To facilitate access to Azure Storage you should set some environment
 variables.
 The neatest way to do this is to include a [`.Renviron` file][posit_env] in
 your project folder.
