@@ -8,271 +8,355 @@ knitr:
   opts_chunk:
     collapse: true
     comment: '#>'
-execute: 
+execute:
   eval: false
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
 `{azkit}` is an R package to help you:
 
 * handle authentication with Azure
-* perform basic tasks accessing blob (unstructured data) and table storage 
-(structured data)
-* read in data from some common file types.
+* perform basic tasks accessing Azure blob storage and table storage
 
-The purpose of this page is to show you a few ways you might use {azkit} functions
-to achieve certain tasks.
+The purpose of this page is to show you a few ways you might use {azkit}
+functions to achieve certain tasks.
 It's not the only way you can set things up and use the functions, it's just an
 opinionated example workflow - you may choose to do things differently 😀.
 
-## Setting up security credentials
+## Authentication with Azure storage
 
-> 💡 Tip  
-> This only needs to be done once but if you choose to do this for a project rather
-than globally (user) then every project will need credentials set up.
+This is an important first step.
 
-Azure requires credentials set up locally on your computer in order to the data 
-it contains. There are a number of places this information can
-be stored and their use depends on your team's use and the security level 
-required. 
+`{azkit}` supports various approaches to authentication and authorisation,
+depending on the kind of `resource` you need to access.
 
-### `.Renviron` files
+The `get_auth_token()` function therefore supports various options, for example
+whether to generate a v1 or v2 token, whether the code is running on a managed
+resource or locally, whether to use a locally-stored secret or an authorisation
+code, and so on.
+Our function is a wrapper around functions in the `{AzureAuth}` package, and
+reading the documentation provided for that package is a good way to explore
+what specific approaches might be required for specific circumstances.
 
-There are two `.Renviron` files, one can be stored in your project folder and
-one can be set globally so that any project can access the credential. Both files 
-need to be created and set up and can either be done manually or, more 
-conveniently, through using the `usethis` package:
+For standard users, however, the default options provided by our function should
+be sufficient and should be the simplest way to get up and running.
 
-> ⚠️ Important  
-> Don't forget to ensure that the `.gitignore` has `.Renviron` listed. This is 
-particularly important if the file is saved in the project.
+As a local user (not running on a managed resource), you first of all need to
+get an authentication token that verifies to Azure that you have a certain user
+account.
 
-```{r}
-# creates or opens an existing file in the project
-usethis::edit_r_environ(scope = "project")
-# Add a file to .gitignore if you haven't already done so
-usethis::use_git_ignore(".Renviron")
+Do this from your computer when online, as it requires user interaction - it
+will require you to log in via your web browser, or via a Microsoft login app.
+R cannot do this bit for you 😊.
 
-# creates or opens an existing file in the global
-usethis::edit_r_environ(scope = "user")
+Run
 
-# just running the following defaults to "user"
+```r
+azkit::get_auth_token()
+```
+
+at the R console. Alternatively, install the [Azure CLI tool][azcli] and do:
+
+```bash
+az login
+```
+
+at the terminal.
+This should pop up a window asking you to authenticate with Azure online -
+beware, sometimes this window is not immediately visible, it may be hidden
+behind other windows on your screen.
+
+The authentication token will be stored under your user account files on your
+computer.
+
+You can see which tokens you have by running
+
+```r
+AzureAuth::list_azure_tokens()
+```
+
+See also the [Troubleshooting vignette][trbv].
+
+[azcli]: https://learn.microsoft.com/en-us/cli/azure/install-azure-cli
+[trbv]: https://the-strategy-unit.github.io/azkit/articles/troubleshooting.html
+
+
+### Refreshing your auth token
+
+In a data analysis workflow, if you have done something like:
+
+```r
+token <- azkit::get_auth_token()
+```
+
+and the token later expires*, you should be able to just do this again:
+
+```r
+token <- azkit::get_auth_token()
+```
+
+but alternatively you can use
+
+```r
+azkit::refresh_token(token)
+```
+
+If these don't work, you can force azkit to go get you a whole new fresh token
+from the internet by doing:
+
+```r
+token <- get_auth_token(force_refresh = TRUE)
+```
+
+\* auth tokens have a limited validity period but are supposed to auto-refresh
+when needed
+
+
+## Setting up environment variables
+
+Use an `.Renviron` file to set 2 required environment variables (envvars).
+These are the endpoint URLs of your Azure storage account, for blob storage and
+table storage.
+
+There are two ways you can set variables using `.Renviron` files:
+
+* Globally for your local (eg Windows) user account
+* Project-specific
+
+The `{usethis}` packages provides a handy helper to create/edit these files:
+
+To use the first, global option (probably the most straightforward):
+
+```r
 usethis::edit_r_environ()
 ```
 
-When opening a `.Renviron` file for the first time, whether user or project, it
-will be blank and the following needs to be added:
+or to edit a project-specific `.Renviron` file, while within the project folder:
 
-```
-AZ_STORAGE_EP=
-```
-and after the `=` sign add the URL of your Azure endpoint (with no quotes). 
-Any changes to the files will require restart in R and if you use the usethis 
-function it will remind you in a message that appears in the Console.
-
-> 💡 Tip  
-> If you use both `.Renviron` files the project will be read before the user.
-Ensure that the project `.Renviron` is not completely blank though as this 
-will default to blank even if the details are in the user file.
-
-## Using the `keyring` package for credentials
-
-The package {keyring} can be a good way to separate credentials and are
-also available globally so any project can access them.
-
-To set the credential:
-
-```{r}
-library(keyring)
-keyring::key_set("AZ_STORAGE_EP")
+```r
+usethis::edit_r_environ(scope = "project")
 ```
 
-A pop up box will appear where you can copy the url (without quotes). To 
-retrieve the credential you will need the following code:
+The latter makes sense if you have multiple projects that may be using different
+Azure endpoints, or a specific project that uses a different account to
+your usual one.
+Otherwise it is probably simpler to set the variables globally and then you can
+basically forget about it!
 
+> ⚠️ Important
+> If using a project-specific file, ensure this is listed in your `.gitignore`
+> file
 
-```{r}
-keyring::key_get("AZ_STORAGE_EP")
+### What to add to your `.Renviron` file
+
+For the purposes of this package, the file just needs to contain two endpoint
+URLs with the following names:
+
+```
+AZ_STORAGE_EP=[your azure blob storage endpoint url]
+AZ_TABLE_EP=[your azure table storage endpoint url]
 ```
 
-To view what keyrings you have:
+See the `.Renviron.example` file in the azkit GitHub repository.
 
-```{r}
-keyring::key_list()
+For use within The Strategy Unit, ask a member of [the Data Science team][suds]
+to send you the necessary values for these URLs.
+
+[suds]: https://the-strategy-unit.github.io/data_science/about.html
+
+Changes to the `.Renviron` file will require you to reload your environment in
+order to update it, such as by restarting your R session.
+
+`azkit` is expecting these variables to be present in your working environment.
+The reason we set these as environment variables is that the URLs are generally
+not meant to be made public, for security reasons.
+Referencing them as envvars means that their actual values do not need to be
+included explicitly in any code that might be made public.
+
+
+> 💡 Tip
+> If you use a project `.Renviron` file as well as a global one, the variables
+> in the project file will override those in the global file.
+> Ensure that any project `.Renviron` is not completely blank, as this
+> will unset any variables from the global file.
+
+
+
+## Working with Azure blob storage
+
+### Containers
+
+Reading in data from Azure blob storage requires you to first set up access to
+a particular `container` where your data is located.
+
+The `azkit::get_container()` function makes this easy.
+
+You may have a container name stored as an environment variable, for security.
+If not, just provide the name of the container as a string instead.
+
+First read this in and then use it to create a container object in R:
+
+```r
+container_name <- Sys.getenv("AZ_STORAGE_DATA_CONTAINER")
+# or as a string:
+# container_name <- "example-data"
+data_container <- azkit::get_container(container_name)
 ```
 
-## Find what containers there available to view
+If you don't know the names of the containers you have access to, you can use:
 
-```{r}
-library(azkit)
-```
-
-To see the containers you have access to:
-
-```{r}
-# This will work if you have the AZ_STORAGE_EP url stored in an `.Renviron` file
+```r
 azkit::list_container_names()
+```
+to output a list.
 
-# The default is the same as writing regardless of which `.Renviron` file is used
-azkit::list_container_names(Sys.getenv("AZ_STORAGE_EP"))
+> 💡 Tip
+> Alternatively, it can be useful to browse your Azure storage account on the
+> web at <https://portal.azure.com/> or use [Azure Storage Explorer][aseapp].
 
-# If you are using keyring you will need to type out the code:
-azkit::list_container_names(endpoint_url = keyring::key_get("AZ_STORAGE_EP"))
+[aseapp]: https://azure.microsoft.com/en-us/products/storage/storage-explorer/
+
+
+### Accessing files in the container
+
+Use `azkit::list_files()` to see what files are available.
+
+Re-using our `data_container` variable from the code above, we might do
+something like:
+
+```r
+azkit::list_files(data_container, "my-data-folder")
 ```
 
-## Accessing a container
+This will return a list of the all the files in that specific directory.
+By default this is non-recursive: it does not return any files within
+sub-directories.
+You can change this behaviour by using the `recursive` argument, but beware that
+you might end up with a lot of filenames if there is lots of data stored in a
+sub-directory structure!
 
-Two functions are used together to access files from a particular container. 
-
-> 💡 Tip 
-> The following will refer to `"supporting-data"` and this is a placeholder so 
-will need to be changed to a container you have access to.
-
-The function `list_files()` only returns files according to their type, rather 
-than individual files which may be more familiar with which list _all_ files:
-
-```{r}
-# library(here)
-
-# This is just an example of a base R function that returns all the files
-# list.files(here::here())
+```r
+azkit::list_files(data_container, "my-data-folder", recursive = TRUE)
 ```
 
-`list_files()` requires `get_container()` to point to the exact container and
-provide the relevant credentials:
+You can also limit `list_files` to only return files with a certain filetype
+extension (no `.` required before the extension).
+(By default it will list all files.)
 
-```{r}
-# Retrieving the container information will be used in subsequent code
-sd_container <- get_container(
-  container_name = "supporting-data",
-  endpoint_url = Sys.getenv("AZ_STORAGE_EP")
+```r
+azkit::list_files(data_container, "my-data-folder", ext = "json")
+```
+
+Once you have your filename, you can use one of a selection of azkit functions
+to help read the data into R.
+
+azkit comes with five functions optimised for reading in data from:
+
+* parquet (`azkit::read_azure_parquet()`)
+* json (`azkit::read_azure_json()`)
+* json.gz (`azkit::read_azure_jsongz()`)
+* csv (`azkit::read_azure_csv()`)
+* rds (`azkit::read_azure_rds()`)
+
+These come with helper functions already set up to read the data into R in the
+most convenient way.
+There is also scope to customise how these functions operate - see each
+function's help page for more.
+
+For example, `azkit::read_azure_csv()` allows you to pass additional options
+through to `readr::read_delim`, such as the `col_types` argument.
+
+There is also the `azkit::read_azure_file()` function that will attempt to read
+from any given file, for situations not covered by the above 5.
+But you will need to handle the output returned by this yourself.
+
+
+#### Example: reading a parquet file
+
+```r
+parquet_data <- azkit::read_azure_parquet(data_container, "data/info.parquet")
+```
+
+
+#### Example: reading a CSV file
+
+Simplest method:
+
+```r
+csv_data <- azkit::read_azure_csv(data_container, "csv_data/info.csv")
+```
+
+With additional options passed through:
+
+```r
+csv_data <- data_container |>
+  azkit::read_azure_csv("csv_data/info.csv", col_types = "cc-ii")
+```
+
+
+```r
+csv_data <- azkit::read_azure_csv(
+  data_container,
+  "csv_data/info.csv",
+  col_select = tidyselect::starts_with("active")
 )
 ```
 
-```{r}
-# "supporting_data" is a name that you will have to change according to what the
-# containers you have access to and what they are called
-azkit::list_files(
-  container = sd_container,
-  ext = "csv"
+#### Example: reading multiple files
+
+The `azkit::read_azure_*` functions don't read in multiple files by default, but
+this can be achieved by using them within an apply or map operation:
+
+```r
+csv_files <- azkit::list_files(data_container, "csv_data", ext = "csv")
+csv_names <- tools::file_path_sans_ext(basename(csv_files))
+csv_data_list <- csv_files |>
+  purrr::map(\(x) azkit::read_azure_csv(data_container, x)) |>
+  rlang::set_names(csv_names) # optional, may be useful
+```
+
+
+## Working with Azure table storage
+
+Table storage does not require access to containers.
+You just need the name of the table you want to access.
+
+We will use the `azkit::read_azure_table()` function.
+
+You may have a table name stored as an environment variable, for security.
+If not, just provide the name of the table as a string instead.
+
+To read in the entire table:
+
+```r
+table_name <- Sys.getenv("AZ_TABLE_NAME")
+# or as a string:
+# table_name <- "example-table"
+table_data <- azkit::read_azure_table(table_name)
+```
+
+Within this function, you can filter the table that is returned by using OData
+clauses ("system query options").
+This is especially useful with large tables where you wish to improve speed by
+only requesting certain rows or columns.
+Use the `filter`, `select`, and/or `top` arguments to achieve this.
+
+### Example of the OData syntax
+
+```r
+table_data <- azkit::read_azure_table(
+  table_name,
+  filter = "Status eq 'Active' and Score ge 10", # filter rows by variable value
+  select = "PartitionKey,RowKey,Status,Score", # only return certain columns
+  top = 100 # only return the first 100 rows
 )
 ```
 
-If the container has sub folders the `list_files()` can also return the files
-in those when the `recursive =` parameter is set to TRUE (the default is FALSE):
+A very initial guide to how to construct your own clauses (query options) can be
+found on [Microsoft Learn][odata].
+Although the examples there are not written in R, the syntax for the query
+options should be in a valid format for what you need to supply to
+`azkit::read_azure_table()`.
 
-```{r}
-azkit::list_files(
-  container = sd_container,
-  ext = "csv",
-  recursive = TRUE
-)
-```
-
-> 💡 Tip  
-> If you'd prefer to view Azure in a GUI (Graphical User Interface) and have
-permissions use the Microsoft program Azure Storage Explorer to explore 
-containers or access via a browser by logging into 
-[https://portal.azure.com/#home](https://portal.azure.com/#home)
-
-## Reading a file
-
-For all the functions to get particular files, they need to be used in 
-conjunction with the `get_container()` function that provides details of the 
-container and credentials.
-
-For the simplest access downloading a csv:
-
-```{r}
-# Note this code is "nested" so the get_container() function is inside
-# the read_azure_csv() function
-
-azkit::read_azure_csv(
-  container = sd_container,
-  file = "mitigator-lookup.csv"
-)
-```
-
-You can also use other arguments that will be applied to the specific file 
-reader through the argument `...`. For example, 
-`readr::read_delim()` is used by the function `read_azure_csv` and because of 
-this it's possible to use other arguments that the `readr::read_delim()` could
-use:
-
-
-```{r}
-# Note this code is "piped" so the get_container() function is before the
-# the read_azure_csv() function
-
-azkit::get_container(
-  container_name = "supporting-data"
-) |>
-  azkit::read_azure_csv(
-    file = "mitigator-lookup.csv",
-    # select specific columns and can be used with other dplyr functions
-    col_select = dplyr::starts_with("active")
-  )
-```
-
-Functions for other file types all follow the same pattern using `get_container()`
-and detailing the file wanted:
-
-```{r}
-azkit::read_azure_rds()
-azkit::read_azure_json()
-azkit::read_azure_jsongz()
-azkit::read_azure_parquet()
-```
-
-These all will download in formats that you will be familiar with but if the
-data is required in the `raw binary` form that is stored in Azure and then 
-parsed/translated by some other means then the following function will retrieve
-any data type:
-
-```{r}
-# This is not a human readable form!
-
-azkit::read_azure_file(
-  container = sd_container,
-  file = "mitigator-lookup.csv"
-)
-```
-
-This makes transferring data very fast and can be translated locally. In this 
-example from a .csv it would look like:
-
-```{r}
-raw_data <- azkit::read_azure_file(
-  container = sd_container,
-  file = "mitigator-lookup.csv"
-)
-
-csv_data <- read.csv(text = rawToChar(raw_data))
-
-# view top few rows of what is now a data frame
-head(csv_data)
-```
-
-## Reading multiple files
-
-The functions don't read in multiple files but can be combined with other code
-to do this using loops or the equivalent using the purrr package:
-
-```{r}
-list_of_csvs <- azkit::list_files(
-  container = sd_container,
-  ext = "csv"
-)
-
-list_of_csvs |>
-  # get the name from the file name but drop the extension detail
-  purrr::set_names(basename(tools::file_path_sans_ext(list_of_csvs))) |>
-  purrr::map(\(x) {
-    read_azure_csv(
-      container = sd_container,
-      x
-    )
-  }) |>
-  list2env(.GlobalEnv)
-```
+[odata]: https://learn.microsoft.com/en-us/odata/concepts/queryoptions-overview
