@@ -81,7 +81,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/The-Strategy-Unit/azkit/blob/111-pkgdown/vignettes/azkit.qmd" class="external-link"><code>vignettes/azkit.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/The-Strategy-Unit/azkit/blob/fb/issue137/vignettes/azkit.qmd" class="external-link"><code>vignettes/azkit.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -93,209 +93,169 @@
     <p><a href="https://the-strategy-unit.github.io/azkit/">azkit</a> is an R package to help you:</p>
 <ul>
 <li>handle authentication with Azure</li>
-<li>perform basic tasks accessing blob (unstructured data) and table storage (structured data)</li>
-<li>read in data from some common file types.</li>
+<li>perform basic tasks accessing Azure blob storage and table storage</li>
 </ul>
 <p>The purpose of this page is to show you a few ways you might use {azkit} functions to achieve certain tasks. It’s not the only way you can set things up and use the functions, it’s just an opinionated example workflow - you may choose to do things differently 😀.</p>
-<section class="level2"><h2 id="setting-up-security-credentials">Setting up security credentials<a class="anchor" aria-label="anchor" href="#setting-up-security-credentials"></a>
+<section class="level2"><h2 id="authentication-with-azure-storage">Authentication with Azure storage<a class="anchor" aria-label="anchor" href="#authentication-with-azure-storage"></a>
 </h2>
-<blockquote>
-<p>💡 Tip<br>
-This only needs to be done once but if you choose to do this for a project rather than globally (user) then every project will need credentials set up.</p>
-</blockquote>
-<p>Azure requires credentials set up locally on your computer in order to the data it contains. There are a number of places this information can be stored and their use depends on your team’s use and the security level required.</p>
-<section class="level3"><h3 id="renviron-files">
-<code>.Renviron</code> files<a class="anchor" aria-label="anchor" href="#renviron-files"></a>
+<p>This is an important first step.</p>
+<p><a href="https://the-strategy-unit.github.io/azkit/">azkit</a> supports various approaches to authentication and authorisation, depending on the kind of <code>resource</code> you need to access.</p>
+<p>The <code><a href="../reference/get_auth_token.html">get_auth_token()</a></code> function therefore supports various options, for example whether to generate a v1 or v2 token, whether the code is running on a managed resource or locally, whether to use a locally-stored secret or an authorisation code, and so on. Our function is a wrapper around functions in the <a href="https://github.com/Azure/AzureAuth" class="external-link">AzureAuth</a> package, and reading the documentation provided for that package is a good way to explore what specific approaches might be required for specific circumstances.</p>
+<p>For standard users, however, the default options provided by our function should be sufficient and should be the simplest way to get up and running.</p>
+<p>As a local user (not running on a managed resource), you first of all need to get an authentication token that verifies to Azure that you have a certain user account.</p>
+<p>Do this from your computer when online, as it requires user interaction - it will require you to log in via your web browser, or via a Microsoft login app. R cannot do this bit for you 😊.</p>
+<p>Run</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_auth_token.html">get_auth_token</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>at the R console. Alternatively, install the <a href="https://learn.microsoft.com/en-us/cli/azure/install-azure-cli" class="external-link">Azure CLI tool</a> and do:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">az</span> login</span></code></pre></div>
+<p>at the terminal. This should pop up a window asking you to authenticate with Azure online - beware, sometimes this window is not immediately visible, it may be hidden behind other windows on your screen.</p>
+<p>The authentication token will be stored under your user account files on your computer.</p>
+<p>You can see which tokens you have by running</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">AzureAuth</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AzureAuth/man/get_azure_token.html" class="external-link">list_azure_tokens</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>See also the <a href="https://the-strategy-unit.github.io/azkit/articles/troubleshooting.html">Troubleshooting vignette</a>.</p>
+<section class="level3"><h3 id="refreshing-your-auth-token">Refreshing your auth token<a class="anchor" aria-label="anchor" href="#refreshing-your-auth-token"></a>
 </h3>
-<p>There are two <code>.Renviron</code> files, one can be stored in your project folder and one can be set globally so that any project can access the credential. Both files need to be created and set up and can either be done manually or, more conveniently, through using the <code>usethis</code> package:</p>
+<p>In a data analysis workflow, if you have done something like:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">token</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_auth_token.html">get_auth_token</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>and the token later expires*, you should be able to just do this again:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">token</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_auth_token.html">get_auth_token</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>but alternatively you can use</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_auth_token.html">refresh_token</a></span><span class="op">(</span><span class="va">token</span><span class="op">)</span></span></code></pre></div>
+<p>If these don’t work, you can force azkit to go get you a whole new fresh token from the internet by doing:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">token</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_auth_token.html">get_auth_token</a></span><span class="op">(</span>force_refresh <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>* auth tokens have a limited validity period but are supposed to auto-refresh when needed</p>
+</section></section><section class="level2"><h2 id="setting-up-environment-variables">Setting up environment variables<a class="anchor" aria-label="anchor" href="#setting-up-environment-variables"></a>
+</h2>
+<p>Use an <code>.Renviron</code> file to set 2 required environment variables (envvars). These are the endpoint URLs of your Azure storage account, for blob storage and table storage.</p>
+<p>There are two ways you can set variables using <code>.Renviron</code> files:</p>
+<ul>
+<li>Globally for your local (eg Windows) user account</li>
+<li>Project-specific</li>
+</ul>
+<p>The <a href="https://usethis.r-lib.org" class="external-link">usethis</a> packages provides a handy helper to create/edit these files:</p>
+<p>To use the first, global option (probably the most straightforward):</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">edit_r_environ</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>or to edit a project-specific <code>.Renviron</code> file, while within the project folder:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">edit_r_environ</span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"project"</span><span class="op">)</span></span></code></pre></div>
+<p>The latter makes sense if you have multiple projects that may be using different Azure endpoints, or a specific project that uses a different account to your usual one. Otherwise it is probably simpler to set the variables globally and then you can basically forget about it!</p>
 <blockquote>
-<p>⚠️ Important<br>
-Don’t forget to ensure that the <code>.gitignore</code> has <code>.Renviron</code> listed. This is particularly important if the file is saved in the project.</p>
+<p>⚠️ Important If using a project-specific file, ensure this is listed in your <code>.gitignore</code> file</p>
 </blockquote>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># creates or opens an existing file in the project</span></span>
-<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">edit_r_environ</span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"project"</span><span class="op">)</span></span>
-<span><span class="co"># Add a file to .gitignore if you haven't already done so</span></span>
-<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">use_git_ignore</span><span class="op">(</span><span class="st">".Renviron"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># creates or opens an existing file in the global</span></span>
-<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">edit_r_environ</span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"user"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># just running the following defaults to "user"</span></span>
-<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">edit_r_environ</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>When opening a <code>.Renviron</code> file for the first time, whether user or project, it will be blank and the following needs to be added:</p>
-<pre><code>AZ_STORAGE_EP=</code></pre>
-<p>and after the <code>=</code> sign add the URL of your Azure endpoint (with no quotes). Any changes to the files will require restart in R and if you use the usethis function it will remind you in a message that appears in the Console.</p>
+<section class="level3"><h3 id="what-to-add-to-your--renviron-file">What to add to your <code>.Renviron</code> file<a class="anchor" aria-label="anchor" href="#what-to-add-to-your--renviron-file"></a>
+</h3>
+<p>For the purposes of this package, the file just needs to contain two endpoint URLs with the following names:</p>
+<pre><code>AZ_STORAGE_EP=[your azure blob storage endpoint url]
+AZ_TABLE_EP=[your azure table storage endpoint url]</code></pre>
+<p>See the <code>.Renviron.example</code> file in the azkit GitHub repository.</p>
+<p>For use within The Strategy Unit, ask a member of <a href="https://the-strategy-unit.github.io/data_science/about.html" class="external-link">the Data Science team</a> to send you the necessary values for these URLs.</p>
+<p>Changes to the <code>.Renviron</code> file will require you to reload your environment in order to update it, such as by restarting your R session.</p>
+<p><code>azkit</code> is expecting these variables to be present in your working environment. The reason we set these as environment variables is that the URLs are generally not meant to be made public, for security reasons. Referencing them as envvars means that their actual values do not need to be included explicitly in any code that might be made public.</p>
 <blockquote>
-<p>💡 Tip<br>
-If you use both <code>.Renviron</code> files the project will be read before the user. Ensure that the project <code>.Renviron</code> is not completely blank though as this will default to blank even if the details are in the user file.</p>
+<p>💡 Tip If you use a project <code>.Renviron</code> file as well as a global one, the variables in the project file will override those in the global file. Ensure that any project <code>.Renviron</code> is not completely blank, as this will unset any variables from the global file.</p>
 </blockquote>
-</section></section><section class="level2"><h2 id="using-the-keyring-package-for-credentials">Using the <code>keyring</code> package for credentials<a class="anchor" aria-label="anchor" href="#using-the-keyring-package-for-credentials"></a>
+</section></section><section class="level2"><h2 id="working-with-azure-blob-storage">Working with Azure blob storage<a class="anchor" aria-label="anchor" href="#working-with-azure-blob-storage"></a>
 </h2>
-<p>The package {keyring} can be a good way to separate credentials and are also available globally so any project can access them.</p>
-<p>To set the credential:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://keyring.r-lib.org/" class="external-link">keyring</a></span><span class="op">)</span></span>
-<span><span class="fu">keyring</span><span class="fu">::</span><span class="fu">key_set</span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>A pop up box will appear where you can copy the url (without quotes). To retrieve the credential you will need the following code:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">keyring</span><span class="fu">::</span><span class="fu">key_get</span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>To view what keyrings you have:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">keyring</span><span class="fu">::</span><span class="fu">key_list</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-</section><section class="level2"><h2 id="find-what-containers-there-available-to-view">Find what containers there available to view<a class="anchor" aria-label="anchor" href="#find-what-containers-there-available-to-view"></a>
-</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://the-strategy-unit.github.io/azkit/">azkit</a></span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>To see the containers you have access to:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># This will work if you have the AZ_STORAGE_EP url stored in an `.Renviron` file</span></span>
-<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_container_names.html">list_container_names</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># The default is the same as writing regardless of which `.Renviron` file is used</span></span>
-<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_container_names.html">list_container_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># If you are using keyring you will need to type out the code:</span></span>
-<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_container_names.html">list_container_names</a></span><span class="op">(</span>endpoint_url <span class="op">=</span> <span class="fu">keyring</span><span class="fu">::</span><span class="fu">key_get</span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-</section><section class="level2"><h2 id="accessing-a-container">Accessing a container<a class="anchor" aria-label="anchor" href="#accessing-a-container"></a>
-</h2>
-<p>Two functions are used together to access files from a particular container.</p>
+<section class="level3"><h3 id="containers">Containers<a class="anchor" aria-label="anchor" href="#containers"></a>
+</h3>
+<p>Reading in data from Azure blob storage requires you to first set up access to a particular <code>container</code> where your data is located.</p>
+<p>The <code><a href="../reference/get_container.html">azkit::get_container()</a></code> function makes this easy.</p>
+<p>You may have a container name stored as an environment variable, for security. If not, just provide the name of the container as a string instead.</p>
+<p>First read this in and then use it to create a container object in R:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">container_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_DATA_CONTAINER"</span><span class="op">)</span></span>
+<span><span class="co"># or as a string:</span></span>
+<span><span class="co"># container_name &lt;- "example-data"</span></span>
+<span><span class="va">data_container</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span><span class="va">container_name</span><span class="op">)</span></span></code></pre></div>
+<p>If you don’t know the names of the containers you have access to, you can use:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_container_names.html">list_container_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>to output a list.</p>
 <blockquote>
-<p>💡 Tip The following will refer to <code>"supporting-data"</code> and this is a placeholder so will need to be changed to a container you have access to.</p>
+<p>💡 Tip Alternatively, it can be useful to browse your Azure storage account on the web at <a href="https://portal.azure.com/" class="external-link uri">https://portal.azure.com/</a> or use <a href="https://azure.microsoft.com/en-us/products/storage/storage-explorer/" class="external-link">Azure Storage Explorer</a>.</p>
 </blockquote>
-<p>The function <code><a href="../reference/list_files.html">list_files()</a></code> only returns files according to their type, rather than individual files which may be more familiar with which list <em>all</em> files:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># library(here)</span></span>
-<span></span>
-<span><span class="co"># This is just an example of a base R function that returns all the files</span></span>
-<span><span class="co"># list.files(here::here())</span></span></code></pre></div>
-</div>
-<p><code><a href="../reference/list_files.html">list_files()</a></code> requires <code><a href="../reference/get_container.html">get_container()</a></code> to point to the exact container and provide the relevant credentials:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Retrieving the container information will be used in subsequent code</span></span>
-<span><span class="va">sd_container</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
-<span>  container_name <span class="op">=</span> <span class="st">"supporting-data"</span>,</span>
-<span>  endpoint_url <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_STORAGE_EP"</span><span class="op">)</span></span>
+</section><section class="level3"><h3 id="accessing-files-in-the-container">Accessing files in the container<a class="anchor" aria-label="anchor" href="#accessing-files-in-the-container"></a>
+</h3>
+<p>Use <code><a href="../reference/list_files.html">azkit::list_files()</a></code> to see what files are available.</p>
+<p>Re-using our <code>data_container</code> variable from the code above, we might do something like:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_files.html">list_files</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="st">"my-data-folder"</span><span class="op">)</span></span></code></pre></div>
+<p>This will return a list of the all the files in that specific directory. By default this is non-recursive: it does not return any files within sub-directories. You can change this behaviour by using the <code>recursive</code> argument, but beware that you might end up with a lot of filenames if there is lots of data stored in a sub-directory structure!</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_files.html">list_files</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="st">"my-data-folder"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>You can also limit <code>list_files</code> to only return files with a certain filetype extension (no <code>.</code> required before the extension). (By default it will list all files.)</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_files.html">list_files</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="st">"my-data-folder"</span>, ext <span class="op">=</span> <span class="st">"json"</span><span class="op">)</span></span></code></pre></div>
+<p>Once you have your filename, you can use one of a selection of azkit functions to help read the data into R.</p>
+<p>azkit comes with five functions optimised for reading in data from:</p>
+<ul>
+<li>parquet (<code><a href="../reference/read_azure_parquet.html">azkit::read_azure_parquet()</a></code>)</li>
+<li>json (<code><a href="../reference/read_azure_json.html">azkit::read_azure_json()</a></code>)</li>
+<li>json.gz (<code><a href="../reference/read_azure_jsongz.html">azkit::read_azure_jsongz()</a></code>)</li>
+<li>csv (<code><a href="../reference/read_azure_csv.html">azkit::read_azure_csv()</a></code>)</li>
+<li>rds (<code><a href="../reference/read_azure_rds.html">azkit::read_azure_rds()</a></code>)</li>
+</ul>
+<p>These come with helper functions already set up to read the data into R in the most convenient way. There is also scope to customise how these functions operate - see each function’s help page for more.</p>
+<p>For example, <code><a href="../reference/read_azure_csv.html">azkit::read_azure_csv()</a></code> allows you to pass additional options through to <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_delim</a></code>, such as the <code>col_types</code> argument.</p>
+<p>There is also the <code><a href="../reference/read_azure_file.html">azkit::read_azure_file()</a></code> function that will attempt to read from any given file, for situations not covered by the above 5. But you will need to handle the output returned by this yourself.</p>
+<section class="level4"><h4 id="example-reading-a-parquet-file">Example: reading a parquet file<a class="anchor" aria-label="anchor" href="#example-reading-a-parquet-file"></a>
+</h4>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">parquet_data</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_parquet.html">read_azure_parquet</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="st">"data/info.parquet"</span><span class="op">)</span></span></code></pre></div>
+</section><section class="level4"><h4 id="example-reading-a-csv-file">Example: reading a CSV file<a class="anchor" aria-label="anchor" href="#example-reading-a-csv-file"></a>
+</h4>
+<p>Simplest method:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">csv_data</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="st">"csv_data/info.csv"</span><span class="op">)</span></span></code></pre></div>
+<p>With additional options passed through:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">csv_data</span> <span class="op">&lt;-</span> <span class="va">data_container</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span><span class="st">"csv_data/info.csv"</span>, col_types <span class="op">=</span> <span class="st">"cc-ii"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">csv_data</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span></span>
+<span>  <span class="va">data_container</span>,</span>
+<span>  <span class="st">"csv_data/info.csv"</span>,</span>
+<span>  col_select <span class="op">=</span> <span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"active"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># "supporting_data" is a name that you will have to change according to what the</span></span>
-<span><span class="co"># containers you have access to and what they are called</span></span>
-<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_files.html">list_files</a></span><span class="op">(</span></span>
-<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
-<span>  ext <span class="op">=</span> <span class="st">"csv"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>If the container has sub folders the <code><a href="../reference/list_files.html">list_files()</a></code> can also return the files in those when the <code>recursive =</code> parameter is set to TRUE (the default is FALSE):</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_files.html">list_files</a></span><span class="op">(</span></span>
-<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
-<span>  ext <span class="op">=</span> <span class="st">"csv"</span>,</span>
-<span>  recursive <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<blockquote>
-<p>💡 Tip<br>
-If you’d prefer to view Azure in a GUI (Graphical User Interface) and have permissions use the Microsoft program Azure Storage Explorer to explore containers or access via a browser by logging into <a href="https://portal.azure.com/#home" class="external-link">https://portal.azure.com/#home</a></p>
-</blockquote>
-</section><section class="level2"><h2 id="reading-a-file">Reading a file<a class="anchor" aria-label="anchor" href="#reading-a-file"></a>
+</section><section class="level4"><h4 id="example-reading-multiple-files">Example: reading multiple files<a class="anchor" aria-label="anchor" href="#example-reading-multiple-files"></a>
+</h4>
+<p>The <code>azkit::read_azure_*</code> functions don’t read in multiple files by default, but this can be achieved by using them within an apply or map operation:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">csv_files</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_files.html">list_files</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="st">"csv_data"</span>, ext <span class="op">=</span> <span class="st">"csv"</span><span class="op">)</span></span>
+<span><span class="va">csv_names</span> <span class="op">&lt;-</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/fileutils.html" class="external-link">file_path_sans_ext</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="va">csv_files</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">csv_data_list</span> <span class="op">&lt;-</span> <span class="va">csv_files</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>\<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="va">csv_names</span><span class="op">)</span> <span class="co"># optional, may be useful</span></span></code></pre></div>
+</section></section></section><section class="level2"><h2 id="working-with-azure-table-storage">Working with Azure table storage<a class="anchor" aria-label="anchor" href="#working-with-azure-table-storage"></a>
 </h2>
-<p>For all the functions to get particular files, they need to be used in conjunction with the <code><a href="../reference/get_container.html">get_container()</a></code> function that provides details of the container and credentials.</p>
-<p>For the simplest access downloading a csv:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Note this code is "nested" so the get_container() function is inside</span></span>
-<span><span class="co"># the read_azure_csv() function</span></span>
-<span></span>
-<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span></span>
-<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
-<span>  file <span class="op">=</span> <span class="st">"mitigator-lookup.csv"</span></span>
+<p>Table storage does not require access to containers. You just need the name of the table you want to access.</p>
+<p>We will use the <code><a href="../reference/read_azure_table.html">azkit::read_azure_table()</a></code> function.</p>
+<p>You may have a table name stored as an environment variable, for security. If not, just provide the name of the table as a string instead.</p>
+<p>To read in the entire table:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">table_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AZ_TABLE_NAME"</span><span class="op">)</span></span>
+<span><span class="co"># or as a string:</span></span>
+<span><span class="co"># table_name &lt;- "example-table"</span></span>
+<span><span class="va">table_data</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_table.html">read_azure_table</a></span><span class="op">(</span><span class="va">table_name</span><span class="op">)</span></span></code></pre></div>
+<p>Within this function, you can filter the table that is returned by using OData clauses (“system query options”). This is especially useful with large tables where you wish to improve speed by only requesting certain rows or columns. Use the <code>filter</code>, <code>select</code>, and/or <code>top</code> arguments to achieve this.</p>
+<section class="level3"><h3 id="example-of-the-odata-syntax">Example of the OData syntax<a class="anchor" aria-label="anchor" href="#example-of-the-odata-syntax"></a>
+</h3>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">table_data</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_table.html">read_azure_table</a></span><span class="op">(</span></span>
+<span>  <span class="va">table_name</span>,</span>
+<span>  filter <span class="op">=</span> <span class="st">"Status eq 'Active' and Score ge 10"</span>, <span class="co"># filter rows by variable value</span></span>
+<span>  select <span class="op">=</span> <span class="st">"PartitionKey,RowKey,Status,Score"</span>, <span class="co"># only return certain columns</span></span>
+<span>  top <span class="op">=</span> <span class="fl">100</span> <span class="co"># only return the first 100 rows</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>You can also use other arguments that will be applied to the specific file reader through the argument <code>...</code>. For example, <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_delim()</a></code> is used by the function <code>read_azure_csv</code> and because of this it’s possible to use other arguments that the <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_delim()</a></code> could use:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Note this code is "piped" so the get_container() function is before the</span></span>
-<span><span class="co"># the read_azure_csv() function</span></span>
-<span></span>
-<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/get_container.html">get_container</a></span><span class="op">(</span></span>
-<span>  container_name <span class="op">=</span> <span class="st">"supporting-data"</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span></span>
-<span>    file <span class="op">=</span> <span class="st">"mitigator-lookup.csv"</span>,</span>
-<span>    <span class="co"># select specific columns and can be used with other dplyr functions</span></span>
-<span>    col_select <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"active"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
-</div>
-<p>Functions for other file types all follow the same pattern using <code><a href="../reference/get_container.html">get_container()</a></code> and detailing the file wanted:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_rds.html">read_azure_rds</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_json.html">read_azure_json</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_jsongz.html">read_azure_jsongz</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_parquet.html">read_azure_parquet</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>These all will download in formats that you will be familiar with but if the data is required in the <code>raw binary</code> form that is stored in Azure and then parsed/translated by some other means then the following function will retrieve any data type:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># This is not a human readable form!</span></span>
-<span></span>
-<span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_file.html">read_azure_file</a></span><span class="op">(</span></span>
-<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
-<span>  file <span class="op">=</span> <span class="st">"mitigator-lookup.csv"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>This makes transferring data very fast and can be translated locally. In this example from a .csv it would look like:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">raw_data</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/read_azure_file.html">read_azure_file</a></span><span class="op">(</span></span>
-<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
-<span>  file <span class="op">=</span> <span class="st">"mitigator-lookup.csv"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">csv_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span>text <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html" class="external-link">rawToChar</a></span><span class="op">(</span><span class="va">raw_data</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># view top few rows of what is now a data frame</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">csv_data</span><span class="op">)</span></span></code></pre></div>
-</div>
-</section><section class="level2"><h2 id="reading-multiple-files">Reading multiple files<a class="anchor" aria-label="anchor" href="#reading-multiple-files"></a>
-</h2>
-<p>The functions don’t read in multiple files but can be combined with other code to do this using loops or the equivalent using the purrr package:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">list_of_csvs</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="../reference/list_files.html">list_files</a></span><span class="op">(</span></span>
-<span>  container <span class="op">=</span> <span class="va">sd_container</span>,</span>
-<span>  ext <span class="op">=</span> <span class="st">"csv"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">list_of_csvs</span> <span class="op">|&gt;</span></span>
-<span>  <span class="co"># get the name from the file name but drop the extension detail</span></span>
-<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/fileutils.html" class="external-link">file_path_sans_ext</a></span><span class="op">(</span><span class="va">list_of_csvs</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>\<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="../reference/read_azure_csv.html">read_azure_csv</a></span><span class="op">(</span></span>
-<span>      container <span class="op">=</span> <span class="va">sd_container</span>,</span>
-<span>      <span class="va">x</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list2env.html" class="external-link">list2env</a></span><span class="op">(</span><span class="va">.GlobalEnv</span><span class="op">)</span></span></code></pre></div>
-</div>
-</section><script id="quarto-html-after-body" type="application/javascript">
+<p>A very initial guide to how to construct your own clauses (query options) can be found on <a href="https://learn.microsoft.com/en-us/odata/concepts/queryoptions-overview" class="external-link">Microsoft Learn</a>. Although the examples there are not written in R, the syntax for the query options should be in a valid format for what you need to supply to <code><a href="../reference/read_azure_table.html">azkit::read_azure_table()</a></code>.</p>
+</section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -388,7 +348,7 @@ If you’d prefer to view Azure in a GUI (Graphical User Interface) and have per
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

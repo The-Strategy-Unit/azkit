@@ -10,7 +10,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/The-Strategy-Unit/azkit/blob/111-pkgdown/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/The-Strategy-Unit/azkit/blob/fb/issue137/DESCRIPTION)
 
 Barton F (2026). *azkit: Azure storage authentication toolkit*. R
 package version 0.3.1, <https://the-strategy-unit.github.io/azkit/>.
