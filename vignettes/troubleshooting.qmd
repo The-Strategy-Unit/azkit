@@ -50,6 +50,18 @@ A successful authentication will result in the following message:
 ```
 Loading Azure Resource Manager login for default tenant
 ```
+
+> ℹ️ **Note**
+>
+> Users at The Strategy Unit: when initially authenticating with Azure, you
+> will be sent to the web.
+> Since you may be logged into one of multiple Microsoft tenants, it is
+> important that you authenticate with the same account (MLCSU) that is used
+> for access to Azure storage.
+> If you authenticate when logged into your nhs.net Microsoft account in your
+> browser, your token will not be useable for access to Azure.
+
+
 If you had successfully used azkit to get a token and then run the code above
 you may now have multiple tokens which you can view:
 

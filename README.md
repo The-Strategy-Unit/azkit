@@ -120,6 +120,16 @@ AZ_TABLE_EP=
 Azure authentication is probably the main area where you might experience
 difficulty.
 
+> [!NOTE]
+> Users at The Strategy Unit: when initially authenticating with Azure, you
+> will be sent to the web.
+> Since you may be logged into one of multiple Microsoft tenants, it is
+> important that you authenticate with the same account (MLCSU) that you use
+> for access to Azure storage.
+> If you authenticate when logged into your nhs.net Microsoft account in your
+> browser, your token will not be useable for access to Azure.
+
+
 To debug, try running:
 
 ```r
