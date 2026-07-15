@@ -26,8 +26,8 @@ to help provide an appropriate string or vector.
 If setting version to 2, ensure that the \code{aad_version} argument is also set
 to 2. Both are set to use AAD version 1 by default.}
 
-\item{tenant}{A string specifying the Azure tenant. Defaults to
-\code{"common"}. See \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
+\item{tenant}{A string specifying the Azure tenant. Defaults to \code{"common"}.
+See \link[AzureAuth:get_azure_token]{AzureAuth::get_azure_token} for other values.}
 
 \item{client_id}{A string specifying the application ID (aka client ID). If
 \code{NULL}, (the default) the function attempts to obtain the client ID from the

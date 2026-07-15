@@ -1,0 +1,2 @@
+AZ_STORAGE_EP=[your azure blob storage endpoint url]
+AZ_TABLE_EP=[your azure table storage endpoint url]

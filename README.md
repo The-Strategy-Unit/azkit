@@ -19,12 +19,13 @@ blob and table storage and reading in data from files.
 
 ## Status
 
-The package is in development.
-Please [create an issue][issues] if you have ideas for its improvement.
+The package is stable and useable.
+Please [create a GitHub issue][issues] if you encounter problems, or have ideas
+for its improvement.
 
 ## Installation
 
-You can install the development version of `{azkit}` with:
+You can install `{azkit}` with:
 
 ``` r
 # install.packages("pak")
@@ -36,16 +37,24 @@ pak::pak("The-Strategy-Unit/azkit")
 A primary function in `{azkit}` enables access to an Azure blob container:
 
 ```r
+# This assumes you have Azure authentication working, and the correct
+# Azure endpoint variables in your environment (see below).
+# NB the file/data locations used here are invented examples.
 data_container <- azkit::get_container("data-container")
 
 ```
-Authentication is handled automatically by `get_container()`, but if you need
-to, you can explicitly return an authentication token for inspection or re-use:
+Authentication should be handled automatically by `get_container()`, but if you
+need to, you can explicitly return an authentication token for inspection or
+re-use:
 
 ```r
 my_token <- azkit::get_auth_token()
-
 ```
+
+(For issues with authentication, including mysterious error messages, please
+see the Troubleshooting section below or the [Troubleshooting vignette][trblv].)
+
+[trblv]: https://the-strategy-unit.github.io/azkit/articles/troubleshooting.html
 
 ```r
 data_container <- azkit::get_container("data-container", token = my_token)
@@ -63,7 +72,6 @@ For example:
 
 ```r
 pqt_data <- azkit::read_azure_parquet(data_container, "important_data.parquet")
-
 ```
 
 To read in any file from the container in raw format, to be passed to the
@@ -73,6 +81,8 @@ handler of your choice, use:
 raw_data <- azkit::read_azure_file(data_container, "misc_data.ext")
 ```
 
+Currently these functions only read in a single file at a time.
+
 You can map over multiple files by first using `azkit::list_files()` and then
 passing the file paths to the `read*` function:
 
@@ -81,12 +91,10 @@ azkit::list_files(data_container, "data/latest", "parquet") |>
   purrr::map(\(x) azkit::read_azure_parquet(data_container, x))
 ```
 
-Currently these functions only read in a single file at a time.
-
 You can also pass through arguments in `...` that will be applied to the
 appropriate handler function (see documentation).
 For example, `readr::read_delim()` is used under the hood by
-`azkit::read_azure_csv`, so you can pass through a config argument such as
+`azkit::read_azure_csv`, so you can pass through an argument such as
 `col_types`:
 
 ```r
@@ -97,7 +105,7 @@ csv_data <- data_container |>
 
 ## Environment variables
 
-To facilitate access to Azure Storage you may want to set some environment
+To facilitate access to Azure Storage you should set some environment
 variables.
 The neatest way to do this is to include a [`.Renviron` file][posit_env] in
 your project folder.
@@ -119,6 +127,16 @@ AZ_TABLE_EP=
 
 Azure authentication is probably the main area where you might experience
 difficulty.
+
+> [!NOTE]
+> Users at The Strategy Unit: when initially authenticating with Azure, you
+> will be sent to the web.
+> Since you may be logged into one of multiple Microsoft tenants, it is
+> important that you authenticate with the same account (MLCSU) that you use
+> for access to Azure storage.
+> If you authenticate when logged into your nhs.net Microsoft account in your
+> browser, your token will not be useable for access to Azure.
+
 
 To debug, try running:
 
