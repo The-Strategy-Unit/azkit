@@ -13,12 +13,12 @@ Source:
 [`DESCRIPTION`](https://github.com/The-Strategy-Unit/azkit/blob/fb/issue130/DESCRIPTION)
 
 Barton F (2026). *azkit: Azure storage authentication toolkit*. R
-package version 0.3.1, <https://the-strategy-unit.github.io/azkit/>.
+package version 0.3.2, <https://the-strategy-unit.github.io/azkit/>.
 
     @Manual{,
       title = {azkit: Azure storage authentication toolkit},
       author = {Fran Barton},
       year = {2026},
-      note = {R package version 0.3.1},
+      note = {R package version 0.3.2},
       url = {https://the-strategy-unit.github.io/azkit/},
     }
