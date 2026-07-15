@@ -98,9 +98,8 @@ csv_data <- data_container |>
 
 ## Environment variables
 
-To facilitate access to Azure Storage you may want to set some
-environment variables. The neatest way to do this is to include a
-[`.Renviron`
+To facilitate access to Azure Storage you should set some environment
+variables. The neatest way to do this is to include a [`.Renviron`
 file](https://docs.posit.co/ide/user/ide/guide/environments/r/managing-r.html#renviron)
 in your project folder.
 
