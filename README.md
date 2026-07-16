@@ -63,7 +63,7 @@ data_container <- azkit::get_container("data-container", token = my_token)
 Return a list of all available containers in your default Azure storage with:
 
 ```r
-list_container_names()
+azkit::list_container_names()
 ```
 
 Once you have access to a container, you can use one of a set of data reading
