@@ -115,7 +115,7 @@
 <code class="sourceCode R"><span><span class="va">data_container</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/get_container.html">get_container</a></span><span class="op">(</span><span class="st">"data-container"</span>, token <span class="op">=</span> <span class="va">my_token</span><span class="op">)</span></span></code></pre></div>
 <p>Return a list of all available containers in your default Azure storage with:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/list_container_names.html">list_container_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/list_container_names.html">list_container_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Once you have access to a container, you can use one of a set of data reading functions to bring data into R from <code>.parquet</code>, <code>.rds</code>, <code>.json</code> or <code>.csv</code> files. For example:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pqt_data</span> <span class="op">&lt;-</span> <span class="fu">azkit</span><span class="fu">::</span><span class="fu"><a href="reference/read_azure_parquet.html">read_azure_parquet</a></span><span class="op">(</span><span class="va">data_container</span>, <span class="st">"important_data.parquet"</span><span class="op">)</span></span></code></pre></div>
