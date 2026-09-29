@@ -58,7 +58,7 @@ with:
 
 ``` r
 
-azkit::list_container_names()
+list_container_names()
 ```
 
 Once you have access to a container, you can use one of a set of data
