@@ -141,6 +141,22 @@ get_auth_token <- function(
       check_that(token, AzureAuth::is_azure_v1_token, "Invalid token returned")
     }
   }
+
+  # if we use a cached token
+  # check if it is still valid and refresh it if possible
+  if (!token$validate()) {
+    if (!token$can_refresh()) {
+      error_msg <- paste(
+        "{.fn get_auth_token}:",
+        "Token is invalid and cannot be refreshed. Please reauthenticate."
+      )
+      cli::cli_abort(error_msg)
+    }
+    token$refresh()
+  }
+
+  # return the token
+  token
 }
 
 
