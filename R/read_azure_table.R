@@ -40,10 +40,6 @@ read_azure_table <- function(
   select = NULL,
   top = NULL
 ) {
-  if (!token$validate()) {
-    token$refresh()
-  }
-
   base_req <- httr2::request(table_endpoint) |>
     httr2::req_url_path_append(table_name) |>
     httr2::req_auth_bearer_token(token$credentials$access_token) |>
@@ -123,10 +119,6 @@ read_azure_table_single_entity <- function(
   table_endpoint = Sys.getenv("AZ_TABLE_EP"),
   token = get_auth_token()
 ) {
-  if (!token$validate()) {
-    token$refresh()
-  }
-
   table_name_with_keys <- paste0(
     table_name,
     "(PartitionKey='",
